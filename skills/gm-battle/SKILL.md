@@ -1,6 +1,6 @@
 ---
 name: gm-battle
-description: 初始化一个回合制 AI 方案评审 battle。用于在同一任务上让 Agent A 先给方案、Agent B 再挑战，只审核方案不改代码，写入 battle 状态文件并生成第一条可直接发送的方案 prompt。
+description: Use when starting a new battle session to review one plan, architecture, or approach with multiple agents without writing or changing code.
 argument-hint: "[任务描述]"
 context: fork
 disable-model-invocation: true
@@ -91,6 +91,7 @@ disable-model-invocation: true
   "current_actor": "agent_a",
   "status": "in_progress",
   "last_implement_output": "",
+  "last_implement_output_version": "",
   "last_judge_output": ""
 }
 ```
@@ -154,7 +155,7 @@ disable-model-invocation: true
 
 1. 记住这次 battle 的 `pk_id`
 2. 把这条 prompt 发给 Agent A
-3. 拿到 Agent A 的完整回复后，写入 `battle/sessions/<pk_id>/state.json` 的 `last_implement_output`
+3. 拿到 Agent A 的完整回复后，写入 `battle/sessions/<pk_id>/state.json` 的 `last_implement_output`，并把 `last_implement_output_version` 设为 `implement-r1`
 4. 再运行 `/gm:gm-pk <pk_id>` 推进到 challenge 阶段；如果当前只有这一场未完成 battle，也可以直接运行 `/gm:gm-pk`
 
 ## 输出格式

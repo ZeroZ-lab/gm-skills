@@ -1,6 +1,6 @@
 ---
 name: gm-pk
-description: 推进当前 battle session 到下一阶段。读取对应 pk_id 的状态文件，按 implement、challenge、revise、judge 的状态生成下一条 prompt，并更新回合信息。整个 battle 只审核方案不改代码。用 “gm-pk [pk_id] stop” 结束 battle 进入 judge。
+description: Use when an existing battle session already has state on disk and you need to continue to the next review stage, enter judge, or finish the session.
 argument-hint: "[pk_id] [stop]"
 context: fork
 disable-model-invocation: true
@@ -61,6 +61,7 @@ disable-model-invocation: true
 - `task`
 - `constraints`
 - `last_implement_output`
+- `last_implement_output_version`
 - `last_judge_output`
 - `status`
 - `open`
@@ -117,6 +118,14 @@ disable-model-invocation: true
 
 然后停止。
 
+再检查 `last_implement_output_version` 是否为 `implement-r{current_round}`。
+
+如果不是，直接输出：
+
+> `last_implement_output_version` 不是 `implement-r{current_round}`。请先把 Agent A 的首轮方案写入 `last_implement_output`，并把该字段设为 `implement-r{current_round}`，再运行 `/gm:gm-pk`。
+
+然后停止。
+
 如果不为空：
 
 - 将 `current_stage` 更新为 `challenge`
@@ -126,7 +135,8 @@ disable-model-invocation: true
 
 这条 prompt 应要求 Agent B：
 
-- 从正确性、安全性、性能、边界情况四个方向提问题
+- 从目标达成度或正确性、关键假设与遗漏约束、边界情况与失败模式、主要质量风险四个方向提问题
+- 只有在相关时，再补充安全性、性能、合规性或表达质量问题
 - 给每个问题标严重程度
 - 使用统一的 `[ISSUE]` 格式输出
 - 只审核方案，不给出代码实现
@@ -139,7 +149,7 @@ disable-model-invocation: true
 
 ### 情况 B：当前是 `challenge`，且没有 `stop`
 
-将 `battle/sessions/<pk_id>/issues.json` 中 `open` 数组整理成编号问题列表。
+将 `battle/sessions/<pk_id>/issues.json` 中 `open` 数组整理成带 `id` 的编号问题列表。
 
 如果 `open` 数组为空，直接输出：
 
@@ -158,16 +168,34 @@ disable-model-invocation: true
 
 - 对成立的问题给出方案修订
 - 对不成立的问题明确说明拒绝理由
+- 必须按 issue `id` 逐条回应
 - 只更新方案，不输出代码修改
 
 输出给用户的下一步动作时，还应明确要求：
 
-1. 对已成立且在方案层面已处理的问题，将其从 `open` 移到 `resolved`
-2. 对不成立的问题，将其从 `open` 移到 `rejected`
+1. 对已成立且在方案层面已处理的问题，按 `id` 将其从 `open` 移到 `resolved`
+2. 对不成立的问题，按 `id` 将其从 `open` 移到 `rejected`
 3. 把 Agent A 的完整修订回复写回 `battle/sessions/<pk_id>/state.json` 的 `last_implement_output`
-4. 再运行 `/gm:gm-pk <pk_id>` 进入下一轮 challenge，或运行 `/gm:gm-pk <pk_id> stop` 提前进入 judge
+4. 把 `last_implement_output_version` 设为 `revise-r{current_round}`
+5. 再运行 `/gm:gm-pk <pk_id>` 进入下一轮 challenge，或运行 `/gm:gm-pk <pk_id> stop` 提前进入 judge
 
 ### 情况 C：当前是 `revise`，且没有 `stop`
+
+先检查 `last_implement_output` 是否为空。
+
+如果为空，直接输出：
+
+> `last_implement_output` 为空。请先把 Agent A 的本轮修订结果写回 `battle/sessions/<pk_id>/state.json`，再运行 `/gm:gm-pk`。
+
+然后停止。
+
+再检查 `last_implement_output_version` 是否为 `revise-r{current_round}`。
+
+如果不是，直接输出：
+
+> `last_implement_output_version` 不是 `revise-r{current_round}`。请先把 Agent A 的本轮修订结果写回 `last_implement_output`，并把该字段设为 `revise-r{current_round}`，再运行 `/gm:gm-pk`。
+
+然后停止。
 
 将 battle 推到下一轮 challenge：
 
@@ -181,6 +209,14 @@ disable-model-invocation: true
 
 无论当前处于 implement、challenge 还是 revise，都可以结束 battle 并进入 judge。
 
+先检查 `last_implement_output` 是否为空。
+
+如果为空，直接输出：
+
+> `last_implement_output` 为空。没有可供裁判评审的最新方案。请先把 Agent A 的方案输出写入 `battle/sessions/<pk_id>/state.json`，再运行 `/gm:gm-pk <pk_id> stop`。
+
+然后停止。
+
 这时应：
 
 - 将 `current_stage` 更新为 `judge`
@@ -192,6 +228,7 @@ disable-model-invocation: true
 
 - `open` 中还有多少未解决问题
 - `resolved` 中有多少已解决问题
+- `rejected` 中有多少被拒绝的问题
 
 基于这些内容生成一条发给裁判模型的 judge prompt。
 
@@ -199,7 +236,8 @@ disable-model-invocation: true
 
 1. 方案是否可接受
 2. 剩余风险
-3. 建议的后续行动
+3. 被拒绝的问题是否拒绝得合理
+4. 建议的后续行动
 
 ### 情况 E：当前是 `judge`
 
@@ -253,13 +291,14 @@ disable-model-invocation: true
 ## 关键判断
 
 - 只有 `last_implement_output` 已写入时，才能从 implement 进入 challenge
+- 从 implement 进入 challenge 前，`last_implement_output_version` 必须是 `implement-r{current_round}`
 - 只有 `issues.json` 的 `open` 已写入 Agent B 提出的 `[ISSUE]` 后，才能从 challenge 进入 revise
 - 只有 battle 已初始化时，才能推进
 - 每次调用只推进一个阶段，不跳步
 - 如果没传 `pk_id`，默认读取 `battle/latest.json` 指向的 battle
 - `stop` 的作用是提前进入 judge，不是直接标记 completed
 - 只有 `last_judge_output` 已写入时，才能从 judge 进入 completed
-- revise 之后发起下一轮 challenge 前，应先把 Agent A 的最新方案修订结果写回 `last_implement_output`
+- 从 revise 发起下一轮 challenge 前，`last_implement_output_version` 必须是 `revise-r{current_round}`
 - judge 之后还需要在写入裁判输出后再运行一次 `/gm:gm-pk`，才会把状态标记为 completed
 
 ## 推荐 prompt 模板
