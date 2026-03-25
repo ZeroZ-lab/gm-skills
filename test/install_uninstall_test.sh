@@ -17,6 +17,15 @@ assert_contains() {
   printf '%s' "$haystack" | grep -F "$needle" >/dev/null || fail "$message"
 }
 
+assert_link_target() {
+  link_path=$1
+  expected_path=$2
+
+  [ -L "$link_path" ] || fail "expected $link_path to be a symlink"
+  actual_path=$(readlink "$link_path")
+  [ "$actual_path" = "$expected_path" ] || fail "expected $link_path -> $expected_path, got $actual_path"
+}
+
 [ -x "$repo_root/install.sh" ] || fail "install.sh is missing or not executable"
 [ -x "$repo_root/uninstall.sh" ] || fail "uninstall.sh is missing or not executable"
 
@@ -30,41 +39,34 @@ cp "$repo_root/install.sh" "$fixture_repo/install.sh"
 cp "$repo_root/uninstall.sh" "$fixture_repo/uninstall.sh"
 chmod +x "$fixture_repo/install.sh" "$fixture_repo/uninstall.sh"
 
-install_output=$(HOME="$fixture_home" "$fixture_repo/install.sh" 2>&1)
+install_output=$(HOME="$fixture_home" "$fixture_repo/install.sh" claude 2>&1)
 
 target_dir="$fixture_home/.claude/skills"
 [ -d "$target_dir" ] || fail "install did not create target directory"
+assert_contains "$install_output" "[install] selected target: claude ($target_dir)" "install should log claude target selection"
 assert_contains "$install_output" "[install] creating target directory: $target_dir" "install should log target directory creation"
 assert_contains "$install_output" "[install] linked alpha -> $fixture_repo/skills/alpha" "install should log alpha link creation"
 assert_contains "$install_output" "[install] linked beta -> $fixture_repo/skills/beta" "install should log beta link creation"
 
 for skill in alpha beta; do
-  link_path="$target_dir/$skill"
-  expected_path="$fixture_repo/skills/$skill"
-
-  [ -L "$link_path" ] || fail "expected $link_path to be a symlink"
-  actual_path=$(readlink "$link_path")
-  [ "$actual_path" = "$expected_path" ] || fail "expected $link_path -> $expected_path, got $actual_path"
+  assert_link_target "$target_dir/$skill" "$fixture_repo/skills/$skill"
 done
 
 # Idempotency: a second install should preserve the same links.
-install_output=$(HOME="$fixture_home" "$fixture_repo/install.sh" 2>&1)
+install_output=$(HOME="$fixture_home" "$fixture_repo/install.sh" claude 2>&1)
 assert_contains "$install_output" "[install] target directory already exists: $target_dir" "install should log existing target directory"
 assert_contains "$install_output" "[install] already linked: $target_dir/alpha" "install should log alpha skip"
 assert_contains "$install_output" "[install] already linked: $target_dir/beta" "install should log beta skip"
 
 for skill in alpha beta; do
-  link_path="$target_dir/$skill"
-  expected_path="$fixture_repo/skills/$skill"
-  actual_path=$(readlink "$link_path")
-  [ "$actual_path" = "$expected_path" ] || fail "second install changed $link_path"
+  assert_link_target "$target_dir/$skill" "$fixture_repo/skills/$skill"
 done
 
 # Install should fail with a clear conflict error.
 rm "$target_dir/alpha"
 mkdir "$target_dir/alpha"
 set +e
-conflict_output=$(HOME="$fixture_home" "$fixture_repo/install.sh" 2>&1)
+conflict_output=$(HOME="$fixture_home" "$fixture_repo/install.sh" claude 2>&1)
 conflict_status=$?
 set -e
 [ "$conflict_status" -ne 0 ] || fail "install should fail on conflicting path"
@@ -72,9 +74,30 @@ assert_contains "$conflict_output" "[install] error: existing path blocks symlin
 rm -rf "$target_dir/alpha"
 ln -s "$fixture_repo/skills/alpha" "$target_dir/alpha"
 
+# Install should support all targets.
+install_output=$(HOME="$fixture_home" "$fixture_repo/install.sh" all 2>&1)
+assert_contains "$install_output" "[install] selected target: codex ($fixture_home/.codex/skills)" "install should log codex target selection"
+assert_contains "$install_output" "[install] selected target: agent ($fixture_home/.agents/skills)" "install should log agent target selection"
+for shell_home in "$fixture_home/.codex/skills" "$fixture_home/.agents/skills"; do
+  for skill in alpha beta; do
+    assert_link_target "$shell_home/$skill" "$fixture_repo/skills/$skill"
+  done
+done
+
+# Interactive install selection should work.
+interactive_home="$tmp_dir/interactive-home"
+mkdir -p "$interactive_home"
+interactive_output=$(printf '2\n' | HOME="$interactive_home" "$fixture_repo/install.sh" 2>&1)
+assert_contains "$interactive_output" "1) claude" "install should show selection menu"
+assert_contains "$interactive_output" "[install] selected target: codex ($interactive_home/.codex/skills)" "interactive install should select codex"
+for skill in alpha beta; do
+  assert_link_target "$interactive_home/.codex/skills/$skill" "$fixture_repo/skills/$skill"
+done
+
 # Uninstall should remove only links that point to this repo.
 ln -s "$tmp_dir/elsewhere" "$target_dir/external"
-uninstall_output=$(HOME="$fixture_home" "$fixture_repo/uninstall.sh" 2>&1)
+uninstall_output=$(HOME="$fixture_home" "$fixture_repo/uninstall.sh" claude 2>&1)
+assert_contains "$uninstall_output" "[uninstall] selected target: claude ($target_dir)" "uninstall should log claude target selection"
 assert_contains "$uninstall_output" "[uninstall] removed link: $target_dir/alpha" "uninstall should log alpha removal"
 assert_contains "$uninstall_output" "[uninstall] removed link: $target_dir/beta" "uninstall should log beta removal"
 assert_contains "$uninstall_output" "[uninstall] skipped unrelated link: $target_dir/external" "uninstall should log unrelated link skip"
@@ -85,7 +108,17 @@ done
 
 [ -L "$target_dir/external" ] || fail "uninstall removed unrelated symlink"
 
+# Uninstall should support all targets.
+uninstall_output=$(HOME="$fixture_home" "$fixture_repo/uninstall.sh" all 2>&1)
+assert_contains "$uninstall_output" "[uninstall] selected target: codex ($fixture_home/.codex/skills)" "uninstall should log codex target selection"
+assert_contains "$uninstall_output" "[uninstall] selected target: agent ($fixture_home/.agents/skills)" "uninstall should log agent target selection"
+for shell_home in "$fixture_home/.codex/skills" "$fixture_home/.agents/skills"; do
+  for skill in alpha beta; do
+    [ ! -e "$shell_home/$skill" ] || fail "uninstall did not remove $shell_home/$skill"
+  done
+done
+
 empty_home="$tmp_dir/empty-home"
 mkdir -p "$empty_home"
-uninstall_output=$(HOME="$empty_home" "$fixture_repo/uninstall.sh" 2>&1)
+uninstall_output=$(HOME="$empty_home" "$fixture_repo/uninstall.sh" claude 2>&1)
 assert_contains "$uninstall_output" "[uninstall] target directory does not exist: $empty_home/.claude/skills" "uninstall should log missing target directory"

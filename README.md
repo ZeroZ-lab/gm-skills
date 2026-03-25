@@ -4,42 +4,48 @@ Personal Claude Code plugin — a curated collection of skills for development w
 
 ## Skills
 
-### Dev Workflow
+### Content Workflow
 | Command | Description | Trigger |
 |---------|-------------|---------|
-| `/gm:gm-code-review` | Review code for bugs, security, style, maintainability | Auto or manual |
-| `/gm:gm-pr-summary [branch]` | Generate structured PR description from git diff | Manual |
-| `/gm:gm-debug-assist` | Systematic debugging: reproduce → locate → hypothesize → fix | Auto or manual |
-
-### Documentation
-| Command | Description | Trigger |
-|---------|-------------|---------|
-| `/gm:gm-write-doc` | Write or improve technical docs (README, API, guides) | Auto or manual |
-| `/gm:gm-changelog [version]` | Generate user-facing changelog from git history | Manual |
-
-### Agent / Planning
-| Command | Description | Trigger |
-|---------|-------------|---------|
-| `/gm:gm-brainstorm [topic]` | Structured brainstorm: diverge → converge → rank | Manual |
-| `/gm:gm-write-plan` | Break a goal into an actionable plan with steps and risks | Manual |
-| `/gm:gm-research [topic]` | Deep research: collect → analyze → synthesize | Manual |
+| `/gm:gm-battle [任务描述]` | 初始化一场双模型 battle，生成 `pk_id`，写入 `battle/sessions/<pk_id>/` 状态并生成第一条给 Agent A 的 prompt | Manual |
+| `/gm:gm-pk [pk_id] [stop]` | 按 `pk_id` 推进 battle 到下一阶段；不传 `pk_id` 时默认使用 `battle/latest.json` 指向的最新 battle | Manual |
+| `/gm:gm-topic-engine [ideas, notes, comments, drafts]` | Mine ranked WeChat/blog topics from messy source material, sharpen angles, and suggest the best next topic | Manual |
+| `/gm:gm-de-ai-article [文章草稿]` | 为公众号和博客文章去除明显 AI 味，诊断模板化表达并改成更有作者感的版本 | Manual |
+| `/gm:gm-x-hook-writer [topic, draft, observation]` | 为 X/Twitter 推文生成更有停留率和点击欲的开头 hook，输出推荐版本和备选版本 | Manual |
+| `/gm:gm-writing [文章草稿或主题]` | 用关木写作法重写和增强已有草稿，补强结构、机制、判断、实践路径与原则收束；也可手动调用按四型模板起草 | Auto / Manual |
 
 ## Install
 
 ```bash
 ./install.sh
+./install.sh claude
+./install.sh codex
+./install.sh agent
+./install.sh all
 ```
 
-This links each directory under `skills/` into `~/.claude/skills/`.
-The script prints progress logs and exits with an error if a target path already exists but is not the expected symlink.
+If no argument is provided, the script prompts you to choose a target.
+Supported targets:
+- `claude` -> `~/.claude/skills`
+- `codex` -> `~/.codex/skills`
+- `agent` -> `~/.agents/skills`
+- `all` -> installs into all three locations
+
+The script links each directory under `skills/` into the selected target's `skills` directory.
+It prints progress logs and exits with an error if a target path already exists but is not the expected symlink.
 
 ## Uninstall
 
 ```bash
 ./uninstall.sh
+./uninstall.sh claude
+./uninstall.sh codex
+./uninstall.sh agent
+./uninstall.sh all
 ```
 
-This removes only the symlinks in `~/.claude/skills/` that point back to this repository's `skills/` entries.
+If no argument is provided, the script prompts you to choose a target.
+This removes only the symlinks in the selected target's `skills` directory that point back to this repository's `skills/` entries.
 The script prints which links were removed and which unrelated links were skipped.
 
 ## Structure
@@ -49,23 +55,21 @@ gm-skills/
 ├── .claude-plugin/
 │   └── plugin.json       # Plugin identity
 ├── skills/
-│   ├── gm-template/      # Copy this to create new skills
-│   ├── gm-code-review/
-│   ├── gm-pr-summary/
-│   ├── gm-debug-assist/
-│   ├── gm-write-doc/
-│   ├── gm-changelog/
-│   ├── gm-brainstorm/
-│   ├── gm-write-plan/
-│   └── gm-research/
+│   ├── gm-battle/
+│   ├── gm-de-ai-article/
+│   ├── gm-pk/
+│   ├── gm-topic-engine/
+│   ├── gm-writing/
+│   └── gm-x-hook-writer/
 └── README.md
 ```
 
 ## Adding New Skills
 
-1. Copy `skills/gm-template/` to `skills/gm-your-skill-name/`
-2. Edit `SKILL.md` — update `name` to `gm-your-skill-name`, update `description` and instructions
-3. The skill becomes available as `/gm:gm-your-skill-name`
+1. Create `skills/gm-your-skill-name/SKILL.md`
+2. Add frontmatter with at least `name` and `description`
+3. Keep the command name aligned with the directory name
+4. Re-run `./install.sh` for the target environment you want to update
 
 Key frontmatter fields:
 - `name` — must match directory name, becomes the slash command
