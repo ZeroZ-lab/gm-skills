@@ -267,7 +267,7 @@ disable-model-invocation: true
 
 ## 输出格式
 
-默认输出应包含两部分：
+默认输出应包含三部分：
 
 ```md
 # 阶段推进结果
@@ -317,11 +317,13 @@ Agent A 的方案：
 
 这是一场纯方案评审 battle。你只审核方案质量，不允许编写、修改或建议提交任何代码。
 
-请从以下角度提出挑战：
-1. 正确性问题
-2. 安全性问题
-3. 性能问题
-4. 边界情况
+请优先从以下角度提出挑战：
+1. 目标达成度或正确性
+2. 关键假设、遗漏约束或隐藏前提
+3. 边界情况与失败模式
+4. 主要质量风险
+
+只有在相关时，再补充安全性、性能、合规性或表达质量问题。
 
 对每个问题标注严重程度：high / medium / low
 格式：[ISSUE] 严重程度: high/medium/low | 标题: xxx | 描述: xxx
@@ -346,6 +348,7 @@ Agent A 的方案：
 你是 Agent A（方案提出者）。
 
 任务背景：{task}
+约束：{constraints}
 这是第 {current_round} 轮方案修订。
 
 Agent B 提出的待解决问题：
@@ -353,16 +356,17 @@ Agent B 提出的待解决问题：
 
 这是一场纯方案评审 battle。你只允许修订方案，不允许编写、修改或提交任何代码。
 
-请针对每个问题：
-1. 给出方案层面的修订（如果问题成立）
-2. 或说明为何该问题不成立（rejected）
+请按 issue id 逐条回应，并且每条只使用以下两种格式之一：
+[RESOLVE ISSUE-001] 修订说明: xxx
+[REJECT ISSUE-002] 理由: xxx
 ```
 
 拿到 Agent A 回复后，应同步更新状态：
 
-1. 已在方案层面处理的问题：从 `open` 移到 `resolved`
-2. 不成立的问题：从 `open` 移到 `rejected`
+1. 已在方案层面处理的问题：按 `id` 从 `open` 移到 `resolved`
+2. 不成立的问题：按 `id` 从 `open` 移到 `rejected`
 3. 将 Agent A 的完整修订输出写入 `battle/sessions/<pk_id>/state.json` 的 `last_implement_output`
+4. 将 `last_implement_output_version` 设为 `revise-r{current_round}`
 
 ### 发给裁判的 Judge Prompt
 
@@ -373,16 +377,23 @@ Agent B 提出的待解决问题：
 约束：{constraints}
 共进行了 {current_round} 轮。
 
+最新方案正文：
+{last_implement_output}
+
 未解决的问题（{open_count} 个）：
 {open_issues_list}
 
 已解决的问题（{resolved_count} 个）：
 {resolved_issues_list}
 
+被判定为 rejected 的问题（{rejected_count} 个）：
+{rejected_issues_list}
+
 请给出：
 1. 方案是否可接受
 2. 剩余风险
-3. 建议的后续行动
+3. 这些 rejected 问题被拒绝得是否合理
+4. 建议的后续行动
 ```
 
 拿到裁判回复后，应将完整输出写入 `battle/sessions/<pk_id>/state.json` 的 `last_judge_output`，再运行一次 `/gm:gm-pk` 完成收尾。
