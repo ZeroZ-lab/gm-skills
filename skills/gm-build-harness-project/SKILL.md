@@ -1,12 +1,12 @@
 ---
-name: build-harness-project
+name: gm-build-harness-project
 description: Use when creating or adding `harness/` and `.harness/` layers inside a project root, clarifying the boundary between harness, product code, and `.harness/resources`, or defining the minimal closed-loop structure and setup order.
 argument-hint: "[目标项目，例如：为 skills manager 创建 harness]"
 context: fork
 disable-model-invocation: true
 ---
 
-# build-harness-project
+# gm-build-harness-project
 
 目标：在目标项目根目录内创建 `harness/` 与 `.harness/`，并与业务代码保持清晰边界。
 
