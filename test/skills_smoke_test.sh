@@ -7,8 +7,9 @@ skill_file="$repo_root/skills/gm-topic-engine/SKILL.md"
 de_ai_skill_file="$repo_root/skills/gm-de-ai-article/SKILL.md"
 battle_init_skill_file="$repo_root/skills/gm-battle/SKILL.md"
 pk_skill_file="$repo_root/skills/gm-pk/SKILL.md"
-build_harness_skill_file="$repo_root/skills/gm-build-harness-project/SKILL.md"
-build_harness_reference_file="$repo_root/skills/gm-build-harness-project/references/file-templates.md"
+build_harness_skill_file="$repo_root/skills/gm-harness-init/SKILL.md"
+build_harness_reference_file="$repo_root/skills/gm-harness-init/references/file-templates.md"
+plan_task_skill_file="$repo_root/skills/gm-harness-plan-task/SKILL.md"
 
 fail() {
   printf '%s\n' "$1" >&2
@@ -71,16 +72,26 @@ grep -F "# gm-pk" "$pk_skill_file" >/dev/null || fail "skill body must include t
 
 [ -f "$build_harness_skill_file" ] || fail "missing skill file: $build_harness_skill_file"
 
-grep -F "name: gm-build-harness-project" "$build_harness_skill_file" >/dev/null || fail "skill frontmatter must declare name: gm-build-harness-project"
+grep -F "name: gm-harness-init" "$build_harness_skill_file" >/dev/null || fail "skill frontmatter must declare name: gm-harness-init"
 grep -F "description:" "$build_harness_skill_file" >/dev/null || fail "skill frontmatter must declare a description"
-grep -F 'argument-hint: "[目标项目，例如：为 skills manager 创建 harness]"' "$build_harness_skill_file" >/dev/null || fail "gm-build-harness-project must declare the expected argument hint"
-grep -F '`<project>/harness/` = AI 开发系统（执行引擎）' "$build_harness_skill_file" >/dev/null || fail "gm-build-harness-project must define the harness boundary"
-grep -F '`<project>/.harness/` = 项目给 harness 的接口层（说明书）' "$build_harness_skill_file" >/dev/null || fail "gm-build-harness-project must define the .harness boundary"
-grep -F '`spec > rules > contract > resources > summary/report`' "$build_harness_skill_file" >/dev/null || fail "gm-build-harness-project must define information priority"
-grep -F "# gm-build-harness-project" "$build_harness_skill_file" >/dev/null || fail "skill body must include the skill heading"
+grep -F 'argument-hint: "[目标项目，例如：为 skills manager 创建 harness]"' "$build_harness_skill_file" >/dev/null || fail "gm-harness-init must declare the expected argument hint"
+grep -F '`<project>/harness/` = AI 开发系统（执行引擎）' "$build_harness_skill_file" >/dev/null || fail "gm-harness-init must define the harness boundary"
+grep -F '`<project>/.harness/` = 项目给 harness 的接口层（说明书）' "$build_harness_skill_file" >/dev/null || fail "gm-harness-init must define the .harness boundary"
+grep -F '`spec > rules > contract > resources > summary/report`' "$build_harness_skill_file" >/dev/null || fail "gm-harness-init must define information priority"
+grep -F "# gm-harness-init" "$build_harness_skill_file" >/dev/null || fail "skill body must include the skill heading"
 
 [ -f "$build_harness_reference_file" ] || fail "missing reference file: $build_harness_reference_file"
 
-grep -F 'harness/orchestrator/' "$build_harness_reference_file" >/dev/null || fail "gm-build-harness-project reference must include orchestrator templates"
-grep -F '## `.harness/` 最小文件集' "$build_harness_reference_file" >/dev/null || fail "gm-build-harness-project reference must include project-side templates"
-grep -F '### `project-rules.md`' "$build_harness_reference_file" >/dev/null || fail "gm-build-harness-project reference must define project rules templates"
+grep -F 'harness/orchestrator/' "$build_harness_reference_file" >/dev/null || fail "gm-harness-init reference must include orchestrator templates"
+grep -F '## `.harness/` 最小文件集' "$build_harness_reference_file" >/dev/null || fail "gm-harness-init reference must include project-side templates"
+grep -F '### `project-rules.md`' "$build_harness_reference_file" >/dev/null || fail "gm-harness-init reference must define project rules templates"
+
+[ -f "$plan_task_skill_file" ] || fail "missing skill file: $plan_task_skill_file"
+
+grep -F "name: gm-harness-plan-task" "$plan_task_skill_file" >/dev/null || fail "skill frontmatter must declare name: gm-harness-plan-task"
+grep -F "description:" "$plan_task_skill_file" >/dev/null || fail "skill frontmatter must declare a description"
+grep -F 'argument-hint:' "$plan_task_skill_file" >/dev/null || fail "gm-harness-plan-task must declare an argument hint"
+grep -F '# gm-harness-plan-task' "$plan_task_skill_file" >/dev/null || fail "skill body must include the skill heading"
+grep -F 'contracts/' "$plan_task_skill_file" >/dev/null || fail "gm-harness-plan-task must reference contracts directory"
+grep -F '仅限新建 contract' "$plan_task_skill_file" >/dev/null || fail "gm-harness-plan-task must restrict run_state.json update to new contracts only"
+grep -F 'running' "$plan_task_skill_file" >/dev/null || fail "gm-harness-plan-task must handle running status"
