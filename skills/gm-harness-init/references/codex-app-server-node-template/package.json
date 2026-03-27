@@ -1,0 +1,11 @@
+{
+  "name": "codex-app-server-node-harness",
+  "private": true,
+  "type": "commonjs",
+  "scripts": {
+    "harness:run": "node ./index.js"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

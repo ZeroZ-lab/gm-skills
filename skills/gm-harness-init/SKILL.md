@@ -1,6 +1,6 @@
 ---
 name: gm-harness-init
-description: Use when creating or adding `harness/` and `.harness/` layers inside a project root, clarifying the boundary between harness, product code, and `.harness/resources`, or defining the minimal closed-loop structure and setup order.
+description: Use when creating or adding `harness/` and `.harness/` layers inside a project root, clarifying the boundary between harness, product code, and `.harness/resources`, defining the minimal closed-loop structure and setup order, or when users want a copyable Codex app-server Node harness template.
 argument-hint: "[目标项目，例如：为 skills manager 创建 harness]"
 context: fork
 disable-model-invocation: true
@@ -8,14 +8,14 @@ disable-model-invocation: true
 
 # gm-harness-init
 
-目标：在目标项目根目录内创建 `harness/` 与 `.harness/`，并与业务代码保持清晰边界。
+目标：在目标项目根目录内创建 `harness/` 与 `.harness/`，并与业务代码保持清晰边界。默认使用可直接复制的 `Codex app-server` Node harness 模板。
 
 ## 核心模型
 
 - `<project>/harness/` = AI 开发系统（执行引擎）
 - `<project>/` = 被开发的业务项目根目录
 - `<project>/.harness/` = 项目给 harness 的接口层（说明书）
-- 第一版只追求最小闭环：`generator + evaluator + spec.md + project-rules.md + report + run_state.json`
+- 第一版默认追求最小闭环：`Codex app-server Node harness + 实时终端输出 + spec.md + project-rules.md + report + run_state.json`
 
 ### Quick Reference
 
@@ -71,7 +71,12 @@ my-project/
    └─ reports/
 ```
 
-如果目标项目已经存在，就保留现有源码目录，只新增 `harness/` 与 `.harness/`。
+如果目标项目已经存在，就保留现有源码目录，只新增缺失的目录：
+
+- `harness/` 不存在时，自动创建 `harness/`
+- `.harness/` 不存在时，自动创建 `.harness/`
+- 两者都不存在时，自动同时创建
+- 两者都已存在时，只补里面缺失的文件，不重建目录
 
 第二阶段再补这些可选内容：
 
@@ -83,14 +88,23 @@ my-project/
 
 第一版只要求这些交付物：
 
+- `<project>/harness/package.json`
 - `<project>/harness/orchestrator/`
-- `<project>/harness/agents/generator/`
-- `<project>/harness/agents/evaluator/`
-- `<project>/harness/tools/registry.py`
+- `<project>/harness/runtime/`
+- `<project>/harness/agents/`
+- `<project>/harness/tools/`
 - `<project>/harness/state/run_state.json`
 - `<project>/.harness/spec.md`
 - `<project>/.harness/project-rules.md`
 - `<project>/.harness/reports/`
+
+默认实现方式：
+
+1. 如果 `<project>/harness/` 不存在，先创建 `harness/`
+2. 只有在 `<project>/harness/` 不存在时，才将 `references/codex-app-server-node-template/` 整目录复制为 `<project>/harness/`
+3. 如果 `<project>/harness/` 已存在且非空，不要覆盖，也不要整目录替换；保留现有 harness 实现，继续执行 `.harness/` 初始化
+4. 如果 `<project>/.harness/` 不存在，自动创建 `.harness/`
+5. 无论 `<project>/harness/` 是否已存在，都继续在 `<project>/.harness/` 下生成 `spec.md`、`project-rules.md`、`reports/`
 
 `contracts/`、`summary.md`、`resources/`、`planner`、`checkpoint / resume`、复杂平台能力都放到第二阶段再补。
 
@@ -99,15 +113,15 @@ my-project/
 按这个顺序落地：
 
 1. 确认目标项目根目录
-2. 在项目根目录下创建 `harness/`
-3. 在项目根目录下创建 `.harness/`
-4. 写 `.harness/spec.md`
-5. 写 `.harness/project-rules.md`
-6. 实现 `generator`
-7. 实现 `evaluator`
+2. 如果 `harness/` 不存在，在项目根目录下自动创建 `harness/`
+3. 只有在 `harness/` 缺失时，才将 `references/codex-app-server-node-template/` 复制到 `harness/`
+4. 如果 `harness/` 已存在且非空，保留现有实现，不覆盖模板
+5. 如果 `.harness/` 不存在，在项目根目录下自动创建 `.harness/`
+6. 写 `.harness/spec.md`
+7. 写 `.harness/project-rules.md`
 8. 写 `harness/state/run_state.json`
 9. 跑通一轮：生成 → 检查 → 报告 → 更新状态
-10. 稳定后再补 `contracts/`、`summary.md`、`resources/`、`planner`
+10. 稳定后再补 `contracts/`、`summary.md`、`resources/`
 11. 最后再补 `checkpoint / resume`
 
 ## 验收标准
@@ -139,7 +153,21 @@ my-project/
 
 ## 文件级模板
 
-当用户明确要求“每个文件里该写什么”时，再读取 [references/file-templates.md](references/file-templates.md)。
+如果用户明确要求“每个文件里该写什么”，读取 [references/file-templates.md](references/file-templates.md)。
+
+默认的 `harness/` 实现模板就是：
+
+- `references/codex-app-server-node-template/`
+
+这套模板默认自带：
+
+- `harness/index.js` 根入口
+- `npm run harness:run`
+- 从项目根目录运行 `node harness`
+- 运行时持续显示详细进度
+- 同时保留 `harness/logs/<runId>.jsonl` 机器日志
+
+除非用户明确要求别的运行时，不要回退到其他语言模板。
 
 ## 默认输出
 
