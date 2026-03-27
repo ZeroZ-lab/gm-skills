@@ -13,6 +13,7 @@ Personal Claude Code plugin — a curated collection of skills for development w
 | `/gm:gm-de-ai-article [文章草稿]` | 为公众号和博客文章去除明显 AI 味，诊断模板化表达并改成更有作者感的版本 | Manual |
 | `/gm:gm-x-hook-writer [topic, draft, observation]` | 为 X/Twitter 推文生成更有停留率和点击欲的开头 hook，输出推荐版本和备选版本 | Manual |
 | `/gm:gm-writing [文章草稿或主题]` | 用关木写作法重写和增强已有草稿，补强结构、机制、判断、实践路径与原则收束；也可手动调用按四型模板起草 | Auto / Manual |
+| `/gm:build-harness-project [目标项目，例如：为 skills manager 创建 harness]` | 为 AI harness 项目生成清晰的 harness / target project / `.harness/` 三层边界、最小闭环结构与创建顺序 | Manual |
 
 ## Install
 
@@ -55,6 +56,7 @@ gm-skills/
 ├── .claude-plugin/
 │   └── plugin.json       # Plugin identity
 ├── skills/
+│   ├── build-harness-project/
 │   ├── gm-battle/
 │   ├── gm-de-ai-article/
 │   ├── gm-pk/
@@ -66,7 +68,7 @@ gm-skills/
 
 ## Adding New Skills
 
-1. Create `skills/gm-your-skill-name/SKILL.md`
+1. Create `skills/<skill-name>/SKILL.md`
 2. Add frontmatter with at least `name` and `description`
 3. Keep the command name aligned with the directory name
 4. Re-run `./install.sh` for the target environment you want to update

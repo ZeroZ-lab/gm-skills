@@ -1,0 +1,12 @@
+{
+  "pk_id": "deai-20260325-171125",
+  "title": "优化 gm-de-ai-article skill",
+  "task": "优化 gm-de-ai-article 这个 skill",
+  "constraints": "无",
+  "current_round": 1,
+  "current_stage": "implement",
+  "current_actor": "agent_a",
+  "status": "in_progress",
+  "last_implement_output": "已完成对 gm-de-ai-article skill 的一轮实现优化。主要改动：1）重写 description 和适用/不适用场景，明确这是针对模板化、套话化、过度工整的长文改写，不是检测器对抗；2）补充输入默认值和缺省处理，要求在信息不完整时优先继续做诊断与局部深改；3）重构工作流为先诊断、先保留、删弱句、补作者性、打散节奏、决定交付范围，明确默认不做全文洗稿；4）重写输出格式，默认交付诊断摘要、局部深改和剩余修改策略，而不是直接整篇改写；5）收紧反模式，明确拒绝错别字伪装、假经历补人味、无原稿强行模仿个人 voice。整体方向是把 skill 从泛化“自然化改写”收紧成更像严格编辑的局部深改流程。",
+  "last_judge_output": ""
+}

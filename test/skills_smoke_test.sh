@@ -7,6 +7,8 @@ skill_file="$repo_root/skills/gm-topic-engine/SKILL.md"
 de_ai_skill_file="$repo_root/skills/gm-de-ai-article/SKILL.md"
 battle_init_skill_file="$repo_root/skills/gm-battle/SKILL.md"
 pk_skill_file="$repo_root/skills/gm-pk/SKILL.md"
+build_harness_skill_file="$repo_root/skills/build-harness-project/SKILL.md"
+build_harness_reference_file="$repo_root/skills/build-harness-project/references/file-templates.md"
 
 fail() {
   printf '%s\n' "$1" >&2
@@ -66,3 +68,19 @@ grep -F '[REJECT ISSUE-002]' "$pk_skill_file" >/dev/null || fail "gm-pk revise p
 grep -F '只有在相关时，再补充安全性、性能、合规性或表达质量问题' "$pk_skill_file" >/dev/null || fail "gm-pk challenge prompt should adapt review dimensions to the task"
 grep -F '拿到裁判回复后，应将完整输出写入 `battle/sessions/<pk_id>/state.json` 的 `last_judge_output`，再运行一次 `/gm:gm-pk` 完成收尾。' "$pk_skill_file" >/dev/null || fail "gm-pk must explain the final judge handoff"
 grep -F "# gm-pk" "$pk_skill_file" >/dev/null || fail "skill body must include the skill heading"
+
+[ -f "$build_harness_skill_file" ] || fail "missing skill file: $build_harness_skill_file"
+
+grep -F "name: build-harness-project" "$build_harness_skill_file" >/dev/null || fail "skill frontmatter must declare name: build-harness-project"
+grep -F "description:" "$build_harness_skill_file" >/dev/null || fail "skill frontmatter must declare a description"
+grep -F 'argument-hint: "[目标项目，例如：为 skills manager 创建 harness]"' "$build_harness_skill_file" >/dev/null || fail "build-harness-project must declare the expected argument hint"
+grep -F '`harness/` = AI 开发系统' "$build_harness_skill_file" >/dev/null || fail "build-harness-project must define the harness boundary"
+grep -F '`projects/<name>/.harness/` = 项目给 harness 的接口层' "$build_harness_skill_file" >/dev/null || fail "build-harness-project must define the .harness boundary"
+grep -F '`spec > rules > contract > resources > summary/report`' "$build_harness_skill_file" >/dev/null || fail "build-harness-project must define information priority"
+grep -F "# build-harness-project" "$build_harness_skill_file" >/dev/null || fail "skill body must include the skill heading"
+
+[ -f "$build_harness_reference_file" ] || fail "missing reference file: $build_harness_reference_file"
+
+grep -F 'harness/orchestrator/' "$build_harness_reference_file" >/dev/null || fail "build-harness-project reference must include orchestrator templates"
+grep -F 'projects/my-project/.harness/' "$build_harness_reference_file" >/dev/null || fail "build-harness-project reference must include project-side templates"
+grep -F '`spec > rules > contract > resources > summary/report`' "$build_harness_reference_file" >/dev/null || fail "build-harness-project reference must repeat information priority"

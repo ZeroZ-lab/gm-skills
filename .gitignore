@@ -2,4 +2,4 @@
 
 # Local Claude settings for this machine only.
 .claude/settings.local.json
-/battle/*
+/battle/*      
