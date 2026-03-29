@@ -86,7 +86,11 @@ async function updateState(stateFile, patch) {
     last_error: null
   });
 
-  if (patch.current_phase && current.current_phase) {
+  if (
+    patch.current_phase &&
+    current.current_phase &&
+    patch.current_phase !== current.current_phase
+  ) {
     assertTransition(current.current_phase, patch.current_phase);
   }
 
@@ -96,7 +100,10 @@ async function updateState(stateFile, patch) {
   };
 
   await writeJson(stateFile, nextState);
-  return nextState;
+  return {
+    previousState: current,
+    nextState
+  };
 }
 
 async function runHarness(options = {}) {
@@ -139,18 +146,7 @@ async function runHarness(options = {}) {
   let reportPath = null;
   let context = null;
 
-  const startingState = await readJsonIfExists(stateFile, {
-    project_name: "",
-    current_phase: "idle",
-    current_sprint: null,
-    status: "idle",
-    last_checkpoint: null,
-    next_action: "run_generator",
-    last_report: null,
-    last_error: null
-  });
-
-  await updateState(stateFile, {
+  const generatingState = await updateState(stateFile, {
     project_name: path.basename(projectRoot),
     current_phase: "generating",
     status: "running",
@@ -159,7 +155,7 @@ async function runHarness(options = {}) {
   });
   emitStructuredEvent(emit, {
     type: "state_changed",
-    from: startingState.current_phase,
+    from: generatingState.previousState.current_phase,
     to: "generating"
   });
   emitStructuredEvent(emit, {
@@ -197,7 +193,7 @@ async function runHarness(options = {}) {
       status: generatorResult.raw.finalStatus || "unknown"
     });
 
-    await updateState(stateFile, {
+    const evaluatingState = await updateState(stateFile, {
       current_phase: "evaluating",
       status: "running",
       next_action: "run_evaluator",
@@ -205,7 +201,7 @@ async function runHarness(options = {}) {
     });
     emitStructuredEvent(emit, {
       type: "state_changed",
-      from: "generating",
+      from: evaluatingState.previousState.current_phase,
       to: "evaluating"
     });
     emitStructuredEvent(emit, {
@@ -237,7 +233,7 @@ async function runHarness(options = {}) {
     });
 
     if (String(evaluatorResult.parsed.status).toLowerCase() === "pass") {
-      await updateState(stateFile, {
+      const doneState = await updateState(stateFile, {
         current_phase: "done",
         status: "done",
         next_action: null,
@@ -246,11 +242,11 @@ async function runHarness(options = {}) {
       });
       emitStructuredEvent(emit, {
         type: "state_changed",
-        from: "evaluating",
+        from: doneState.previousState.current_phase,
         to: "done"
       });
     } else {
-      await updateState(stateFile, {
+      const failedEvaluationState = await updateState(stateFile, {
         current_phase: "generating",
         status: "failed",
         next_action: "run_generator",
@@ -259,7 +255,7 @@ async function runHarness(options = {}) {
       });
       emitStructuredEvent(emit, {
         type: "state_changed",
-        from: "evaluating",
+        from: failedEvaluationState.previousState.current_phase,
         to: "failed"
       });
     }
@@ -291,7 +287,7 @@ async function runHarness(options = {}) {
       reportPath
     });
 
-    await updateState(stateFile, {
+    const failedState = await updateState(stateFile, {
       current_phase: "failed",
       status: "failed",
       next_action: "run_generator",
@@ -300,7 +296,7 @@ async function runHarness(options = {}) {
     });
     emitStructuredEvent(emit, {
       type: "state_changed",
-      from: "generating",
+      from: failedState.previousState.current_phase,
       to: "failed"
     });
     emitStructuredEvent(emit, {

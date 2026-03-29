@@ -141,6 +141,8 @@ grep -F 'runHarnessCli' "$build_harness_app_server_template_index" >/dev/null ||
 grep -F 'initialize' "$build_harness_app_server_template_client" >/dev/null || fail "template app-server client must initialize the Codex app-server connection"
 grep -F 'turn/start' "$build_harness_app_server_template_client" >/dev/null || fail "template app-server client must start turns"
 grep -F 'createConsoleReporter' "$build_harness_app_server_template_console_reporter" >/dev/null || fail "template console reporter must provide the real-time terminal reporter"
+grep -F 'patch.current_phase !== current.current_phase' "$build_harness_app_server_template_runner" >/dev/null || fail "template runner must allow same-phase state writes on restart"
+grep -F 'previousState' "$build_harness_app_server_template_runner" >/dev/null || fail "template runner must track previous state when updating run state"
 grep -F 'item/commandExecution/requestApproval' "$build_harness_app_server_template_approval" >/dev/null || fail "template approval handler must handle command approvals"
 grep -F 'item/fileChange/requestApproval' "$build_harness_app_server_template_approval" >/dev/null || fail "template approval handler must handle file change approvals"
 grep -F '".harness/reports"' "$build_harness_app_server_template_runtime_config" >/dev/null || fail "template runtime config must point reports at .harness/reports"
