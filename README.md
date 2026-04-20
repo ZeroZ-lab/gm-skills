@@ -56,3 +56,12 @@ gm-skills/
 │   └── pngimg-download/
 └── README.md
 ```
+
+## Recommended Skills
+
+其他值得安装的高质量 skills：
+
+```bash
+npx skills add garrytan/gstack              # Garry Tan 的全栈开发 skill（QA 测试、代码审查、设计检查）
+npx skills add remotion-dev/skills           # 用 React 编程式生成视频
+```
