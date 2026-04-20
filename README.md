@@ -17,6 +17,7 @@ npx skills add ZeroZ-lab/gm-skills --skill gm-topic-engine
 npx skills add ZeroZ-lab/gm-skills --skill gm-x-hook-writer
 npx skills add ZeroZ-lab/gm-skills --skill gm-agent-docs
 npx skills add ZeroZ-lab/gm-skills --skill pngimg-download
+npx skills add ZeroZ-lab/gm-skills --skill auto-skill-fit
 ```
 
 Install to specific agents:
@@ -42,12 +43,14 @@ npx skills add ZeroZ-lab/gm-skills --list
 | `gm-x-hook-writer` | 为 X/Twitter 推文生成高停留率的开头 hook |
 | `gm-agent-docs` | 分析项目结构，生成 CLAUDE.md 和 AGENTS.md |
 | `pngimg-download` | Search and download free transparent PNG images from pngimg.com |
+| `auto-skill-fit` | 扫描项目技术栈，推荐并安装匹配的 agent skills 套装 |
 
 ## Structure
 
 ```
 gm-skills/
 ├── skills/
+│   ├── auto-skill-fit/
 │   ├── cc-design/          # submodule → ZeroZ-lab/cc-design
 │   ├── gm-agent-docs/
 │   ├── gm-de-ai-article/
