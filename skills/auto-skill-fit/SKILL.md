@@ -44,7 +44,9 @@ argument-hint: "[项目路径，默认当前目录]"
 
 ### Step 3: 询问安装偏好
 
-在让用户选择 skills 之前，先确认安装方式。
+在让用户选择 skills 之前，依次确认两个问题：**安装方式** 和 **目标客户端**。
+
+#### 3a: 安装方式
 
 **在 Claude Code 中**，使用 AskUserQuestion：
 
@@ -52,26 +54,22 @@ argument-hint: "[项目路径，默认当前目录]"
 AskUserQuestion:
   question: "选择安装方式："
   options:
-    - "全局安装 + symlink（推荐，所有项目共享，自动更新）(Recommended)"
-    - "全局安装 + copy（所有项目共享，独立副本）"
-    - "项目级安装 + symlink（仅当前项目，团队可共享 .kiro/skills）"
-    - "项目级安装 + copy（仅当前项目，独立副本，适合提交到仓库）"
+    - "全局 + symlink（推荐，所有项目共享，自动更新）(Recommended)"
+    - "全局 + copy（所有项目共享，独立副本）"
+    - "项目级 + symlink（仅当前项目，团队可共享）"
+    - "项目级 + copy（仅当前项目，适合提交到仓库）"
 ```
 
 **在其他 agent 中**，降级为文本：
 
 ```
-📋 选择安装方式：
-
-  [1] 全局 + symlink（推荐，所有项目共享，自动更新）
-  [2] 全局 + copy（所有项目共享，独立副本）
-  [3] 项目级 + symlink（仅当前项目，团队可共享）
-  [4] 项目级 + copy（仅当前项目，适合提交到仓库）
-
+📋 安装方式：
+  [1] 全局 + symlink（推荐）  [2] 全局 + copy
+  [3] 项目级 + symlink        [4] 项目级 + copy
 👉 输入编号（默认 1）：
 ```
 
-**安装方式对应的 flags：**
+对应 flags：
 
 | 选择 | flags |
 |------|-------|
@@ -79,6 +77,37 @@ AskUserQuestion:
 | 全局 + copy | `-g -y --copy` |
 | 项目级 + symlink | `-y` |
 | 项目级 + copy | `-y --copy` |
+
+#### 3b: 目标客户端
+
+**在 Claude Code 中**，使用 AskUserQuestion（multiSelect: true）：
+
+```
+AskUserQuestion:
+  question: "安装到哪些客户端？"
+  multiSelect: true
+  options:
+    - "所有已检测到的客户端（推荐）(Recommended)"
+    - "Claude Code"
+    - "Kiro CLI"
+    - "Cursor"
+    - "Codex"
+    - "Windsurf"
+    - "GitHub Copilot"
+```
+
+**在其他 agent 中**，降级为文本：
+
+```
+🖥️ 安装到哪些客户端？
+  [1] 所有已检测到的（推荐）
+  [2] 指定客户端（输入名称，逗号分隔，如：claude-code,kiro-cli,cursor）
+👉 输入编号（默认 1）：
+```
+
+对应 flags：
+- 选"所有" → 不加 `-a`（默认安装到所有检测到的）
+- 选指定客户端 → 加 `-a claude-code -a kiro-cli` 等
 
 记住用户选择的 flags，后续所有安装命令统一使用。
 
