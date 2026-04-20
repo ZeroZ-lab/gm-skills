@@ -16,6 +16,7 @@ npx skills add ZeroZ-lab/gm-skills --skill gm-de-ai-article
 npx skills add ZeroZ-lab/gm-skills --skill gm-pk
 npx skills add ZeroZ-lab/gm-skills --skill gm-topic-engine
 npx skills add ZeroZ-lab/gm-skills --skill gm-x-hook-writer
+npx skills add ZeroZ-lab/gm-skills --skill gm-agent-docs
 npx skills add ZeroZ-lab/gm-skills --skill pngimg-download
 ```
 
@@ -41,6 +42,7 @@ npx skills add ZeroZ-lab/gm-skills --list
 | `gm-de-ai-article` | 去除文章中的 AI 味，保住作者判断与表达控制权 |
 | `gm-x-hook-writer` | 为 X/Twitter 推文生成高停留率的开头 hook |
 | `gm-pk` | 推进已有 battle session 到下一阶段 |
+| `gm-agent-docs` | 分析项目结构，生成 CLAUDE.md 和 AGENTS.md |
 | `pngimg-download` | Search and download free transparent PNG images from pngimg.com |
 
 ## Structure
@@ -49,6 +51,7 @@ npx skills add ZeroZ-lab/gm-skills --list
 gm-skills/
 ├── skills/
 │   ├── cc-design/          # submodule → ZeroZ-lab/cc-design
+│   ├── gm-agent-docs/
 │   ├── gm-de-ai-article/
 │   ├── gm-pk/
 │   ├── gm-topic-engine/
@@ -56,17 +59,3 @@ gm-skills/
 │   └── pngimg-download/
 └── README.md
 ```
-
-## Adding New Skills
-
-1. Create `skills/<skill-name>/SKILL.md`
-2. Add frontmatter with at least `name` and `description`
-3. Keep the directory name aligned with the `name` field
-
-Key frontmatter fields:
-- `name` — unique identifier, becomes the slash command
-- `description` — drives auto-invocation; include keywords users naturally say
-- `argument-hint` — shown in autocomplete (e.g., `[topic]`)
-- `context: fork` — run in isolated subagent (good for long tasks)
-- `allowed-tools` — pre-approve tools without permission prompts
-- `disable-model-invocation: true` — require explicit invocation only
