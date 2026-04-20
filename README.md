@@ -11,7 +11,12 @@ npx skills add ZeroZ-lab/gm-skills
 Install specific skills:
 
 ```bash
-npx skills add ZeroZ-lab/gm-skills --skill gm-de-ai-article --skill gm-x-hook-writer
+npx skills add ZeroZ-lab/gm-skills --skill cc-design
+npx skills add ZeroZ-lab/gm-skills --skill gm-de-ai-article
+npx skills add ZeroZ-lab/gm-skills --skill gm-pk
+npx skills add ZeroZ-lab/gm-skills --skill gm-topic-engine
+npx skills add ZeroZ-lab/gm-skills --skill gm-x-hook-writer
+npx skills add ZeroZ-lab/gm-skills --skill pngimg-download
 ```
 
 Install to specific agents:
