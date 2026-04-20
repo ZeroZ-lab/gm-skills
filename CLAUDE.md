@@ -1,33 +1,32 @@
 # gm-skills
 
-Agent skills 仓库，通过 `npx skills add ZeroZ-lab/gm-skills` 安装。
+Agent skills 集合，`npx skills add ZeroZ-lab/gm-skills` 安装。Markdown + Shell，无构建步骤。
 
 ## 常用命令
 
 ```bash
-# 列出所有 skills
-npx skills add . --list
-
-# 更新 cc-design submodule
-git submodule update --remote skills/cc-design
-
-# 验证 SKILL.md frontmatter
-grep -l '^name:' skills/*/SKILL.md
+npx skills add . --list                              # 验证所有 skill 可发现
+grep -rn '^name:\|^description:' skills/*/SKILL.md   # 检查 frontmatter
+git submodule update --remote skills/cc-design        # 拉取 cc-design 最新
 ```
 
 ## 写代码时
 
-- 新 skill 放 `skills/<skill-name>/SKILL.md`
-- frontmatter 必须有 `name` 和 `description`，`name` 与目录名一致
-- cc-design 是 submodule，不要直接修改其内容
+- 新 skill 放 `skills/<skill-name>/SKILL.md`，`name` 与目录名一致
+- cc-design 是 submodule → 只在 ZeroZ-lab/cc-design 仓库修改
 - 其余 skill 直接在本仓库维护
 
-## SKILL.md frontmatter
-
 ```yaml
+# ✅
 ---
-name: skill-name
-description: 一句话描述
+name: my-skill
+description: 具体说明做什么、何时触发，包含关键词
+---
+
+# ❌
+---
+name: My Skill
+description: A useful skill
 ---
 ```
 
@@ -35,11 +34,14 @@ description: 一句话描述
 
 ## 完成标准
 
-1. `npx skills add . --list` 能发现新增的 skill
-2. README.md 的 Skills 表格和 Structure 已更新
-3. commit message 用 conventional commits 格式
+1. `npx skills add . --list` 输出包含新 skill 名称
+2. README.md 的 Skills 表格、Install 命令、Structure 已同步更新
+3. commit message: `type(scope): description`
 
 ## 卡住时
 
-- submodule 问题：`git submodule sync && git submodule update --init`
-- 绝不：直接修改 `skills/cc-design/` 内的文件、force push main
+- submodule 异常 → `git submodule sync && git submodule update --init --recursive`
+- npx skills 找不到 skill → 检查 SKILL.md frontmatter 是否有 `name` 和 `description`
+- ✅ 必须做：改完 skill 后跑 `npx skills add . --list` 验证
+- ⚠️ 先问：删除已有 skill、修改 .gitmodules
+- 🚫 绝不：直接改 `skills/cc-design/` 内容、force push main、删 .gitmodules
