@@ -6,7 +6,7 @@ argument-hint: "[项目路径，默认当前目录]"
 
 # auto-skill-fit
 
-扫描项目 → 提取技术栈 → 搜索 skills.sh → 编号列出 → 用户选择 → 安装。
+扫描项目 → 提取技术栈 → 搜索 skills.sh → 用户选择 → 安装。
 
 ## 流程
 
@@ -42,61 +42,57 @@ argument-hint: "[项目路径，默认当前目录]"
 
 对每个关键词搜索，合并去重，过滤安装量 < 5K 的，跳过已安装的 skills。
 
-### Step 3: 编号列出，等待用户选择
+### Step 3: 用户选择
 
-输出格式（必须严格遵守）：
+先输出技术栈摘要，然后让用户选择要安装的 skills。
+
+**在 Claude Code 中**：使用 AskUserQuestion 工具，渲染原生选择框。设置 `multiSelect: true` 允许多选。将推荐项标记 `(Recommended)` 放在选项列表最前面。示例：
 
 ```
-🔍 检测到技术栈：React, Next.js, Tailwind, shadcn/ui, Supabase
+AskUserQuestion:
+  question: "检测到技术栈：React, Next.js, Tailwind, Supabase。以下是推荐的 skills，请选择要安装的："
+  multiSelect: true
+  options:
+    - "vercel-react-best-practices (332K installs) — React/Next.js 最佳实践 (Recommended)"
+    - "web-design-guidelines (265K installs) — Web 设计规范 (Recommended)"
+    - "frontend-design (315K installs) — 前端设计"
+    - "supabase-postgres-best-practices (109K installs) — Supabase 最佳实践 (Recommended)"
+    - "shadcn (96K installs) — shadcn/ui 组件"
+    - "next-best-practices (68K installs) — Next.js 进阶"
+```
+
+**在其他 agent 中**（Kiro CLI、Cursor、Codex 等）：降级为编号文本列表，等用户自然语言回复：
+
+```
+🔍 检测到技术栈：React, Next.js, Tailwind, Supabase
 
 📦 推荐 Skills：
 
   [1] ✅ vercel-react-best-practices    332K installs  (react, nextjs)
   [2] ✅ web-design-guidelines           265K installs  (前端通用)
-  [3] ✅ frontend-design                 315K installs  (前端通用)
+  [3]    frontend-design                 315K installs  (前端通用)
   [4] ✅ supabase-postgres-best-practices 109K installs  (supabase)
-  [5] ✅ shadcn                           96K installs  (shadcn)
+  [5]    shadcn                           96K installs  (shadcn)
   [6]    next-best-practices              68K installs  (nextjs)
-  [7]    tailwind-design-system           --  installs  (tailwind)
 
-  ✅ = 强烈推荐（安装量 ≥ 50K 且与技术栈直接相关）
+  ✅ = 推荐
 
-👉 请选择要安装的编号：
-   - "all" 或 "全部" → 安装全部
-   - "1,3,5" → 安装指定项
-   - "recommended" 或 "推荐" → 只装 ✅ 标记的
-   - "去掉 3" → 从全部中排除
-   - "不装了" → 取消
+👉 请选择：all / 1,3,5 / recommended / 不装了
 ```
 
-**关键规则：**
-- 必须等用户回复后才执行安装，不要自动安装
-- 编号从 1 开始，连续编号
-- ✅ 标记安装量 ≥ 50K 且与检测到的技术栈直接相关的
-- 按安装量降序排列
-- 每条显示：编号、推荐标记、skill 名、安装量、命中关键词
+**如何判断环境**：如果当前 agent 有 AskUserQuestion 工具可用，就用它；否则降级为文本。
 
-### Step 4: 解析用户选择并安装
+### Step 4: 安装
 
-根据用户回复解析要安装的列表：
-
-| 用户输入 | 行为 |
-|---------|------|
-| `all` / `全部` / `装吧` / `都装` | 安装全部 |
-| `1,3,5` / `1 3 5` / `装 1、3、5` | 安装指定编号 |
-| `recommended` / `推荐` / `推荐的` | 只装 ✅ 标记的 |
-| `去掉 3` / `除了 3` / `不要 3` | 全部减去指定编号 |
-| `不装了` / `取消` / `算了` | 取消，不执行任何安装 |
-
-安装命令格式：
+根据用户选择，逐条执行：
 
 ```bash
 npx skills add <owner/repo@skill-name> -g -y
 ```
 
-逐条执行，每条安装后输出结果（成功/失败）。
+每条安装后输出结果（成功/失败）。
 
-### Step 5: 安装完成总结
+### Step 5: 完成总结
 
 ```
 ✅ 安装完成！共安装 N 个 skills：
@@ -109,7 +105,8 @@ npx skills add <owner/repo@skill-name> -g -y
 
 ## 规则
 
-1. **必须等用户选择后才安装** — 列出清单后停下来等回复
-2. **依赖 find-skills 做搜索**（如果已安装）— 不重复造轮子
-3. **关键词要精准** — 用框架名（`react`、`nextjs`），不用泛词（`frontend`）
-4. **宁缺毋滥** — 搜不到高质量结果就不列出
+1. **必须等用户选择后才安装** — 不要自动安装
+2. **优先使用原生交互** — Claude Code 用 AskUserQuestion，其他降级为文本
+3. **依赖 find-skills 做搜索**（如果已安装）
+4. **关键词要精准** — 用框架名，不用泛词
+5. **宁缺毋滥** — 搜不到高质量结果就不列出
