@@ -1,70 +1,54 @@
 # gm-skills
 
-Personal Claude Code plugin — a curated collection of skills for development workflow, documentation, and agent collaboration.
-
-## Skills
-
-### Content Workflow
-| Command | Description | Trigger |
-|---------|-------------|---------|
-| `/gm:gm-battle [任务描述]` | 初始化一场双模型 battle，生成 `pk_id`，写入 `battle/sessions/<pk_id>/` 状态并生成第一条给 Agent A 的 prompt | Manual |
-| `/gm:gm-pk [pk_id] [stop]` | 按 `pk_id` 推进 battle 到下一阶段；不传 `pk_id` 时默认使用 `battle/latest.json` 指向的最新 battle | Manual |
-| `/gm:gm-topic-engine [ideas, notes, comments, drafts]` | Mine ranked WeChat/blog topics from messy source material, sharpen angles, and suggest the best next topic | Manual |
-| `/gm:gm-de-ai-article [文章草稿]` | 为公众号和博客文章去除明显 AI 味，诊断模板化表达并改成更有作者感的版本 | Manual |
-| `/gm:gm-x-hook-writer [topic, draft, observation]` | 为 X/Twitter 推文生成更有停留率和点击欲的开头 hook，输出推荐版本和备选版本 | Manual |
-| `/gm:gm-writing [文章草稿或主题]` | 用关木写作法重写和增强已有草稿，补强结构、机制、判断、实践路径与原则收束；也可手动调用按四型模板起草 | Auto / Manual |
-| `/gm:gm-harness-init [目标项目，例如：为 skills manager 创建 harness]` | 为 AI harness 项目生成清晰的 harness / target project / `.harness/` 三层边界、最小闭环结构与创建顺序；默认落地可复制的 Codex app-server Node 模板，带实时终端输出与 `node harness` 入口 | Manual |
-| `/gm:gm-harness-plan-task [需求描述，例如：给 skills manager 加登录功能]` | 把用户需求转化为 `.harness/` 里的正确文档更新（新建 contract、更新 spec 或 project-rules），并给出可直接运行的命令 | Manual |
+A curated collection of agent skills for development workflow, writing, and agent collaboration.
 
 ## Install
 
 ```bash
-./install.sh
-./install.sh claude
-./install.sh codex
-./install.sh agent
-./install.sh all
+npx skills add ZeroZ-lab/gm-skills
 ```
 
-If no argument is provided, the script prompts you to choose a target.
-Supported targets:
-- `claude` -> `~/.claude/skills`
-- `codex` -> `~/.codex/skills`
-- `agent` -> `~/.agents/skills`
-- `all` -> installs into all three locations
-
-The script links each directory under `skills/` into the selected target's `skills` directory.
-It prints progress logs and exits with an error if a target path already exists but is not the expected symlink.
-
-## Uninstall
+Install specific skills:
 
 ```bash
-./uninstall.sh
-./uninstall.sh claude
-./uninstall.sh codex
-./uninstall.sh agent
-./uninstall.sh all
+npx skills add ZeroZ-lab/gm-skills --skill gm-de-ai-article --skill gm-x-hook-writer
 ```
 
-If no argument is provided, the script prompts you to choose a target.
-This removes only the symlinks in the selected target's `skills` directory that point back to this repository's `skills/` entries.
-The script prints which links were removed and which unrelated links were skipped.
+Install to specific agents:
+
+```bash
+npx skills add ZeroZ-lab/gm-skills -a claude-code
+npx skills add ZeroZ-lab/gm-skills -a kiro-cli -a cursor
+```
+
+List available skills without installing:
+
+```bash
+npx skills add ZeroZ-lab/gm-skills --list
+```
+
+## Skills
+
+| Skill | Description |
+|-------|-------------|
+| `cc-design` | High-fidelity HTML design and prototype creation — slide decks, prototypes, landing pages, UI mockups |
+| `gm-topic-engine` | 从零散素材中提炼公众号/博客选题，排序优先级 |
+| `gm-de-ai-article` | 去除文章中的 AI 味，保住作者判断与表达控制权 |
+| `gm-x-hook-writer` | 为 X/Twitter 推文生成高停留率的开头 hook |
+| `gm-pk` | 推进已有 battle session 到下一阶段 |
+| `pngimg-download` | Search and download free transparent PNG images from pngimg.com |
 
 ## Structure
 
 ```
 gm-skills/
-├── .claude-plugin/
-│   └── plugin.json       # Plugin identity
 ├── skills/
-│   ├── gm-harness-init/
-│   ├── gm-harness-plan-task/
-│   ├── gm-battle/
+│   ├── cc-design/          # submodule → ZeroZ-lab/cc-design
 │   ├── gm-de-ai-article/
 │   ├── gm-pk/
 │   ├── gm-topic-engine/
-│   ├── gm-writing/
-│   └── gm-x-hook-writer/
+│   ├── gm-x-hook-writer/
+│   └── pngimg-download/
 └── README.md
 ```
 
@@ -72,11 +56,10 @@ gm-skills/
 
 1. Create `skills/<skill-name>/SKILL.md`
 2. Add frontmatter with at least `name` and `description`
-3. Keep the command name aligned with the directory name
-4. Re-run `./install.sh` for the target environment you want to update
+3. Keep the directory name aligned with the `name` field
 
 Key frontmatter fields:
-- `name` — must match directory name, becomes the slash command
+- `name` — unique identifier, becomes the slash command
 - `description` — drives auto-invocation; include keywords users naturally say
 - `argument-hint` — shown in autocomplete (e.g., `[topic]`)
 - `context: fork` — run in isolated subagent (good for long tasks)
