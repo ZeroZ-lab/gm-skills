@@ -8,56 +8,65 @@ argument-hint: "[项目路径或描述]"
 
 为任意项目生成高质量的 CLAUDE.md 和 AGENTS.md。
 
+## 核心原则
+
+好的 agent md 文档 = 操作手册，不是人类文档。
+
+1. **命令优先** — 每条指令必须能回答"什么命令证明做对了"
+2. **代码示例 > 文字描述** — 一个 snippet 胜过三段解释
+3. **精简** — 100 行以内（上限 200，超过 300 agent 会丢失信号）
+4. **只写 agent 推断不出的** — 标准语法、库用法不用写
+5. **三层边界** — ✅ 必须做 / ⚠️ 先问 / 🚫 绝不做
+6. **持续演进** — agent 每犯一次可预防的错误，加一条规则
+
 ## 流程
 
 ### Step 1: 分析项目
 
-扫描项目根目录，收集以下信息：
+扫描项目根目录，收集 6 大核心领域的信息：
 
-1. **语言和框架** — 读 package.json / pyproject.toml / Cargo.toml / go.mod / pom.xml / Gemfile 等
-2. **构建命令** — 找到 build / compile / bundle 的具体命令
-3. **测试框架** — 找到 test runner 和运行命令
-4. **Lint/Format** — 找到 linter 和 formatter 配置
-5. **项目结构** — 关键目录和架构模式
-6. **Git 规范** — 分支策略、commit 格式（从历史 commit 推断）
-7. **特殊约束** — monorepo / submodule / CI 配置 / 部署方式
+| 领域 | 扫描目标 | 产出 |
+|------|---------|------|
+| 命令 | package.json scripts / Makefile / pyproject.toml / Cargo.toml / go.mod | 构建、测试、lint、启动的具体命令 |
+| 测试 | jest.config / vitest.config / pytest.ini / test 目录 | 框架、运行方式、覆盖率要求 |
+| 项目结构 | 顶层目录 + 框架约定 | 关键目录职责、架构模式 |
+| 代码风格 | eslint / prettier / ruff / .editorconfig + 最近 10 条 commit | 命名规范、格式规则（用代码示例展示） |
+| Git 工作流 | 最近 20 条 commit message + branch 命名 | commit 格式、分支策略 |
+| 边界 | .gitignore / CI 配置 / 敏感文件 | 不能碰的文件、需要审批的操作 |
+
+**额外扫描（大型项目）：**
+- `docs/` / `ADR/` / `specs/` → 生成文档索引表
+- monorepo 子包 → 生成目录级 scoping 建议
+- CI/CD 配置 → 提取部署约束
 
 输出分析摘要给用户确认，再进入生成。
 
 ### Step 2: 生成 CLAUDE.md
 
-严格遵循以下原则：
-
-**格式规则：**
-- 总行数不超过 100 行
-- 每条指令必须能回答："什么命令能证明这件事做对了？"
-- 写操作指令，不写人类文档
-- 不包含 agent 能从代码推断出的信息
-
-**必须包含的 section（按顺序）：**
+**必须包含的 6 个 section（按此顺序）：**
 
 ```markdown
 # 项目名
 
-一句话说明。
+一句话说明（技术栈 + 版本，要具体）。
 
 ## 常用命令
 
-具体的 shell 命令，直接可复制执行。包括：
-- 启动开发服务器
+直接可执行的 shell 命令，含 flags。按频率排序：
+- 开发服务器
 - 运行测试
 - lint / format
-- 构建
+- 构建 / 部署
 
 ## 写代码时
 
-- 具体的编码规则 + 对应的验证命令
-- 架构约束（哪些目录不能改、依赖方向等）
-- 命名规范（仅当项目有非标准约定时）
+- 架构约束（目录职责、依赖方向）
+- 代码风格（用 ✅/❌ 代码示例展示，不用文字描述）
+- 验证命令
 
 ## 完成标准
 
-编号列表，每条是一个具体命令 + 期望的退出码：
+编号列表，每条 = 具体命令 + 期望退出码：
 1. `命令` 退出码 0
 2. `命令` 退出码 0
 3. commit message 符合格式
@@ -65,14 +74,22 @@ argument-hint: "[项目路径或描述]"
 ## 卡住时
 
 - 具体场景 → 具体操作
+- 连续失败 3 次 → 停下来报告，不要继续尝试
 - 绝不：列出禁止的破坏性操作
+
+## 参考文档（可选，大型项目才加）
+
+| 文件 | 何时读取 |
+|------|---------|
+| `docs/xxx.md` | 做 xxx 时 |
 ```
 
 **禁止出现的内容：**
-- 大段散文解释
+- 大段散文、项目历史
 - "请注意"、"建议"、"小心" 等模糊措辞
+- agent 能从代码推断的信息
 - API key、密码等敏感信息
-- 项目历史或背景故事
+- 没有排序的矛盾优先级
 
 ### Step 3: 生成 AGENTS.md
 
@@ -82,46 +99,104 @@ argument-hint: "[项目路径或描述]"
 See [CLAUDE.md](./CLAUDE.md) for all project instructions.
 ```
 
-### Step 4: 输出
+### Step 4: 输出与确认
 
-1. 展示生成的 CLAUDE.md 内容给用户 review
+1. 展示生成的 CLAUDE.md 给用户 review
 2. 用户确认后写入文件
-3. 如果项目已有 CLAUDE.md，先展示 diff 再确认覆盖
+3. 如果已有 CLAUDE.md，展示 diff 再确认覆盖
 
 ## 示例输出
 
-对一个 Next.js 项目：
+### Next.js 项目
 
 ```markdown
 # my-app
 
-Next.js 14 全栈应用，App Router + Prisma + PostgreSQL。
+Next.js 14 全栈应用，App Router + Prisma + PostgreSQL + TypeScript。
 
 ## 常用命令
 
-pnpm dev          # 开发服务器 localhost:3000
+pnpm dev          # localhost:3000
 pnpm build        # 生产构建
-pnpm test         # vitest 单元测试
-pnpm lint         # eslint
-pnpm db:migrate   # prisma migrate dev
+pnpm test         # vitest
+pnpm lint         # eslint + prettier check
 
 ## 写代码时
 
-- 新页面放 `app/` 目录，API 路由放 `app/api/`
-- 数据库操作只通过 `lib/db.ts` 的 prisma client
+- 页面放 `app/`，API 路由放 `app/api/`
+- 数据库操作只通过 `lib/db.ts`
 - 服务端组件默认，客户端组件加 `'use client'`
-- 运行 `pnpm lint` 验证代码规范
+
+```typescript
+// ✅
+export async function getUser(id: string): Promise<User> {
+  return db.user.findUniqueOrThrow({ where: { id } });
+}
+
+// ❌
+export async function getUser(id) {
+  const user = await db.user.findUnique({ where: { id } });
+  return user;
+}
+```
 
 ## 完成标准
 
 1. `pnpm build` 退出码 0
-2. `pnpm test` 退出码 0，无失败用例
+2. `pnpm test` 退出码 0
 3. `pnpm lint` 退出码 0
-4. commit message 格式：`type(scope): description`
+4. commit: `type(scope): description`
 
 ## 卡住时
 
-- 类型错误连续修不好：运行 `pnpm tsc --noEmit` 看完整报错
-- 数据库 schema 冲突：`pnpm prisma migrate reset`（会清数据，先确认）
-- 绝不：跳过 build 检查、直接改 migrations 文件、force push main
+- 类型错误修不好 → `pnpm tsc --noEmit` 看完整报错
+- 数据库冲突 → `pnpm prisma migrate reset`（会清数据，先确认）
+- 绝不：跳过 build、直接改 migrations、force push main
+```
+
+### Python 项目
+
+```markdown
+# my-service
+
+FastAPI REST API，Python 3.12 + SQLAlchemy + Alembic + PostgreSQL。
+
+## 常用命令
+
+uv run uvicorn app.main:app --reload   # dev server :8000
+uv run pytest -v                        # 测试
+uv run ruff check .                     # lint
+uv run mypy app/ --strict               # 类型检查
+
+## 写代码时
+
+- 路由放 `app/api/`，模型放 `app/models/`
+- 所有函数必须有 type hints
+- 依赖注入用 `Depends()`
+
+```python
+# ✅
+async def get_user(user_id: int, db: Session = Depends(get_db)) -> User:
+    user = await db.get(User, user_id)
+    if not user:
+        raise HTTPException(status_code=404)
+    return user
+
+# ❌
+async def get_user(user_id, db):
+    return await db.query(User).filter_by(id=user_id).first()
+```
+
+## 完成标准
+
+1. `uv run ruff check .` 退出码 0
+2. `uv run pytest -v` 退出码 0
+3. `uv run mypy app/ --strict` 退出码 0
+4. commit: `type: description`
+
+## 卡住时
+
+- 测试失败 3 次 → 停下来，贴完整 traceback
+- migration 冲突 → `alembic downgrade -1` 再重新生成
+- 绝不：删 migration 文件、跳过 mypy、改 alembic_version 表
 ```
