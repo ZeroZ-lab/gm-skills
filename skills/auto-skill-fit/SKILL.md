@@ -6,7 +6,7 @@ argument-hint: "[项目路径，默认当前目录]"
 
 # auto-skill-fit
 
-扫描项目 → 提取技术栈 → 搜索 skills.sh → 用户选择 → 安装。
+扫描项目 → 提取技术栈 → 搜索 skills.sh → 用户选择安装方式和 skills → 安装。
 
 ## 流程
 
@@ -42,15 +42,55 @@ argument-hint: "[项目路径，默认当前目录]"
 
 对每个关键词搜索，合并去重，过滤安装量 < 5K 的，跳过已安装的 skills。
 
-### Step 3: 用户选择
+### Step 3: 询问安装偏好
 
-先输出技术栈摘要，然后让用户选择要安装的 skills。
+在让用户选择 skills 之前，先确认安装方式。
 
-**在 Claude Code 中**：使用 AskUserQuestion 工具，渲染原生选择框。设置 `multiSelect: true` 允许多选。将推荐项标记 `(Recommended)` 放在选项列表最前面。示例：
+**在 Claude Code 中**，使用 AskUserQuestion：
 
 ```
 AskUserQuestion:
-  question: "检测到技术栈：React, Next.js, Tailwind, Supabase。以下是推荐的 skills，请选择要安装的："
+  question: "选择安装方式："
+  options:
+    - "全局安装 + symlink（推荐，所有项目共享，自动更新）(Recommended)"
+    - "全局安装 + copy（所有项目共享，独立副本）"
+    - "项目级安装 + symlink（仅当前项目，团队可共享 .kiro/skills）"
+    - "项目级安装 + copy（仅当前项目，独立副本，适合提交到仓库）"
+```
+
+**在其他 agent 中**，降级为文本：
+
+```
+📋 选择安装方式：
+
+  [1] 全局 + symlink（推荐，所有项目共享，自动更新）
+  [2] 全局 + copy（所有项目共享，独立副本）
+  [3] 项目级 + symlink（仅当前项目，团队可共享）
+  [4] 项目级 + copy（仅当前项目，适合提交到仓库）
+
+👉 输入编号（默认 1）：
+```
+
+**安装方式对应的 flags：**
+
+| 选择 | flags |
+|------|-------|
+| 全局 + symlink | `-g -y` |
+| 全局 + copy | `-g -y --copy` |
+| 项目级 + symlink | `-y` |
+| 项目级 + copy | `-y --copy` |
+
+记住用户选择的 flags，后续所有安装命令统一使用。
+
+### Step 4: 用户选择 Skills
+
+输出技术栈摘要，让用户选择要安装的 skills。
+
+**在 Claude Code 中**：使用 AskUserQuestion，设置 `multiSelect: true`。将推荐项标记 `(Recommended)` 放在选项列表最前面。示例：
+
+```
+AskUserQuestion:
+  question: "检测到技术栈：React, Next.js, Tailwind, Supabase。以下是推荐的 skills（已过滤已安装和低质量），请选择要安装的："
   multiSelect: true
   options:
     - "vercel-react-best-practices (332K installs) — React/Next.js 最佳实践 (Recommended)"
@@ -61,7 +101,7 @@ AskUserQuestion:
     - "next-best-practices (68K installs) — Next.js 进阶"
 ```
 
-**在其他 agent 中**（Kiro CLI、Cursor、Codex 等）：降级为编号文本列表，等用户自然语言回复：
+**在其他 agent 中**，降级为编号文本：
 
 ```
 🔍 检测到技术栈：React, Next.js, Tailwind, Supabase
@@ -80,22 +120,20 @@ AskUserQuestion:
 👉 请选择：all / 1,3,5 / recommended / 不装了
 ```
 
-**如何判断环境**：如果当前 agent 有 AskUserQuestion 工具可用，就用它；否则降级为文本。
+### Step 5: 安装
 
-### Step 4: 安装
-
-根据用户选择，逐条执行：
+根据用户选择的 skills 和 Step 3 的安装偏好，逐条执行：
 
 ```bash
-npx skills add <owner/repo@skill-name> -g -y
+npx skills add <owner/repo@skill-name> <flags>
 ```
 
 每条安装后输出结果（成功/失败）。
 
-### Step 5: 完成总结
+### Step 6: 完成总结
 
 ```
-✅ 安装完成！共安装 N 个 skills：
+✅ 安装完成！共安装 N 个 skills（全局 + symlink）：
   - vercel-react-best-practices
   - shadcn
   - supabase-postgres-best-practices
@@ -106,7 +144,8 @@ npx skills add <owner/repo@skill-name> -g -y
 ## 规则
 
 1. **必须等用户选择后才安装** — 不要自动安装
-2. **优先使用原生交互** — Claude Code 用 AskUserQuestion，其他降级为文本
-3. **依赖 find-skills 做搜索**（如果已安装）
-4. **关键词要精准** — 用框架名，不用泛词
-5. **宁缺毋滥** — 搜不到高质量结果就不列出
+2. **安装偏好先于 skills 选择** — 先问怎么装，再问装什么
+3. **优先使用原生交互** — Claude Code 用 AskUserQuestion，其他降级为文本
+4. **依赖 find-skills 做搜索**（如果已安装）
+5. **关键词要精准** — 用框架名，不用泛词
+6. **宁缺毋滥** — 搜不到高质量结果就不列出

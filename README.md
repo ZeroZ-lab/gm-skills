@@ -45,6 +45,16 @@ npx skills add ZeroZ-lab/gm-skills --list
 | `pngimg-download` | Search and download free transparent PNG images from pngimg.com |
 | `auto-skill-fit` | 扫描项目技术栈，推荐并安装匹配的 agent skills 套装 |
 
+### auto-skill-fit
+
+扫描项目配置文件，识别技术栈，实时搜索 skills.sh，推荐最匹配的 skills 套装。在 Claude Code 中使用原生多选框：
+
+<img src="skills/auto-skill-fit/screenshot.png" width="500" alt="auto-skill-fit in Claude Code" />
+
+```bash
+npx skills add ZeroZ-lab/gm-skills --skill auto-skill-fit
+```
+
 ## Structure
 
 ```
