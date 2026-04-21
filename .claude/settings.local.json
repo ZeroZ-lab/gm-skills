@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(for d:*)",
+      "Bash(do mv:*)",
+      "Bash(done)"
+    ]
+  }
+}
