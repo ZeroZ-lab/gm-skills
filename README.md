@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="logo.svg" width="160" alt="gm-skills logo" />
+</p>
+
 # gm-skills
 
 A curated collection of agent skills for development workflow, writing, and agent collaboration.

@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#6ee7b7"/>
+      <stop offset="100%" stop-color="#3b82f6"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Background -->
+  <rect width="512" height="512" rx="96" fill="#0f0f23"/>
+
+  <!-- Central hexagon shape - represents modular skills -->
+  <polygon points="256,100 366,163 366,289 256,352 146,289 146,163" 
+           fill="none" stroke="url(#grad)" stroke-width="8" opacity="0.15"/>
+
+  <!-- G letterform - clean geometric -->
+  <path d="M 148,176 L 252,176 A 8,8 0 0 1 252,192 L 180,192 A 32,32 0 0 0 148,224 L 148,288 A 32,32 0 0 0 180,320 L 220,320 A 8,8 0 0 0 228,312 L 228,264 L 196,264 A 8,8 0 0 1 196,248 L 244,248 A 8,8 0 0 1 252,256 L 252,320 A 16,16 0 0 1 236,336 L 180,336 A 48,48 0 0 1 132,288 L 132,224 A 48,48 0 0 1 180,176 Z"
+        fill="url(#grad)"/>
+
+  <!-- M letterform - clean geometric -->
+  <path d="M 272,336 L 272,192 A 8,8 0 0 1 284,184 L 330,264 A 4,4 0 0 0 338,264 L 384,184 A 8,8 0 0 1 396,192 L 396,336 A 8,8 0 0 1 380,336 L 380,232 L 342,300 A 8,8 0 0 1 326,300 L 288,232 L 288,336 A 8,8 0 0 1 272,336 Z"
+        fill="url(#grad)"/>
+
+  <!-- Three skill dots below -->
+  <circle cx="216" cy="400" r="12" fill="#6ee7b7"/>
+  <circle cx="256" cy="400" r="12" fill="#3b82f6"/>
+  <circle cx="296" cy="400" r="12" fill="#8b5cf6"/>
+
+  <!-- Connecting line between dots -->
+  <line x1="228" y1="400" x2="244" y2="400" stroke="#6ee7b7" stroke-width="3" opacity="0.5"/>
+  <line x1="268" y1="400" x2="284" y2="400" stroke="#3b82f6" stroke-width="3" opacity="0.5"/>
+</svg>
