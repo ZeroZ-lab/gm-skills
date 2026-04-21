@@ -1,0 +1,38 @@
+{
+  "diagramType": "radar",
+  "title": "Team Skills Comparison",
+  "subtitle": "Score out of 10",
+  "style": "dark-professional",
+  "format": "html",
+  "axes": [
+    { "label": "Frontend", "maxValue": 10 },
+    { "label": "Backend", "maxValue": 10 },
+    { "label": "DevOps", "maxValue": 10 },
+    { "label": "Design", "maxValue": 10 },
+    { "label": "Testing", "maxValue": 10 }
+  ],
+  "series": [
+    {
+      "name": "Dev A",
+      "color": "#6366f1",
+      "fillOpacity": 0.15,
+      "data": [8, 6, 7, 5, 9]
+    },
+    {
+      "name": "Dev B",
+      "color": "#f472b6",
+      "fillOpacity": 0.15,
+      "data": [6, 9, 5, 8, 7]
+    }
+  ],
+  "scaleLevels": 5,
+  "legend": {
+    "visible": true,
+    "position": "bottom"
+  },
+  "metadata": {
+    "author": "gmdiagram",
+    "date": "2026-04-14",
+    "version": "0.6.0"
+  }
+}

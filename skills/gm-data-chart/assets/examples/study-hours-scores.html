@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>学习时间与考试成绩</title>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      background: #020617;
+      color: #e2e8f0;
+      font-family: 'JetBrains Mono', 'SF Mono', 'Fira Code', monospace;
+      min-height: 100vh;
+      padding: 40px 20px;
+    }
+    .container { max-width: 1100px; margin: 0 auto; }
+    .header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 32px;
+    }
+    .pulse-dot {
+      width: 10px; height: 10px; border-radius: 50%;
+      background: #22d3ee;
+      box-shadow: 0 0 8px rgba(34, 211, 238, 0.6);
+      animation: pulse 2s ease-in-out infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.4; }
+    }
+    h1 { font-size: 22px; font-weight: 700; color: #f1f5f9; }
+    .subtitle { font-size: 13px; color: #64748b; margin-top: 4px; }
+    .diagram-container {
+      background: #0f172a;
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 12px;
+      padding: 24px;
+      margin-bottom: 32px;
+      overflow-x: auto;
+    }
+    .diagram-container svg {
+      width: 100%;
+      min-width: 500px;
+      height: auto;
+      display: block;
+    }
+    .footer {
+      font-size: 11px;
+      color: #475569;
+      text-align: center;
+      padding-top: 16px;
+      border-top: 1px solid rgba(255,255,255,0.04);
+    }
+    /* === Chart classes (dark-professional) === */
+    .axis-line { stroke: #64748b; stroke-width: 1.5; fill: none; }
+    .axis-label { fill: #94a3b8; font-size: 12px; font-family: 'JetBrains Mono', 'SF Mono', 'Fira Code', monospace; }
+    .axis-title { fill: #f1f5f9; font-size: 13px; font-weight: 600; font-family: 'JetBrains Mono', 'SF Mono', 'Fira Code', monospace; }
+    .tick-label { fill: #94a3b8; font-size: 11px; font-family: 'JetBrains Mono', 'SF Mono', 'Fira Code', monospace; }
+    .grid-line { stroke: rgba(255,255,255,0.06); stroke-dasharray: 4,4; stroke-width: 0.5; fill: none; }
+    .scatter-point { opacity: 0.7; }
+    .scatter-point:hover { opacity: 1; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <div class="pulse-dot"></div>
+      <div>
+        <h1>学习时间与考试成绩</h1>
+        <div class="subtitle">相关性分析</div>
+      </div>
+    </div>
+
+    <div class="diagram-container">
+      <svg viewBox="0 0 500 500" xmlns="http://www.w3.org/2000/svg">
+
+        <!-- === Grid Lines (Y axis - horizontal) === -->
+        <!-- tick=50, y=440 -->
+        <line x1="70" y1="440" x2="460" y2="440" class="grid-line" />
+        <!-- tick=60, y=364 -->
+        <line x1="70" y1="364" x2="460" y2="364" class="grid-line" />
+        <!-- tick=70, y=288 -->
+        <line x1="70" y1="288" x2="460" y2="288" class="grid-line" />
+        <!-- tick=80, y=212 -->
+        <line x1="70" y1="212" x2="460" y2="212" class="grid-line" />
+        <!-- tick=90, y=136 -->
+        <line x1="70" y1="136" x2="460" y2="136" class="grid-line" />
+        <!-- tick=100, y=60 -->
+        <line x1="70" y1="60" x2="460" y2="60" class="grid-line" />
+
+        <!-- === Grid Lines (X axis - vertical) === -->
+        <!-- tick=0, x=70 -->
+        <line x1="70" y1="60" x2="70" y2="440" class="grid-line" />
+        <!-- tick=2, x=148 -->
+        <line x1="148" y1="60" x2="148" y2="440" class="grid-line" />
+        <!-- tick=4, x=226 -->
+        <line x1="226" y1="60" x2="226" y2="440" class="grid-line" />
+        <!-- tick=6, x=304 -->
+        <line x1="304" y1="60" x2="304" y2="440" class="grid-line" />
+        <!-- tick=8, x=382 -->
+        <line x1="382" y1="60" x2="382" y2="440" class="grid-line" />
+        <!-- tick=10, x=460 -->
+        <line x1="460" y1="60" x2="460" y2="440" class="grid-line" />
+
+        <!-- === Axes === -->
+        <!-- Y axis -->
+        <line x1="70" y1="60" x2="70" y2="440" class="axis-line" />
+        <!-- X axis -->
+        <line x1="70" y1="440" x2="460" y2="440" class="axis-line" />
+
+        <!-- === Data Points === -->
+        <!-- Plot area: x=70..460 (390px), y=60..440 (380px) -->
+        <!-- xTickRange=10, yTickRange=50 -->
+        <!-- valueToX(val) = 70 + (val/10)*390 -->
+        <!-- valueToY(val) = 60 + 380 - ((val-50)/50)*380 -->
+
+        <!-- A班 (circles, fill: #6366f1) -->
+        <!-- (2,65): cx=148, cy=326 -->
+        <circle cx="148" cy="326" r="5" fill="#6366f1" fill-opacity="0.7" class="scatter-point" />
+        <!-- (3,70): cx=187, cy=288 -->
+        <circle cx="187" cy="288" r="5" fill="#6366f1" fill-opacity="0.7" class="scatter-point" />
+        <!-- (5,80): cx=265, cy=212 -->
+        <circle cx="265" cy="212" r="5" fill="#6366f1" fill-opacity="0.7" class="scatter-point" />
+        <!-- (7,88): cx=343, cy=151.2 -->
+        <circle cx="343" cy="151.2" r="5" fill="#6366f1" fill-opacity="0.7" class="scatter-point" />
+        <!-- (8,92): cx=382, cy=120.8 -->
+        <circle cx="382" cy="120.8" r="5" fill="#6366f1" fill-opacity="0.7" class="scatter-point" />
+
+        <!-- B班 (diamonds, fill: #f472b6, size=5) -->
+        <!-- diamond points: cx,cy-5 cx+5,cy cx,cy+5 cx-5,cy -->
+        <!-- (1,55): cx=109, cy=402 -->
+        <polygon points="109,397 114,402 109,407 104,402" fill="#f472b6" fill-opacity="0.7" class="scatter-point" />
+        <!-- (4,68): cx=226, cy=303.2 -->
+        <polygon points="226,298.2 231,303.2 226,308.2 221,303.2" fill="#f472b6" fill-opacity="0.7" class="scatter-point" />
+        <!-- (6,75): cx=304, cy=250 -->
+        <polygon points="304,245 309,250 304,255 299,250" fill="#f472b6" fill-opacity="0.7" class="scatter-point" />
+        <!-- (7,82): cx=343, cy=196.8 -->
+        <polygon points="343,191.8 348,196.8 343,201.8 338,196.8" fill="#f472b6" fill-opacity="0.7" class="scatter-point" />
+        <!-- (9,95): cx=421, cy=98 -->
+        <polygon points="421,93 426,98 421,103 416,98" fill="#f472b6" fill-opacity="0.7" class="scatter-point" />
+
+        <!-- === Y Axis Tick Labels === -->
+        <foreignObject x="0" y="430" width="60" height="20">
+          <div xmlns="http://www.w3.org/1999/xhtml" class="tick-label" style="text-align: right;">50</div>
+        </foreignObject>
+        <foreignObject x="0" y="354" width="60" height="20">
+          <div xmlns="http://www.w3.org/1999/xhtml" class="tick-label" style="text-align: right;">60</div>
+        </foreignObject>
+        <foreignObject x="0" y="278" width="60" height="20">
+          <div xmlns="http://www.w3.org/1999/xhtml" class="tick-label" style="text-align: right;">70</div>
+        </foreignObject>
+        <foreignObject x="0" y="202" width="60" height="20">
+          <div xmlns="http://www.w3.org/1999/xhtml" class="tick-label" style="text-align: right;">80</div>
+        </foreignObject>
+        <foreignObject x="0" y="126" width="60" height="20">
+          <div xmlns="http://www.w3.org/1999/xhtml" class="tick-label" style="text-align: right;">90</div>
+        </foreignObject>
+        <foreignObject x="0" y="50" width="60" height="20">
+          <div xmlns="http://www.w3.org/1999/xhtml" class="tick-label" style="text-align: right;">100</div>
+        </foreignObject>
+
+        <!-- === X Axis Tick Labels === -->
+        <foreignObject x="40" y="448" width="60" height="20">
+          <div xmlns="http://www.w3.org/1999/xhtml" class="tick-label" style="text-align: center;">0</div>
+        </foreignObject>
+        <foreignObject x="118" y="448" width="60" height="20">
+          <div xmlns="http://www.w3.org/1999/xhtml" class="tick-label" style="text-align: center;">2</div>
+        </foreignObject>
+        <foreignObject x="196" y="448" width="60" height="20">
+          <div xmlns="http://www.w3.org/1999/xhtml" class="tick-label" style="text-align: center;">4</div>
+        </foreignObject>
+        <foreignObject x="274" y="448" width="60" height="20">
+          <div xmlns="http://www.w3.org/1999/xhtml" class="tick-label" style="text-align: center;">6</div>
+        </foreignObject>
+        <foreignObject x="352" y="448" width="60" height="20">
+          <div xmlns="http://www.w3.org/1999/xhtml" class="tick-label" style="text-align: center;">8</div>
+        </foreignObject>
+        <foreignObject x="430" y="448" width="60" height="20">
+          <div xmlns="http://www.w3.org/1999/xhtml" class="tick-label" style="text-align: center;">10</div>
+        </foreignObject>
+
+        <!-- === Y Axis Title === -->
+        <foreignObject x="0" y="60" width="20" height="380">
+          <div xmlns="http://www.w3.org/1999/xhtml" class="axis-title"
+               style="transform: rotate(-90deg); transform-origin: center; display: flex; align-items: center; justify-content: center; height: 100%;">
+            考试成绩
+          </div>
+        </foreignObject>
+
+        <!-- === X Axis Title === -->
+        <foreignObject x="70" y="475" width="390" height="20">
+          <div xmlns="http://www.w3.org/1999/xhtml" class="axis-title" style="text-align: center;">
+            学习时间（小时/天）
+          </div>
+        </foreignObject>
+
+        <!-- === Legend === -->
+        <foreignObject x="70" y="30" width="390" height="25">
+          <div xmlns="http://www.w3.org/1999/xhtml" style="display: flex; align-items: center; justify-content: center; gap: 16px;">
+            <div style="display: flex; align-items: center; gap: 6px;">
+              <div style="width: 12px; height: 12px; background: #6366f1; border-radius: 2px;"></div>
+              <span class="tick-label">A班</span>
+            </div>
+            <div style="display: flex; align-items: center; gap: 6px;">
+              <div style="width: 12px; height: 12px; background: #f472b6; border-radius: 2px;"></div>
+              <span class="tick-label">B班</span>
+            </div>
+          </div>
+        </foreignObject>
+
+      </svg>
+    </div>
+
+    <div class="footer">
+      Generated by gmdiagram &middot; 2026-04-14
+    </div>
+  </div>
+</body>
+</html>

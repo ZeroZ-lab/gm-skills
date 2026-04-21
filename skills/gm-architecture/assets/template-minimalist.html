@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Architecture Diagram — Minimalist</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      background: #ffffff;
+      color: #111827;
+      font-family: 'Inter', 'Helvetica Neue', system-ui, sans-serif;
+      min-height: 100vh;
+      padding: 60px 20px;
+    }
+    .container { max-width: 1100px; margin: 0 auto; }
+    .header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 32px;
+    }
+    .dot {
+      width: 8px; height: 8px; border-radius: 50%;
+      background: #374151;
+    }
+    h1 { font-size: 22px; font-weight: 700; color: #111827; letter-spacing: -0.02em; }
+    .subtitle { font-size: 13px; color: #6b7280; margin-top: 4px; }
+    .diagram-container {
+      background: #ffffff;
+      border: 0.5px solid #e5e7eb;
+      border-radius: 4px;
+      padding: 32px;
+      margin-bottom: 32px;
+      overflow-x: auto;
+    }
+    .diagram-container svg {
+      width: 100%;
+      min-width: 700px;
+      height: auto;
+      display: block;
+    }
+    .footer {
+      font-size: 11px;
+      color: #9ca3af;
+      text-align: center;
+      padding-top: 16px;
+      border-top: 0.5px solid #e5e7eb;
+    }
+    /* === foreignObject component classes (minimalist) === */
+    .layer-card { width: 100%; border-radius: 2px; padding: 8px 0 12px; box-sizing: border-box; }
+    .layer-label { font-size: 14px; font-weight: 600; color: #111827; padding: 0 16px; font-family: 'Inter', 'Helvetica Neue', system-ui, sans-serif; }
+    .modules { display: flex; gap: 20px; justify-content: center; padding: 8px 16px 0; flex-wrap: wrap; }
+    .module { min-width: 100px; height: 40px; border-radius: 2px; display: flex; align-items: center; justify-content: center; padding: 0 16px; box-sizing: border-box; }
+    .module-label { font-size: 12px; font-weight: 500; color: #111827; text-align: center; white-space: nowrap; font-family: 'Inter', 'Helvetica Neue', system-ui, sans-serif; }
+    .tech-badges { display: flex; gap: 4px; justify-content: center; padding-top: 4px; }
+    .tech-badge { font-size: 8px; padding: 2px 6px; border-radius: 2px; white-space: nowrap; background: #f3f4f6; border: 0.5px solid #e5e7eb; color: #6b7280; font-family: 'Inter', system-ui, sans-serif; }
+
+    /* Module with badge */
+    .module.has-badges { height: 48px; flex-direction: column; gap: 2px; }
+    .module.has-badges .module-label { height: 18px; }
+
+    /* Type-specific colors — ultra-subtle fills, thin gray borders */
+    .type-process { background: #f9fafb; border: 0.5px solid #9ca3af; }
+    .type-module { background: #fafafa; border: 0.5px solid #d1d5db; }
+    .type-data { background: #f5f3ff; border: 0.5px solid #c4b5fd; }
+    .type-infra { background: #fffbeb; border: 0.5px solid #fcd34d; }
+    .type-security { background: #fff1f2; border: 0.5px solid #fda4af; border-style: dashed; }
+    .type-channel { background: #fff7ed; border: 0.5px solid #fdba74; }
+    .type-external { background: #f9fafb; border: 0.5px solid #e5e7eb; }
+
+    /* Legend */
+    .legend-container { display: flex; gap: 100px; align-items: center; }
+    .legend-item { display: flex; align-items: center; gap: 6px; }
+    .legend-swatch { width: 14px; height: 14px; border-radius: 2px; }
+    .legend-text { font-size: 11px; color: #374151; font-family: 'Inter', system-ui, sans-serif; }
+
+    /* === Chart classes (minimalist) === */
+    .axis-line { stroke: #cccccc; stroke-width: 1.5; fill: none; }
+    .axis-label { fill: #555555; font-size: 12px; font-family: 'Inter', system-ui, sans-serif; }
+    .axis-title { fill: #222222; font-size: 13px; font-weight: 600; font-family: 'Inter', system-ui, sans-serif; }
+    .tick-label { fill: #555555; font-size: 11px; font-family: 'Inter', system-ui, sans-serif; }
+    .grid-line { stroke: rgba(0,0,0,0.08); stroke-dasharray: 4,4; stroke-width: 0.5; fill: none; }
+    .bar { rx: 2; }
+    .bar:hover { opacity: 0.85; }
+    .slice { stroke: #fafafa; stroke-width: 2; }
+    .line-path { fill: none; stroke-width: 2.5; }
+    .area-fill { opacity: 0.15; }
+    .data-dot { stroke-width: 2; }
+    .scatter-point { stroke-width: 1.5; }
+    .bubble-point { stroke-width: 1.5; }
+    .radar-grid { stroke: rgba(0,0,0,0.08); fill: none; stroke-width: 0.5; }
+    .radar-axis { stroke: rgba(0,0,0,0.1); stroke-width: 0.5; }
+    .radar-data { stroke-width: 2; stroke-linejoin: round; }
+    .funnel-stage { stroke: white; stroke-width: 1; }
+    .funnel-label { fill: #111827; font-size: 13px; font-weight: 600; font-family: 'Inter', system-ui, sans-serif; }
+    .table-header { font-weight: 600; text-align: left; padding: 8px 12px; border-bottom: 2px solid #e5e7eb; }
+    .table-row { border-bottom: 1px solid rgba(0,0,0,0.06); }
+    .table-cell { padding: 8px 12px; font-size: 13px; }
+    .highlight-max { font-weight: 600; }
+    .highlight-min { font-weight: 600; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <div class="dot"></div>
+      <div>
+        <h1>System Architecture</h1>
+        <div class="subtitle">Minimalist style template</div>
+      </div>
+    </div>
+
+    <div class="diagram-container">
+      <svg viewBox="0 0 1000 400" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <marker id="arrowhead" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+            <polygon points="0 0, 8 3, 0 6" fill="#9ca3af"/>
+          </marker>
+          <marker id="arrowhead-rev" markerWidth="8" markerHeight="6" refX="0" refY="3" orient="auto">
+            <polygon points="8 0, 0 3, 8 6" fill="#9ca3af"/>
+          </marker>
+        </defs>
+
+        <!-- === LAYER 1: Example === -->
+        <g>
+          <rect x="40" y="30" width="920" height="90" rx="2" fill="#f9fafb" stroke="#9ca3af" stroke-width="0.5"/>
+          <text x="60" y="52" font-size="14" font-weight="600" fill="#111827" font-family="Inter, system-ui, sans-serif">Application Layer</text>
+
+          <rect x="80" y="62" width="140" height="40" rx="2" fill="#fafafa" stroke="#d1d5db" stroke-width="0.5"/>
+          <text x="150" y="87" font-size="12" font-weight="500" fill="#111827" font-family="Inter, system-ui, sans-serif" text-anchor="middle">API Gateway</text>
+
+          <rect x="250" y="62" width="140" height="40" rx="2" fill="#fafafa" stroke="#d1d5db" stroke-width="0.5"/>
+          <text x="320" y="87" font-size="12" font-weight="500" fill="#111827" font-family="Inter, system-ui, sans-serif" text-anchor="middle">Auth Service</text>
+        </g>
+
+        <!-- === LEGEND === -->
+        <g transform="translate(40, 150)">
+          <text x="0" y="0" font-size="11" font-weight="600" fill="#374151" font-family="Inter, system-ui, sans-serif">Legend</text>
+          <rect x="0" y="14" width="14" height="14" rx="2" fill="#f9fafb" stroke="#9ca3af" stroke-width="0.5"/>
+          <text x="20" y="25" font-size="11" fill="#374151" font-family="Inter, system-ui, sans-serif">Process</text>
+          <rect x="100" y="14" width="14" height="14" rx="2" fill="#fafafa" stroke="#d1d5db" stroke-width="0.5"/>
+          <text x="120" y="25" font-size="11" fill="#374151" font-family="Inter, system-ui, sans-serif">Module</text>
+        </g>
+
+      </svg>
+    </div>
+
+    <div class="footer">
+      Generated by gmdiagram &middot; Minimalist
+    </div>
+  </div>
+</body>
+</html>

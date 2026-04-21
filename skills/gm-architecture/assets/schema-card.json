@@ -1,0 +1,270 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Card Diagram Schema",
+  "description": "Schema for social sharing card diagrams — info, compare, quote, and list card types.",
+  "type": "object",
+  "required": ["diagramType", "cardType", "title", "size", "style", "format"],
+  "additionalProperties": false,
+  "properties": {
+    "diagramType": {
+      "type": "string",
+      "const": "card"
+    },
+    "cardType": {
+      "type": "string",
+      "enum": ["info", "compare", "quote", "list"],
+      "description": "Type of card layout"
+    },
+    "title": {
+      "type": "string",
+      "maxLength": 35,
+      "description": "Card headline"
+    },
+    "subtitle": {
+      "type": "string",
+      "maxLength": 55,
+      "description": "Secondary text below title"
+    },
+    "size": {
+      "type": "string",
+      "enum": ["twitter", "instagram"],
+      "default": "twitter",
+      "description": "Card dimensions preset. twitter=1200x630, instagram=1080x1080"
+    },
+    "style": {
+      "type": "string",
+      "enum": [
+        "dark-professional", "hand-drawn", "light-corporate",
+        "cyberpunk-neon", "blueprint", "warm-cozy",
+        "minimalist", "terminal-retro", "pastel-dream",
+        "notion", "material", "glassmorphism"
+      ],
+      "default": "dark-professional"
+    },
+    "format": {
+      "type": "string",
+      "enum": ["html", "svg"],
+      "default": "html",
+      "description": "Output format. Only html and svg supported (no Mermaid). PNG/PDF via export.sh."
+    },
+    "icon": {
+      "type": "string",
+      "maxLength": 10,
+      "description": "Single emoji or short icon text for card header accent. Will be HTML-escaped before rendering."
+    },
+    "tags": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "maxLength": 20
+      },
+      "maxItems": 6,
+      "description": "Topic tags displayed at the bottom of the card"
+    },
+    "footer": {
+      "$ref": "#/$defs/footer"
+    },
+    "font": {
+      "type": "string",
+      "pattern": "^[a-zA-Z0-9][a-zA-Z0-9 ._+\\-]{0,50}$",
+      "description": "Google Fonts name. Must start with alphanumeric. Allows spaces, dots, hyphens, plus, underscores."
+    },
+    "colors": {
+      "$ref": "#/$defs/colorOverrides"
+    },
+    "metadata": {
+      "$ref": "#/$defs/metadata"
+    }
+  },
+  "allOf": [
+    {
+      "if": { "properties": { "cardType": { "const": "info" } } },
+      "then": {
+        "required": ["points"],
+        "properties": {
+          "points": {
+            "type": "array",
+            "items": { "$ref": "#/$defs/infoPoint" },
+            "minItems": 2,
+            "maxItems": 6
+          }
+        }
+      }
+    },
+    {
+      "if": { "properties": { "cardType": { "const": "compare" } } },
+      "then": {
+        "required": ["sides"],
+        "properties": {
+          "sides": {
+            "type": "array",
+            "items": { "$ref": "#/$defs/compareSide" },
+            "minItems": 2,
+            "maxItems": 2
+          }
+        }
+      }
+    },
+    {
+      "if": { "properties": { "cardType": { "const": "quote" } } },
+      "then": {
+        "required": ["quote"],
+        "properties": {
+          "quote": {
+            "type": "string",
+            "maxLength": 140
+          }
+        }
+      }
+    },
+    {
+      "if": { "properties": { "cardType": { "const": "list" } } },
+      "then": {
+        "required": ["items"],
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": { "$ref": "#/$defs/listItem" },
+            "minItems": 3,
+            "maxItems": 10
+          }
+        }
+      }
+    }
+  ],
+  "$defs": {
+    "footer": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "author": {
+          "type": "string",
+          "maxLength": 20,
+          "description": "Author handle or name shown in card footer"
+        },
+        "brand": {
+          "type": "string",
+          "maxLength": 20,
+          "default": "GM Diagram",
+          "description": "Brand text shown in card footer"
+        }
+      }
+    },
+    "colorOverrides": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "Override style colors. All values must be 6-digit hex.",
+      "properties": {
+        "primary": { "type": "string", "pattern": "^#[0-9a-fA-F]{6}$" },
+        "secondary": { "type": "string", "pattern": "^#[0-9a-fA-F]{6}$" },
+        "accent": { "type": "string", "pattern": "^#[0-9a-fA-F]{6}$" },
+        "background": { "type": "string", "pattern": "^#[0-9a-fA-F]{6}$" },
+        "text": { "type": "string", "pattern": "^#[0-9a-fA-F]{6}$" }
+      }
+    },
+    "metadata": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "author": {
+          "type": "string",
+          "maxLength": 50
+        },
+        "date": {
+          "type": "string",
+          "format": "date",
+          "description": "ISO 8601 date (YYYY-MM-DD)"
+        },
+        "version": {
+          "type": "string",
+          "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$",
+          "description": "SemVer format (major.minor.patch)"
+        }
+      }
+    },
+    "infoPoint": {
+      "type": "object",
+      "required": ["label", "description"],
+      "additionalProperties": false,
+      "properties": {
+        "label": {
+          "type": "string",
+          "maxLength": 15,
+          "description": "Short label for the key point"
+        },
+        "description": {
+          "type": "string",
+          "maxLength": 40,
+          "description": "Brief description of the key point"
+        }
+      }
+    },
+    "comparePoint": {
+      "type": "object",
+      "required": ["label", "value"],
+      "additionalProperties": false,
+      "properties": {
+        "label": {
+          "type": "string",
+          "maxLength": 12,
+          "description": "Comparison dimension label"
+        },
+        "value": {
+          "type": "string",
+          "maxLength": 30,
+          "description": "Value for this dimension"
+        }
+      }
+    },
+    "compareSide": {
+      "type": "object",
+      "required": ["label", "points"],
+      "additionalProperties": false,
+      "properties": {
+        "label": {
+          "type": "string",
+          "maxLength": 15,
+          "description": "Side label (e.g. 'Rust', 'Go')"
+        },
+        "icon": {
+          "type": "string",
+          "maxLength": 10,
+          "description": "Emoji icon for this side"
+        },
+        "color": {
+          "type": "string",
+          "pattern": "^#[0-9a-fA-F]{6}$",
+          "description": "Per-side accent color. Compare cards are exempt from the 'no custom colors' rule — each side needs a distinct identity color."
+        },
+        "points": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/comparePoint" },
+          "minItems": 2,
+          "maxItems": 5
+        }
+      }
+    },
+    "listItem": {
+      "type": "object",
+      "required": ["rank", "label"],
+      "additionalProperties": false,
+      "properties": {
+        "rank": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Rank number (1 = top)"
+        },
+        "label": {
+          "type": "string",
+          "maxLength": 25,
+          "description": "Item label text"
+        },
+        "icon": {
+          "type": "string",
+          "maxLength": 10,
+          "description": "Emoji icon for this item"
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>React Server Components</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { display: flex; justify-content: center; align-items: center; min-height: 100vh; background: #111; }
+    svg { max-width: 100%; height: auto; }
+  </style>
+</head>
+<body>
+  <svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
+    <style>
+      :root {
+        --card-bg: #020617;
+        --card-text: #f1f5f9;
+        --card-title: #f1f5f9;
+        --card-muted: #94a3b8;
+        --card-accent: #22d3ee;
+        --card-border: rgba(255,255,255,0.06);
+        --card-point-bg: rgba(255,255,255,0.04);
+        --card-tag-bg: rgba(255,255,255,0.08);
+        --card-radius: 6;
+        --card-font: 'JetBrains Mono', monospace;
+      }
+      .text-block { overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; }
+    </style>
+
+    <!-- Background -->
+    <rect width="1200" height="630" fill="#020617" />
+
+    <!-- Title Block -->
+    <text x="60" y="68" font-size="36" fill="#22d3ee"
+          font-family="'Apple Color Emoji','Segoe UI Emoji','Noto Color Emoji',sans-serif">⚡</text>
+    <foreignObject x="108" y="40" width="1032" height="80">
+      <div xmlns="http://www.w3.org/1999/xhtml" style="font-family: 'JetBrains Mono', monospace;">
+        <div style="font-size: 32px; font-weight: 700; color: #f1f5f9; line-height: 1.2;">React Server Components</div>
+        <div style="font-size: 18px; color: #94a3b8; margin-top: 8px;">服务端渲染的新范式</div>
+      </div>
+    </foreignObject>
+
+    <!-- Content: 2x2 Point Grid -->
+    <!-- Row 0 -->
+    <rect x="60" y="148" width="528" height="96" rx="6" fill="rgba(255,255,255,0.04)" stroke="rgba(255,255,255,0.06)" stroke-width="1" />
+    <foreignObject x="76" y="156" width="496" height="80">
+      <div xmlns="http://www.w3.org/1999/xhtml" style="font-family: 'JetBrains Mono', monospace;">
+        <div style="font-size: 16px; font-weight: 600; color: #f1f5f9;" class="text-block">零打包体积</div>
+        <div style="font-size: 14px; color: #f1f5f9; margin-top: 4px;" class="text-block">服务端组件不会被打包到客户端</div>
+      </div>
+    </foreignObject>
+
+    <rect x="608" y="148" width="528" height="96" rx="6" fill="rgba(255,255,255,0.04)" stroke="rgba(255,255,255,0.06)" stroke-width="1" />
+    <foreignObject x="624" y="156" width="496" height="80">
+      <div xmlns="http://www.w3.org/1999/xhtml" style="font-family: 'JetBrains Mono', monospace;">
+        <div style="font-size: 16px; font-weight: 600; color: #f1f5f9;" class="text-block">直接数据访问</div>
+        <div style="font-size: 14px; color: #f1f5f9; margin-top: 4px;" class="text-block">无需 API 层，直接读写数据库</div>
+      </div>
+    </foreignObject>
+
+    <!-- Row 1 -->
+    <rect x="60" y="260" width="528" height="96" rx="6" fill="rgba(255,255,255,0.04)" stroke="rgba(255,255,255,0.06)" stroke-width="1" />
+    <foreignObject x="76" y="268" width="496" height="80">
+      <div xmlns="http://www.w3.org/1999/xhtml" style="font-family: 'JetBrains Mono', monospace;">
+        <div style="font-size: 16px; font-weight: 600; color: #f1f5f9;" class="text-block">流式渲染</div>
+        <div style="font-size: 14px; color: #f1f5f9; margin-top: 4px;" class="text-block">支持 Suspense + Streaming</div>
+      </div>
+    </foreignObject>
+
+    <rect x="608" y="260" width="528" height="96" rx="6" fill="rgba(255,255,255,0.04)" stroke="rgba(255,255,255,0.06)" stroke-width="1" />
+    <foreignObject x="624" y="268" width="496" height="80">
+      <div xmlns="http://www.w3.org/1999/xhtml" style="font-family: 'JetBrains Mono', monospace;">
+        <div style="font-size: 16px; font-weight: 600; color: #f1f5f9;" class="text-block">自动代码分割</div>
+        <div style="font-size: 14px; color: #f1f5f9; margin-top: 4px;" class="text-block">客户端组件自动按需加载</div>
+      </div>
+    </foreignObject>
+
+    <!-- Tags -->
+    <foreignObject x="60" y="540" width="1080" height="24">
+      <div xmlns="http://www.w3.org/1999/xhtml" style="display: flex; gap: 8px; font-family: 'JetBrains Mono', monospace;">
+        <span style="color: #94a3b8; background: rgba(255,255,255,0.08); border-radius: 4px; padding: 4px 10px; font-size: 13px;">#React</span>
+        <span style="color: #94a3b8; background: rgba(255,255,255,0.08); border-radius: 4px; padding: 4px 10px; font-size: 13px;">#ServerComponents</span>
+        <span style="color: #94a3b8; background: rgba(255,255,255,0.08); border-radius: 4px; padding: 4px 10px; font-size: 13px;">#SSR</span>
+      </div>
+    </foreignObject>
+
+    <!-- Footer -->
+    <foreignObject x="60" y="580" width="1080" height="20">
+      <div xmlns="http://www.w3.org/1999/xhtml" style="display: flex; justify-content: space-between; font-family: 'JetBrains Mono', monospace;">
+        <span style="color: #94a3b8; font-size: 12px;">@zhengjianqiao</span>
+        <span style="color: #94a3b8; font-size: 12px; opacity: 0.6;">GM Diagram</span>
+      </div>
+    </foreignObject>
+  </svg>
+</body>
+</html>

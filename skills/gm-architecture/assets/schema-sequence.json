@@ -1,0 +1,299 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "sequence-diagram-schema",
+  "title": "Sequence Diagram Schema",
+  "description": "Intermediate representation for sequence/interaction diagrams.",
+  "type": "object",
+  "required": [
+    "title",
+    "diagramType",
+    "style",
+    "actors",
+    "messages"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "title": {
+      "type": "string"
+    },
+    "subtitle": {
+      "type": "string"
+    },
+    "diagramType": {
+      "type": "string",
+      "const": "sequence"
+    },
+    "style": {
+      "type": "string",
+      "enum": [
+        "dark-professional",
+        "hand-drawn",
+        "light-corporate",
+        "cyberpunk-neon",
+        "blueprint",
+        "warm-cozy",
+        "minimalist",
+        "terminal-retro",
+        "pastel-dream",
+        "notion",
+        "material",
+        "glassmorphism"
+      ],
+      "default": "dark-professional"
+    },
+    "format": {
+      "type": "string",
+      "enum": [
+        "html",
+        "svg",
+        "mermaid"
+      ],
+      "default": "html"
+    },
+    "density": {
+      "type": "string",
+      "enum": [
+        "compact",
+        "normal",
+        "spacious"
+      ],
+      "description": "Layout density. compact=tighter spacing for dense diagrams; normal=standard spacing; spacious=generous spacing for presentations.",
+      "default": "normal"
+    },
+    "actors": {
+      "type": "array",
+      "description": "Participants in the interaction.",
+      "items": {
+        "$ref": "#/$defs/actor"
+      },
+      "minItems": 2
+    },
+    "messages": {
+      "type": "array",
+      "description": "Messages between actors, ordered top-to-bottom.",
+      "items": {
+        "$ref": "#/$defs/message"
+      },
+      "minItems": 1
+    },
+    "fragments": {
+      "type": "array",
+      "description": "Interaction fragments (alt, loop, opt, par).",
+      "items": {
+        "$ref": "#/$defs/fragment"
+      },
+      "default": []
+    },
+    "legend": {
+      "type": "array",
+      "description": "Legend entries shown below the diagram. Auto-generated if not provided.",
+      "items": {
+        "$ref": "#/$defs/legendEntry"
+      },
+      "default": []
+    },
+    "font": {
+      "type": "string",
+      "pattern": "^[a-zA-Z0-9][a-zA-Z0-9 ._+\\-]{0,50}$",
+      "description": "Optional font override. Use a Google Fonts name. Alphanumeric, spaces, dots, hyphens, plus, underscores allowed.",
+      "default": null
+    },
+    "colors": {
+      "type": "object",
+      "description": "Optional color overrides. Each key overrides the corresponding semantic color from the chosen style.",
+      "properties": {
+        "primary": {
+          "type": "string",
+          "pattern": "^#[0-9a-fA-F]{6}$",
+          "description": "Primary accent color (borders, highlights)"
+        },
+        "secondary": {
+          "type": "string",
+          "pattern": "^#[0-9a-fA-F]{6}$",
+          "description": "Secondary color (subtle borders, backgrounds)"
+        },
+        "accent": {
+          "type": "string",
+          "pattern": "^#[0-9a-fA-F]{6}$",
+          "description": "Accent color (highlights, call-to-action elements)"
+        },
+        "background": {
+          "type": "string",
+          "pattern": "^#[0-9a-fA-F]{6}$",
+          "description": "Page background color"
+        },
+        "text": {
+          "type": "string",
+          "pattern": "^#[0-9a-fA-F]{6}$",
+          "description": "Primary text color"
+        }
+      },
+      "additionalProperties": false
+    },
+    "metadata": {
+      "type": "object",
+      "description": "Optional metadata for the generated page.",
+      "properties": {
+        "author": {
+          "type": "string"
+        },
+        "date": {
+          "type": "string",
+          "format": "date"
+        },
+        "version": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "$defs": {
+    "actor": {
+      "type": "object",
+      "required": [
+        "id",
+        "label"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[a-z0-9][a-z0-9-]*$"
+        },
+        "label": {
+          "type": "string"
+        },
+        "type": {
+          "type": "string",
+          "enum": [
+            "actor",
+            "participant",
+            "boundary",
+            "control",
+            "entity"
+          ],
+          "default": "participant"
+        }
+      }
+    },
+    "message": {
+      "type": "object",
+      "required": [
+        "from",
+        "to",
+        "label",
+        "type",
+        "order"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "from": {
+          "type": "string"
+        },
+        "to": {
+          "type": "string"
+        },
+        "label": {
+          "type": "string"
+        },
+        "type": {
+          "type": "string",
+          "enum": [
+            "sync",
+            "async",
+            "return",
+            "create",
+            "destroy"
+          ],
+          "description": "sync=solid arrow, async=open arrow, return=dashed arrow, create=dashed to new, destroy=X"
+        },
+        "order": {
+          "type": "number",
+          "description": "Vertical ordering (1-based)"
+        },
+        "activate": {
+          "type": "boolean",
+          "default": false
+        },
+        "note": {
+          "type": "string",
+          "description": "Optional annotation on the message"
+        }
+      }
+    },
+    "fragment": {
+      "type": "object",
+      "required": [
+        "id",
+        "type",
+        "label",
+        "children"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[a-z0-9][a-z0-9-]*$"
+        },
+        "type": {
+          "type": "string",
+          "enum": [
+            "alt",
+            "loop",
+            "opt",
+            "par",
+            "critical"
+          ]
+        },
+        "label": {
+          "type": "string",
+          "description": "Fragment label (e.g., 'alt', 'loop 5 times')"
+        },
+        "condition": {
+          "type": "string",
+          "description": "Guard condition (e.g., '[valid]')"
+        },
+        "children": {
+          "type": "array",
+          "items": {
+            "type": "number"
+          },
+          "description": "Message orders included in this fragment"
+        },
+        "else": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "condition": {
+              "type": "string"
+            },
+            "children": {
+              "type": "array",
+              "items": {
+                "type": "number"
+              }
+            }
+          }
+        }
+      }
+    },
+    "legendEntry": {
+      "type": "object",
+      "required": [
+        "label"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "label": {
+          "type": "string",
+          "description": "Legend item label"
+        },
+        "color": {
+          "type": "string",
+          "description": "Hex color for the legend swatch"
+        }
+      }
+    }
+  }
+}

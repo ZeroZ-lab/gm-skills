@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hacker Toolkit</title>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      background: #11111b;
+      color: #cdd6f4;
+      font-family: 'JetBrains Mono', 'SF Mono', 'Fira Code', monospace;
+      min-height: 100vh;
+      padding: 40px 20px;
+    }
+    .container { max-width: 1100px; margin: 0 auto; }
+    .header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 32px;
+    }
+    .pulse-dot {
+      width: 10px; height: 10px; border-radius: 50%;
+      background: #89b4fa;
+      box-shadow: 0 0 8px rgba(137, 180, 250, 0.6);
+      animation: pulse 2s ease-in-out infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; box-shadow: 0 0 8px rgba(137, 180, 250, 0.6); }
+      50% { opacity: 0.4; box-shadow: 0 0 16px rgba(137, 180, 250, 0.9); }
+    }
+    h1 { font-size: 22px; font-weight: 700; color: #cdd6f4; }
+    .subtitle { font-size: 13px; color: #6c7086; margin-top: 4px; }
+    .diagram-container {
+      background: #1e1e2e;
+      border: 1px solid #313244;
+      border-radius: 12px;
+      padding: 24px;
+      margin-bottom: 32px;
+      overflow-x: auto;
+      box-shadow: 0 0 20px rgba(137, 180, 250, 0.03);
+    }
+    .diagram-container svg {
+      width: 100%;
+      min-width: 700px;
+      height: auto;
+      display: block;
+    }
+    .footer {
+      font-size: 11px;
+      color: #585b70;
+      text-align: center;
+      padding-top: 16px;
+      border-top: 1px solid #313244;
+    }
+
+    /* === foreignObject component classes (cyberpunk-neon) === */
+    .layer-card { width: 100%; height: 100%; border-radius: 8px; padding: 10px 16px 14px; box-sizing: border-box; display: flex; flex-direction: column; background: #181825; }
+    .layer-header { margin-bottom: 8px; }
+    .layer-label { font-size: 14px; font-weight: 600; color: #cdd6f4; font-family: 'JetBrains Mono', monospace; }
+    .layer-description { font-size: 11px; color: #6c7086; font-family: 'JetBrains Mono', monospace; margin-top: 2px; }
+    .modules { display: flex; gap: 20px; justify-content: center; align-items: flex-start; flex-wrap: wrap; flex: 1; }
+    .module { min-width: 100px; min-height: 50px; border-radius: 6px; display: flex; align-items: center; justify-content: center; padding: 10px 16px; box-sizing: border-box; background: #181825; }
+    .module-label { font-size: 12px; font-weight: 500; color: #cdd6f4; text-align: center; white-space: nowrap; font-family: 'JetBrains Mono', monospace; }
+    .tech-badges { display: flex; gap: 4px; justify-content: center; flex-wrap: wrap; margin-top: 6px; }
+    .tech-badge { font-size: 8px; padding: 2px 6px; border-radius: 4px; white-space: nowrap; background: rgba(255,255,255,0.05); border: 0.5px solid rgba(255,255,255,0.1); color: #6c7086; font-family: 'JetBrains Mono', monospace; }
+    .module.has-badges { height: 58px; flex-direction: column; gap: 2px; }
+    .module.has-badges .module-label { height: 20px; }
+
+    /* Type-specific colors (Catppuccin Mocha) */
+    .type-process { background: #181825; border: 1.5px solid #89b4fa; box-shadow: 0 0 8px rgba(137,180,250,0.15); }
+    .type-process .module { background: rgba(137,180,250,0.1); border: 1.5px solid #89b4fa; }
+    .type-process .tech-badge { border-color: rgba(137,180,250,0.3); color: #89b4fa; }
+
+    .type-module { background: #181825; border: 1.5px solid #a6e3a1; box-shadow: 0 0 8px rgba(166,227,161,0.15); }
+    .type-module .module { background: rgba(166,227,161,0.1); border: 1.5px solid #a6e3a1; }
+    .type-module .tech-badge { border-color: rgba(166,227,161,0.3); color: #a6e3a1; }
+
+    .type-data { background: #181825; border: 1.5px solid #cba6f7; box-shadow: 0 0 8px rgba(203,166,247,0.15); }
+    .type-data .module { background: rgba(203,166,247,0.1); border: 1.5px solid #cba6f7; }
+    .type-data .tech-badge { border-color: rgba(203,166,247,0.3); color: #cba6f7; }
+
+    .type-infra { background: #181825; border: 1.5px solid #f9e2af; box-shadow: 0 0 8px rgba(249,226,175,0.15); }
+    .type-infra .module { background: rgba(249,226,175,0.1); border: 1.5px solid #f9e2af; }
+    .type-infra .tech-badge { border-color: rgba(249,226,175,0.3); color: #f9e2af; }
+
+    .type-security { background: #181825; border: 1.5px dashed #f38ba8; box-shadow: 0 0 8px rgba(243,139,168,0.15); }
+    .type-security .module { background: rgba(243,139,168,0.1); border: 1.5px dashed #f38ba8; }
+    .type-security .tech-badge { border-color: rgba(243,139,168,0.3); color: #f38ba8; }
+
+    .type-channel { background: #181825; border: 1.5px solid #fab387; box-shadow: 0 0 8px rgba(250,179,135,0.15); }
+    .type-channel .module { background: rgba(250,179,135,0.1); border: 1.5px solid #fab387; }
+    .type-channel .tech-badge { border-color: rgba(250,179,135,0.3); color: #fab387; }
+
+    .type-external { background: #181825; border: 1.5px solid #6c7086; box-shadow: 0 0 8px rgba(108,112,134,0.15); }
+    .type-external .module { background: rgba(108,112,134,0.15); border: 1.5px solid #6c7086; border-style: dashed; }
+    .type-external .tech-badge { border-color: rgba(108,112,134,0.3); color: #6c7086; }
+
+    /* Legend */
+    .legend-container { display: flex; gap: 20px; align-items: center; flex-wrap: wrap; }
+    .legend-item { display: flex; align-items: center; gap: 6px; }
+    .legend-swatch { width: 14px; height: 14px; border-radius: 3px; }
+    .legend-text { font-size: 11px; color: #a6adc8; font-family: 'JetBrains Mono', monospace; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <div class="pulse-dot"></div>
+      <div>
+        <h1>Hacker Toolkit</h1>
+        <div class="subtitle">Security testing infrastructure for authorized penetration testing</div>
+      </div>
+    </div>
+
+    <div class="diagram-container">
+      <svg viewBox="0 0 1000 680" xmlns="http://www.w3.org/2000/svg">
+        <!-- Defs -->
+        <defs>
+          <!-- Neon glow filter -->
+          <filter id="glow">
+            <feGaussianBlur stdDeviation="2" result="coloredBlur"/>
+            <feMerge>
+              <feMergeNode in="coloredBlur"/>
+              <feMergeNode in="SourceGraphic"/>
+            </feMerge>
+          </filter>
+          <!-- Grid pattern -->
+          <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+            <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#313244" stroke-width="0.5" opacity="0.4"/>
+          </pattern>
+          <!-- Arrow markers with neon colors -->
+          <marker id="arrow-blue" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+            <polygon points="0 0, 8 3, 0 6" fill="#89b4fa"/>
+          </marker>
+          <marker id="arrow-peach" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+            <polygon points="0 0, 8 3, 0 6" fill="#fab387"/>
+          </marker>
+        </defs>
+
+        <!-- Grid background -->
+        <rect width="1000" height="680" fill="#11111b"/>
+        <rect width="1000" height="680" fill="url(#grid)"/>
+
+        <!-- === CONNECTIONS (drawn first, behind layers) === -->
+
+        <!-- Reconnaissance &rarr; Exploitation Engine (Findings) -->
+        <line x1="500" y1="130" x2="500" y2="200"
+              stroke="#89b4fa" stroke-width="1.5" filter="url(#glow)"
+              marker-end="url(#arrow-blue)"/>
+        <rect x="462" y="157" width="76" height="16" rx="3" fill="#181825" opacity="0.95"/>
+        <text x="500" y="169" font-size="9" fill="#89b4fa" font-family="JetBrains Mono, monospace" text-anchor="middle" filter="url(#glow)">Findings</text>
+
+        <!-- Exploitation Engine &rarr; Post-Exploitation (Access) -->
+        <line x1="500" y1="320" x2="500" y2="390"
+              stroke="#89b4fa" stroke-width="1.5" filter="url(#glow)"
+              marker-end="url(#arrow-blue)"/>
+        <rect x="470" y="347" width="60" height="16" rx="3" fill="#181825" opacity="0.95"/>
+        <text x="500" y="359" font-size="9" fill="#89b4fa" font-family="JetBrains Mono, monospace" text-anchor="middle" filter="url(#glow)">Access</text>
+
+        <!-- Post-Exploitation &rarr; Reporting (Evidence) -->
+        <line x1="500" y1="510" x2="500" y2="580"
+              stroke="#89b4fa" stroke-width="1.5" filter="url(#glow)"
+              marker-end="url(#arrow-blue)"/>
+        <rect x="462" y="537" width="76" height="16" rx="3" fill="#181825" opacity="0.95"/>
+        <text x="500" y="549" font-size="9" fill="#89b4fa" font-family="JetBrains Mono, monospace" text-anchor="middle" filter="url(#glow)">Evidence</text>
+
+        <!-- === LAYER 1: Reconnaissance (type: channel) === -->
+        <g transform="translate(40, 30)">
+          <foreignObject width="920" height="100" xmlns="http://www.w3.org/1999/xhtml">
+            <div class="layer-card type-channel">
+              <div class="layer-header">
+                <span class="layer-label">Reconnaissance</span>
+              </div>
+              <div class="modules">
+                <div class="module has-badges">
+                  <span class="module-label">Port Scanner</span>
+                  <span class="tech-badges">
+                    <span class="tech-badge">Nmap</span>
+                  </span>
+                </div>
+                <div class="module">
+                  <span class="module-label">Web Crawler</span>
+                </div>
+                <div class="module">
+                  <span class="module-label">DNS Enumerator</span>
+                </div>
+              </div>
+            </div>
+          </foreignObject>
+        </g>
+
+        <!-- === LAYER 2: Exploitation Engine (type: process) === -->
+        <g transform="translate(40, 200)">
+          <foreignObject width="920" height="120" xmlns="http://www.w3.org/1999/xhtml">
+            <div class="layer-card type-process">
+              <div class="layer-header">
+                <span class="layer-label">Exploitation Engine</span>
+              </div>
+              <div class="modules">
+                <div class="module has-badges">
+                  <span class="module-label">Vulnerability DB</span>
+                  <span class="tech-badges">
+                    <span class="tech-badge">CVE</span>
+                  </span>
+                </div>
+                <div class="module">
+                  <span class="module-label">Payload Generator</span>
+                </div>
+                <div class="module">
+                  <span class="module-label">Exploit Runner</span>
+                </div>
+              </div>
+            </div>
+          </foreignObject>
+        </g>
+
+        <!-- === LAYER 3: Post-Exploitation (type: security) === -->
+        <g transform="translate(40, 390)">
+          <foreignObject width="920" height="120" xmlns="http://www.w3.org/1999/xhtml">
+            <div class="layer-card type-security">
+              <div class="layer-header">
+                <span class="layer-label">Post-Exploitation</span>
+              </div>
+              <div class="modules">
+                <div class="module">
+                  <span class="module-label">Privilege Escalation</span>
+                </div>
+                <div class="module">
+                  <span class="module-label">Lateral Movement</span>
+                </div>
+                <div class="module">
+                  <span class="module-label">Data Collection</span>
+                </div>
+              </div>
+            </div>
+          </foreignObject>
+        </g>
+
+        <!-- === LAYER 4: Reporting (type: infra) === -->
+        <g transform="translate(40, 580)">
+          <foreignObject width="920" height="90" xmlns="http://www.w3.org/1999/xhtml">
+            <div class="layer-card type-infra">
+              <div class="layer-header">
+                <span class="layer-label">Reporting</span>
+              </div>
+              <div class="modules">
+                <div class="module">
+                  <span class="module-label">Log Collector</span>
+                </div>
+                <div class="module">
+                  <span class="module-label">Report Generator</span>
+                </div>
+              </div>
+            </div>
+          </foreignObject>
+        </g>
+
+        <!-- === LEGEND === -->
+        <g transform="translate(40, 710)">
+          <text x="0" y="0" font-size="11" font-weight="600" fill="#cdd6f4" font-family="JetBrains Mono, monospace">Legend</text>
+
+          <rect x="0" y="14" width="14" height="14" rx="3"
+                fill="rgba(250,179,135,0.1)" stroke="#fab387" stroke-width="1" filter="url(#glow)"/>
+          <text x="20" y="25" font-size="10" fill="#bac2de" font-family="JetBrains Mono, monospace">Recon</text>
+
+          <rect x="90" y="14" width="14" height="14" rx="3"
+                fill="rgba(137,180,250,0.1)" stroke="#89b4fa" stroke-width="1" filter="url(#glow)"/>
+          <text x="110" y="25" font-size="10" fill="#bac2de" font-family="JetBrains Mono, monospace">Engine</text>
+
+          <rect x="180" y="14" width="14" height="14" rx="3"
+                fill="rgba(243,139,168,0.1)" stroke="#f38ba8" stroke-width="1" stroke-dasharray="4,2" filter="url(#glow)"/>
+          <text x="200" y="25" font-size="10" fill="#bac2de" font-family="JetBrains Mono, monospace">Post-Exploit</text>
+
+          <rect x="300" y="14" width="14" height="14" rx="3"
+                fill="rgba(249,226,175,0.1)" stroke="#f9e2af" stroke-width="1" filter="url(#glow)"/>
+          <text x="320" y="25" font-size="10" fill="#bac2de" font-family="JetBrains Mono, monospace">Report</text>
+        </g>
+
+      </svg>
+    </div>
+
+    <div class="footer">
+      Generated by gmdiagram &middot; Cyberpunk Neon &middot; 2026-04-13
+    </div>
+  </div>
+</body>
+</html>

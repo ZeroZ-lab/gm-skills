@@ -1,0 +1,228 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "chart-shared-defs",
+  "title": "Shared Definitions for Data Charts",
+  "description": "Shared type definitions used by all chart schema files. Reference via $ref: 'schema-shared.json#/$defs/...'",
+  "$defs": {
+    "styleEnum": {
+      "type": "string",
+      "enum": [
+        "dark-professional",
+        "hand-drawn",
+        "light-corporate",
+        "cyberpunk-neon",
+        "blueprint",
+        "warm-cozy",
+        "minimalist",
+        "terminal-retro",
+        "pastel-dream",
+        "notion",
+        "material",
+        "glassmorphism"
+      ],
+      "description": "Visual style preset names."
+    },
+    "formatEnum": {
+      "type": "string",
+      "enum": ["html", "svg", "mermaid"],
+      "description": "Output format."
+    },
+    "sanitizedString": {
+      "type": "string",
+      "pattern": "^[^<>]*$",
+      "description": "User-visible text. Must not contain < or > characters for security."
+    },
+    "legendConfig": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "Legend display configuration.",
+      "properties": {
+        "visible": {
+          "type": "boolean",
+          "description": "Whether to show the legend.",
+          "default": true
+        },
+        "position": {
+          "type": "string",
+          "enum": ["top", "bottom", "left", "right"],
+          "description": "Legend placement relative to the chart.",
+          "default": "top"
+        }
+      }
+    },
+    "colorsOverride": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "Optional color overrides for style environment colors.",
+      "properties": {
+        "primary": {
+          "type": "string",
+          "pattern": "^#[0-9a-fA-F]{6}$",
+          "description": "Primary accent color."
+        },
+        "secondary": {
+          "type": "string",
+          "pattern": "^#[0-9a-fA-F]{6}$",
+          "description": "Secondary color."
+        },
+        "accent": {
+          "type": "string",
+          "pattern": "^#[0-9a-fA-F]{6}$",
+          "description": "Accent color."
+        },
+        "background": {
+          "type": "string",
+          "pattern": "^#[0-9a-fA-F]{6}$",
+          "description": "Page background color."
+        },
+        "text": {
+          "type": "string",
+          "pattern": "^#[0-9a-fA-F]{6}$",
+          "description": "Primary text color."
+        }
+      }
+    },
+    "metadata": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "Optional metadata for tracking. author MUST NOT be rendered into output.",
+      "properties": {
+        "author": {
+          "type": "string",
+          "maxLength": 100,
+          "description": "Author name. For internal tracking only, never displayed in output."
+        },
+        "date": {
+          "type": "string",
+          "format": "date",
+          "description": "Creation date."
+        },
+        "version": {
+          "type": "string",
+          "maxLength": 20,
+          "description": "Document version."
+        }
+      }
+    },
+    "axisConfig": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "Configuration for a single axis (category or value axis).",
+      "properties": {
+        "label": {
+          "type": "string",
+          "maxLength": 50,
+          "description": "Axis title text displayed along the axis.",
+          "examples": ["季度", "万元", "月份", "Users"]
+        },
+        "visible": {
+          "type": "boolean",
+          "description": "Whether to show the axis line and labels.",
+          "default": true
+        },
+        "gridLines": {
+          "type": "boolean",
+          "description": "Whether to show grid lines along this axis.",
+          "default": false
+        },
+        "minValue": {
+          "type": "number",
+          "description": "Optional manual minimum value for the axis. Overrides auto-calculated min."
+        },
+        "maxValue": {
+          "type": "number",
+          "description": "Optional manual maximum value for the axis. Overrides auto-calculated max."
+        },
+        "ticks": {
+          "type": "array",
+          "description": "Pre-computed tick values from the Nice Numbers algorithm (Step 1). Step 2 uses these directly for axis rendering.",
+          "items": {
+            "type": "number"
+          },
+          "minItems": 2,
+          "maxItems": 10
+        }
+      }
+    },
+    "scatterAxisConfig": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "Configuration for a numeric axis (used by scatter/bubble charts where both X and Y are value axes). Requires pre-computed ticks.",
+      "required": ["ticks"],
+      "properties": {
+        "label": {
+          "type": "string",
+          "maxLength": 50,
+          "description": "Axis title text."
+        },
+        "visible": {
+          "type": "boolean",
+          "description": "Whether to show the axis line and labels.",
+          "default": true
+        },
+        "gridLines": {
+          "type": "boolean",
+          "description": "Whether to show grid lines along this axis.",
+          "default": true
+        },
+        "minValue": {
+          "type": "number",
+          "description": "Optional manual minimum value."
+        },
+        "maxValue": {
+          "type": "number",
+          "description": "Optional manual maximum value."
+        },
+        "ticks": {
+          "type": "array",
+          "description": "Pre-computed tick values from Nice Numbers (required for scatter/bubble).",
+          "items": {
+            "type": "number"
+          },
+          "minItems": 2,
+          "maxItems": 10
+        }
+      }
+    },
+    "dataPoint": {
+      "type": "object",
+      "required": ["label", "value"],
+      "additionalProperties": false,
+      "description": "A single data point with a category label and numeric value.",
+      "properties": {
+        "label": {
+          "$ref": "#/$defs/sanitizedString",
+          "maxLength": 100,
+          "description": "Category label displayed on the axis."
+        },
+        "value": {
+          "type": "number",
+          "minimum": -1000000000000000,
+          "maximum": 1000000000000000,
+          "description": "Numeric value. Must be a finite number (no NaN or Infinity)."
+        }
+      }
+    },
+    "dataPointXY": {
+      "type": "object",
+      "required": ["x", "y"],
+      "additionalProperties": false,
+      "description": "A data point with X and Y coordinates for scatter/bubble charts.",
+      "properties": {
+        "x": {
+          "type": "number",
+          "description": "X-axis value. Must be a finite number."
+        },
+        "y": {
+          "type": "number",
+          "description": "Y-axis value. Must be a finite number."
+        },
+        "label": {
+          "$ref": "#/$defs/sanitizedString",
+          "maxLength": 50,
+          "description": "Optional label displayed near the data point."
+        }
+      }
+    }
+  }
+}

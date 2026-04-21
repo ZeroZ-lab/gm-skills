@@ -1,0 +1,31 @@
+{
+  "diagramType": "bar",
+  "title": "2025年各季度营收",
+  "subtitle": "单位：万元",
+  "style": "dark-professional",
+  "format": "html",
+  "density": "normal",
+  "direction": "vertical",
+  "variant": "grouped",
+  "series": [
+    {
+      "name": "营收",
+      "data": [
+        { "label": "Q1", "value": 120 },
+        { "label": "Q2", "value": 150 },
+        { "label": "Q3", "value": 180 },
+        { "label": "Q4", "value": 200 }
+      ]
+    }
+  ],
+  "axis": {
+    "x": { "label": "季度", "visible": true },
+    "y": { "label": "万元", "visible": true, "gridLines": true, "ticks": [0, 50, 100, 150, 200] }
+  },
+  "legend": { "visible": true, "position": "top" },
+  "metadata": {
+    "author": "gmdiagram",
+    "date": "2026-04-14",
+    "version": "0.6.0"
+  }
+}

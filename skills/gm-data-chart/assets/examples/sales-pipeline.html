@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>销售漏斗分析</title>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      background: #020617;
+      color: #e2e8f0;
+      font-family: 'JetBrains Mono', 'SF Mono', 'Fira Code', monospace;
+      min-height: 100vh;
+      padding: 40px 20px;
+    }
+    .container { max-width: 1100px; margin: 0 auto; }
+    .header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 32px;
+    }
+    .pulse-dot {
+      width: 10px; height: 10px; border-radius: 50%;
+      background: #22d3ee;
+      box-shadow: 0 0 8px rgba(34, 211, 238, 0.6);
+      animation: pulse 2s ease-in-out infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.4; }
+    }
+    h1 { font-size: 22px; font-weight: 700; color: #f1f5f9; }
+    .subtitle { font-size: 13px; color: #64748b; margin-top: 4px; }
+    .diagram-container {
+      background: #0f172a;
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 12px;
+      padding: 24px;
+      margin-bottom: 32px;
+      overflow-x: auto;
+    }
+    .diagram-container svg {
+      width: 100%;
+      min-width: 500px;
+      height: auto;
+      display: block;
+    }
+    .footer {
+      font-size: 11px;
+      color: #475569;
+      text-align: center;
+      padding-top: 16px;
+      border-top: 1px solid rgba(255,255,255,0.04);
+    }
+    /* === Chart classes (dark-professional) === */
+    .axis-line { stroke: #64748b; stroke-width: 1.5; fill: none; }
+    .axis-label { fill: #94a3b8; font-size: 12px; font-family: 'JetBrains Mono', 'SF Mono', 'Fira Code', monospace; }
+    .axis-title { fill: #f1f5f9; font-size: 13px; font-weight: 600; font-family: 'JetBrains Mono', 'SF Mono', 'Fira Code', monospace; }
+    .tick-label { fill: #94a3b8; font-size: 11px; font-family: 'JetBrains Mono', 'SF Mono', 'Fira Code', monospace; }
+    .grid-line { stroke: rgba(255,255,255,0.06); stroke-dasharray: 4,4; stroke-width: 0.5; fill: none; }
+    .bar { rx: 2; }
+    .slice { stroke: #0f172a; stroke-width: 2; }
+    .line-path { fill: none; stroke-width: 2.5; }
+    .area-fill { opacity: 0.15; }
+    .data-dot { stroke-width: 2; }
+    .scatter-point { stroke-width: 1.5; }
+    .bubble-point { stroke-width: 1.5; }
+    .radar-grid { stroke: rgba(255,255,255,0.08); fill: none; stroke-width: 0.5; }
+    .radar-axis { stroke: rgba(255,255,255,0.1); stroke-width: 0.5; }
+    .radar-data { stroke-width: 2; stroke-linejoin: round; }
+    .funnel-stage { stroke: #0f172a; stroke-width: 1; }
+    .funnel-label { fill: #f1f5f9; font-size: 13px; font-weight: 600; font-family: 'JetBrains Mono', 'SF Mono', 'Fira Code', monospace; }
+    .table-header { font-weight: 600; text-align: left; padding: 8px 12px; border-bottom: 2px solid #334155; }
+    .table-row { border-bottom: 1px solid rgba(255,255,255,0.06); }
+    .table-cell { padding: 8px 12px; font-size: 13px; }
+    .highlight-max { font-weight: 600; }
+    .highlight-min { font-weight: 600; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <div class="pulse-dot"></div>
+      <div>
+        <h1>销售漏斗分析</h1>
+        <div class="subtitle">2025年Q1</div>
+      </div>
+    </div>
+
+    <div class="diagram-container">
+      <svg viewBox="0 0 600 360" xmlns="http://www.w3.org/2000/svg">
+
+        <!-- === Funnel Stages === -->
+        <!-- maxWidth=420, centerX=300, barHeight=55, gap=4 -->
+        <!-- Palette B: #6366f1, #f472b6, #34d399, #fbbf24, #a78bfa -->
+
+        <!-- 线索 (i=0): value=1000, topWidth=420, bottomWidth=252 -->
+        <polygon points="90,60 510,60 426,115 174,115" fill="#6366f1" class="funnel-stage" />
+
+        <!-- 合格线索 (i=1): value=600, topWidth=252, bottomWidth=126 -->
+        <polygon points="174,119 426,119 363,174 237,174" fill="#f472b6" class="funnel-stage" />
+
+        <!-- 方案报价 (i=2): value=300, topWidth=126, bottomWidth=63 -->
+        <polygon points="237,178 363,178 331.5,233 268.5,233" fill="#34d399" class="funnel-stage" />
+
+        <!-- 商务谈判 (i=3): value=150, topWidth=63, bottomWidth=33.6 -->
+        <polygon points="268.5,237 331.5,237 316.8,292 283.2,292" fill="#fbbf24" class="funnel-stage" />
+
+        <!-- 成交 (i=4): value=80, topWidth=33.6, bottomWidth=33.6 (flat bottom) -->
+        <polygon points="283.2,296 316.8,296 316.8,351 283.2,351" fill="#a78bfa" class="funnel-stage" />
+
+        <!-- === Stage Labels === -->
+        <!-- 线索 -->
+        <foreignObject x="90" y="68" width="420" height="47">
+          <div xmlns="http://www.w3.org/1999/xhtml" style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%;">
+            <div class="funnel-label">线索</div>
+            <div class="tick-label">1,000</div>
+          </div>
+        </foreignObject>
+
+        <!-- 合格线索 -->
+        <foreignObject x="174" y="127" width="252" height="47">
+          <div xmlns="http://www.w3.org/1999/xhtml" style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%;">
+            <div class="funnel-label">合格线索</div>
+            <div class="tick-label">600</div>
+          </div>
+        </foreignObject>
+
+        <!-- 方案报价 -->
+        <foreignObject x="237" y="186" width="126" height="47">
+          <div xmlns="http://www.w3.org/1999/xhtml" style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%;">
+            <div class="funnel-label">方案报价</div>
+            <div class="tick-label">300</div>
+          </div>
+        </foreignObject>
+
+        <!-- 商务谈判 -->
+        <foreignObject x="268.5" y="245" width="63" height="47">
+          <div xmlns="http://www.w3.org/1999/xhtml" style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%;">
+            <div class="funnel-label" style="font-size: 11px;">商务谈判</div>
+            <div class="tick-label">150</div>
+          </div>
+        </foreignObject>
+
+        <!-- 成交 -->
+        <foreignObject x="283.2" y="304" width="33.6" height="47">
+          <div xmlns="http://www.w3.org/1999/xhtml" style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%;">
+            <div class="funnel-label" style="font-size: 10px;">成交</div>
+            <div class="tick-label" style="font-size: 10px;">80</div>
+          </div>
+        </foreignObject>
+
+        <!-- === Conversion Rates === -->
+        <!-- 线索→合格: 60.0% -->
+        <foreignObject x="260" y="113" width="80" height="16">
+          <div xmlns="http://www.w3.org/1999/xhtml" class="tick-label"
+               style="text-align: center; font-size: 10px; color: #64748b;">
+            ↓ 60.0%
+          </div>
+        </foreignObject>
+
+        <!-- 合格→方案: 50.0% -->
+        <foreignObject x="260" y="172" width="80" height="16">
+          <div xmlns="http://www.w3.org/1999/xhtml" class="tick-label"
+               style="text-align: center; font-size: 10px; color: #64748b;">
+            ↓ 50.0%
+          </div>
+        </foreignObject>
+
+        <!-- 方案→谈判: 50.0% -->
+        <foreignObject x="260" y="231" width="80" height="16">
+          <div xmlns="http://www.w3.org/1999/xhtml" class="tick-label"
+               style="text-align: center; font-size: 10px; color: #64748b;">
+            ↓ 50.0%
+          </div>
+        </foreignObject>
+
+        <!-- 谈判→成交: 53.3% -->
+        <foreignObject x="260" y="290" width="80" height="16">
+          <div xmlns="http://www.w3.org/1999/xhtml" class="tick-label"
+               style="text-align: center; font-size: 10px; color: #64748b;">
+            ↓ 53.3%
+          </div>
+        </foreignObject>
+
+      </svg>
+    </div>
+
+    <div class="footer">
+      Generated by gmdiagram &middot; 2026-04-14
+    </div>
+  </div>
+</body>
+</html>

@@ -1,0 +1,29 @@
+{
+  "title": "Order Processing Flow",
+  "subtitle": "E-commerce order creation with inventory check and payment",
+  "diagramType": "sequence",
+  "style": "blueprint",
+  "actors": [
+    { "id": "customer", "label": "Customer", "type": "actor" },
+    { "id": "gateway", "label": "API Gateway", "type": "participant" },
+    { "id": "order-svc", "label": "Order Service", "type": "control" },
+    { "id": "payment-svc", "label": "Payment Service", "type": "boundary" },
+    { "id": "inventory-svc", "label": "Inventory Service", "type": "entity" }
+  ],
+  "messages": [
+    { "from": "customer", "to": "gateway", "label": "POST /orders", "type": "sync", "order": 1 },
+    { "from": "gateway", "to": "order-svc", "label": "Create order", "type": "sync", "order": 2, "activate": true },
+    { "from": "order-svc", "to": "inventory-svc", "label": "Check stock availability", "type": "sync", "order": 3 },
+    { "from": "inventory-svc", "to": "order-svc", "label": "Stock confirmed", "type": "return", "order": 4 },
+    { "from": "order-svc", "to": "payment-svc", "label": "Charge payment", "type": "sync", "order": 5 },
+    { "from": "payment-svc", "to": "order-svc", "label": "Payment success", "type": "return", "order": 6 },
+    { "from": "order-svc", "to": "inventory-svc", "label": "Reserve items", "type": "async", "order": 7 },
+    { "from": "order-svc", "to": "gateway", "label": "Order confirmed (201)", "type": "return", "order": 8 },
+    { "from": "gateway", "to": "customer", "label": "Order confirmation", "type": "return", "order": 9 }
+  ],
+  "metadata": {
+    "author": "gmdiagram",
+    "date": "2026-04-14",
+    "version": "0.6.0"
+  }
+}

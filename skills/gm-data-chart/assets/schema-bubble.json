@@ -1,0 +1,158 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "bubble-chart-schema",
+  "title": "Bubble Chart Schema",
+  "description": "Intermediate representation for bubble chart diagrams. LLM extracts data from natural language into this format, then rendering pipeline generates HTML/SVG from it. Each data point has X, Y coordinates and a size value mapped to bubble area.",
+  "type": "object",
+  "required": ["diagramType", "title", "series"],
+  "additionalProperties": false,
+  "properties": {
+    "diagramType": {
+      "type": "string",
+      "const": "bubble",
+      "description": "Identifies this JSON as a bubble chart. Must always be 'bubble'."
+    },
+    "title": {
+      "type": "string",
+      "maxLength": 200,
+      "description": "Chart title, displayed at the top of the rendered page.",
+      "examples": ["产品竞争力分析", "Product Comparison by Price, Satisfaction & Market Share"]
+    },
+    "subtitle": {
+      "type": "string",
+      "maxLength": 300,
+      "description": "Optional subtitle shown below the title.",
+      "examples": ["气泡大小代表市场份额", "Bubble size = market share"]
+    },
+    "style": {
+      "$ref": "schema-shared.json#/$defs/styleEnum",
+      "description": "Visual style preset. Each style has its own template and design rules.",
+      "default": "dark-professional"
+    },
+    "format": {
+      "$ref": "schema-shared.json#/$defs/formatEnum",
+      "description": "Output format. HTML is the default. SVG outputs standalone SVG. Mermaid is not supported for bubble charts.",
+      "default": "html"
+    },
+    "series": {
+      "type": "array",
+      "description": "Data series. Each series contains bubble data points with X, Y coordinates and a size value. Bubble size is mapped to area (not radius) for correct visual proportion.",
+      "items": {
+        "$ref": "#/$defs/seriesItem"
+      },
+      "minItems": 1,
+      "maxItems": 5
+    },
+    "axis": {
+      "type": "object",
+      "description": "Axis configuration for both X and Y axes. Both are numeric value axes for bubble charts.",
+      "additionalProperties": false,
+      "required": ["x", "y"],
+      "properties": {
+        "x": {
+          "$ref": "schema-shared.json#/$defs/scatterAxisConfig",
+          "description": "X-axis configuration (numeric value axis)."
+        },
+        "y": {
+          "$ref": "schema-shared.json#/$defs/scatterAxisConfig",
+          "description": "Y-axis configuration (numeric value axis)."
+        }
+      }
+    },
+    "sizeRange": {
+      "type": "object",
+      "description": "Controls how the size data value maps to bubble radius in pixels. Size is mapped via area (not linear radius) for correct visual proportion.",
+      "additionalProperties": false,
+      "properties": {
+        "minRadius": {
+          "type": "number",
+          "minimum": 2,
+          "maximum": 20,
+          "description": "Minimum bubble radius in pixels. Maps to the smallest size value in the data.",
+          "default": 5
+        },
+        "maxRadius": {
+          "type": "number",
+          "minimum": 15,
+          "maximum": 60,
+          "description": "Maximum bubble radius in pixels. Maps to the largest size value in the data.",
+          "default": 35
+        }
+      }
+    },
+    "legend": {
+      "$ref": "schema-shared.json#/$defs/legendConfig",
+      "description": "Legend configuration. Auto-generated from series names if not provided. Bubble charts also include a size legend indicator."
+    },
+    "colors": {
+      "$ref": "schema-shared.json#/$defs/colorsOverride",
+      "description": "Optional color overrides for the style's environment colors (background, text, etc.). Does NOT affect data bubble colors — use series[].color for that."
+    },
+    "metadata": {
+      "$ref": "schema-shared.json#/$defs/metadata",
+      "description": "Optional metadata. author field is for internal tracking only and MUST NOT be rendered into the output."
+    }
+  },
+  "$defs": {
+    "seriesItem": {
+      "type": "object",
+      "required": ["name", "data"],
+      "additionalProperties": false,
+      "description": "A data series containing bubble data points with X, Y coordinates and a size value.",
+      "properties": {
+        "name": {
+          "$ref": "schema-shared.json#/$defs/sanitizedString",
+          "maxLength": 100,
+          "description": "Series name displayed in the legend.",
+          "examples": ["产品", "Products", "Region A"]
+        },
+        "color": {
+          "type": "string",
+          "pattern": "^#[0-9a-fA-F]{6}$",
+          "description": "Optional color override for all bubbles in this series. Must be 6-digit hex (#RRGGBB). If omitted, uses the chart palette."
+        },
+        "data": {
+          "type": "array",
+          "description": "Data points in this series. Each has X and Y numeric coordinates plus a size value (> 0) mapped to bubble area.",
+          "items": {
+            "$ref": "#/$defs/bubbleDataPoint"
+          },
+          "minItems": 2,
+          "maxItems": 30
+        }
+      }
+    },
+    "bubbleDataPoint": {
+      "type": "object",
+      "required": ["x", "y", "size"],
+      "additionalProperties": false,
+      "description": "A single bubble data point with X and Y coordinates and a size value.",
+      "properties": {
+        "x": {
+          "type": "number",
+          "minimum": -1000000000000000,
+          "maximum": 1000000000000000,
+          "description": "X-axis value. Must be a finite number."
+        },
+        "y": {
+          "type": "number",
+          "minimum": -1000000000000000,
+          "maximum": 1000000000000000,
+          "description": "Y-axis value. Must be a finite number."
+        },
+        "size": {
+          "type": "number",
+          "exclusiveMinimum": 0,
+          "maximum": 1000000000000000,
+          "description": "Size value mapped to bubble area (not radius). Must be > 0. Larger values produce larger bubbles."
+        },
+        "label": {
+          "$ref": "schema-shared.json#/$defs/sanitizedString",
+          "maxLength": 50,
+          "description": "Optional label displayed near the bubble.",
+          "examples": ["Product A", "产品甲"]
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Rust vs Go</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { display: flex; justify-content: center; align-items: center; min-height: 100vh; background: #111; }
+    svg { max-width: 100%; height: auto; }
+  </style>
+</head>
+<body>
+  <svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
+    <style>
+      .text-block { overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; }
+    </style>
+
+    <!-- Background -->
+    <rect width="1200" height="630" fill="#020617" />
+
+    <!-- Title Block -->
+    <foreignObject x="60" y="40" width="1080" height="60">
+      <div xmlns="http://www.w3.org/1999/xhtml" style="font-family: 'JetBrains Mono', monospace;">
+        <div style="font-size: 32px; font-weight: 700; color: #f1f5f9; line-height: 1.2;">Rust vs Go</div>
+        <div style="font-size: 18px; color: #94a3b8; margin-top: 6px;">系统编程语言对比</div>
+      </div>
+    </foreignObject>
+
+    <!-- Left Side: Rust -->
+    <g transform="translate(60, 130)">
+      <foreignObject x="0" y="0" width="508" height="360">
+        <div xmlns="http://www.w3.org/1999/xhtml" style="font-family: 'JetBrains Mono', monospace;">
+          <!-- Side header -->
+          <div style="text-align: center; margin-bottom: 24px;">
+            <span style="font-size: 32px;">🦀</span>
+            <div style="font-size: 22px; font-weight: 700; color: #CE422B; margin-top: 8px;">Rust</div>
+          </div>
+          <!-- Comparison points -->
+          <div style="border-top: 1px solid rgba(255,255,255,0.06); padding-top: 16px;">
+            <div style="margin-bottom: 16px;">
+              <div style="font-size: 13px; font-weight: 600; color: #94a3b8;">性能</div>
+              <div style="font-size: 15px; color: #f1f5f9; margin-top: 4px;" class="text-block">极快，零成本抽象</div>
+            </div>
+            <div style="margin-bottom: 16px;">
+              <div style="font-size: 13px; font-weight: 600; color: #94a3b8;">内存</div>
+              <div style="font-size: 15px; color: #f1f5f9; margin-top: 4px;" class="text-block">无 GC，所有权系统</div>
+            </div>
+            <div>
+              <div style="font-size: 13px; font-weight: 600; color: #94a3b8;">学习曲线</div>
+              <div style="font-size: 15px; color: #f1f5f9; margin-top: 4px;" class="text-block">陡峭</div>
+            </div>
+          </div>
+        </div>
+      </foreignObject>
+    </g>
+
+    <!-- Center Divider -->
+    <line x1="584" y1="130" x2="584" y2="490" stroke="rgba(255,255,255,0.12)" stroke-width="1" stroke-dasharray="6 4" />
+    <!-- VS Badge -->
+    <circle cx="584" cy="310" r="18" fill="#0f172a" stroke="rgba(255,255,255,0.12)" stroke-width="1" />
+    <text x="584" y="316" text-anchor="middle" font-size="14" font-weight="700" fill="#94a3b8" font-family="'JetBrains Mono', monospace">VS</text>
+
+    <!-- Right Side: Go -->
+    <g transform="translate(632, 130)">
+      <foreignObject x="0" y="0" width="508" height="360">
+        <div xmlns="http://www.w3.org/1999/xhtml" style="font-family: 'JetBrains Mono', monospace;">
+          <!-- Side header -->
+          <div style="text-align: center; margin-bottom: 24px;">
+            <span style="font-size: 32px;">🐹</span>
+            <div style="font-size: 22px; font-weight: 700; color: #00ADD8; margin-top: 8px;">Go</div>
+          </div>
+          <!-- Comparison points -->
+          <div style="border-top: 1px solid rgba(255,255,255,0.06); padding-top: 16px;">
+            <div style="margin-bottom: 16px;">
+              <div style="font-size: 13px; font-weight: 600; color: #94a3b8;">性能</div>
+              <div style="font-size: 15px; color: #f1f5f9; margin-top: 4px;" class="text-block">快，GC 优化良好</div>
+            </div>
+            <div style="margin-bottom: 16px;">
+              <div style="font-size: 13px; font-weight: 600; color: #94a3b8;">内存</div>
+              <div style="font-size: 15px; color: #f1f5f9; margin-top: 4px;" class="text-block">自动垃圾回收</div>
+            </div>
+            <div>
+              <div style="font-size: 13px; font-weight: 600; color: #94a3b8;">学习曲线</div>
+              <div style="font-size: 15px; color: #f1f5f9; margin-top: 4px;" class="text-block">平缓</div>
+            </div>
+          </div>
+        </div>
+      </foreignObject>
+    </g>
+
+    <!-- Tags -->
+    <foreignObject x="60" y="540" width="1080" height="24">
+      <div xmlns="http://www.w3.org/1999/xhtml" style="display: flex; gap: 8px; font-family: 'JetBrains Mono', monospace;">
+        <span style="color: #94a3b8; background: rgba(255,255,255,0.08); border-radius: 4px; padding: 4px 10px; font-size: 13px;">#Rust</span>
+        <span style="color: #94a3b8; background: rgba(255,255,255,0.08); border-radius: 4px; padding: 4px 10px; font-size: 13px;">#Go</span>
+        <span style="color: #94a3b8; background: rgba(255,255,255,0.08); border-radius: 4px; padding: 4px 10px; font-size: 13px;">#系统编程</span>
+      </div>
+    </foreignObject>
+
+    <!-- Footer -->
+    <foreignObject x="60" y="580" width="1080" height="20">
+      <div xmlns="http://www.w3.org/1999/xhtml" style="display: flex; justify-content: space-between; font-family: 'JetBrains Mono', monospace;">
+        <span style="color: #94a3b8; font-size: 12px;">@zhengjianqiao</span>
+        <span style="color: #94a3b8; font-size: 12px; opacity: 0.6;">GM Diagram</span>
+      </div>
+    </foreignObject>
+  </svg>
+</body>
+</html>

@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Enterprise AI Platform</title>
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      background: #f8fafc;
+      color: #1e293b;
+      font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+      min-height: 100vh;
+      padding: 40px 20px;
+    }
+    .container { max-width: 1100px; margin: 0 auto; }
+    .header {
+      display: flex;
+      align-items: flex-start;
+      gap: 14px;
+      margin-bottom: 32px;
+    }
+    .header-bar {
+      width: 4px;
+      height: 44px;
+      border-radius: 2px;
+      background: linear-gradient(180deg, #1e40af, #059669);
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+    h1 {
+      font-size: 22px;
+      font-weight: 700;
+      color: #0f172a;
+      letter-spacing: -0.3px;
+    }
+    .subtitle {
+      font-size: 13px;
+      color: #64748b;
+      margin-top: 4px;
+      line-height: 1.4;
+    }
+    .diagram-container {
+      background: white;
+      border: 1px solid #e2e8f0;
+      border-radius: 10px;
+      padding: 28px;
+      margin-bottom: 32px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04), 0 1px 2px rgba(0, 0, 0, 0.03);
+      overflow-x: auto;
+    }
+    .diagram-container svg {
+      width: 100%;
+      min-width: 700px;
+      height: auto;
+      display: block;
+    }
+    .footer {
+      font-size: 11px;
+      color: #94a3b8;
+      text-align: center;
+      padding-top: 16px;
+      border-top: 1px solid #e2e8f0;
+    }
+
+    /* === foreignObject component classes (light-corporate) === */
+    .layer-card { width: 100%; border-radius: 8px; padding: 8px 0 12px; box-sizing: border-box; background: white; }
+    .layer-label { font-size: 14px; font-weight: 600; color: #1e293b; padding: 0 16px; font-family: 'Inter', system-ui, -apple-system, sans-serif; }
+    .modules { display: flex; gap: 20px; justify-content: center; padding: 8px 16px 0; flex-wrap: wrap; }
+    .module { min-width: 100px; height: 50px; border-radius: 6px; display: flex; align-items: center; justify-content: center; padding: 0 16px; box-sizing: border-box; }
+    .module-label { font-size: 12px; font-weight: 500; color: #334155; text-align: center; white-space: nowrap; font-family: 'Inter', system-ui, -apple-system, sans-serif; }
+    .tech-badges { display: flex; gap: 4px; justify-content: center; padding-top: 4px; }
+    .tech-badge { font-size: 8px; padding: 2px 6px; border-radius: 4px; white-space: nowrap; background: #f1f5f9; border: 1px solid #e2e8f0; color: #64748b; font-family: 'Inter', system-ui, -apple-system, sans-serif; }
+    .module.has-badges { height: 58px; flex-direction: column; gap: 2px; }
+    .module.has-badges .module-label { height: 20px; }
+
+    /* Type-specific colors (light corporate: clean, subtle) */
+    .type-process { background: #f0f9ff; border: 1.5px solid #0ea5e9; }
+    .type-module { background: #f0fdf4; border: 1.5px solid #22c55e; }
+    .type-data { background: #faf5ff; border: 1.5px solid #a855f7; }
+    .type-infra { background: #fffbeb; border: 1.5px solid #f59e0b; }
+    .type-security { background: #fff1f2; border: 1.5px dashed #f43f5e; }
+    .type-channel { background: #fff7ed; border: 1.5px solid #f97316; }
+    .type-external { background: #f8fafc; border: 1.5px solid #94a3b8; }
+
+    .legend-container { display: flex; gap: 100px; align-items: center; }
+    .legend-item { display: flex; align-items: center; gap: 6px; }
+    .legend-swatch { width: 14px; height: 14px; border-radius: 3px; }
+    .legend-text { font-size: 11px; color: #475569; font-family: 'Inter', system-ui, -apple-system, sans-serif; }
+
+    /* === Chart classes (light-corporate) === */
+    .axis-line { stroke: #64748b; stroke-width: 1.5; fill: none; }
+    .axis-label { fill: #64748b; font-size: 12px; font-family: 'Inter', system-ui, -apple-system, sans-serif; }
+    .axis-title { fill: #0f172a; font-size: 13px; font-weight: 600; font-family: 'Inter', system-ui, -apple-system, sans-serif; }
+    .tick-label { fill: #64748b; font-size: 11px; font-family: 'Inter', system-ui, -apple-system, sans-serif; }
+    .grid-line { stroke: #e2e8f0; stroke-dasharray: 4,4; stroke-width: 0.5; fill: none; }
+    .bar { rx: 2; }
+    .bar:hover { opacity: 0.85; }
+    .slice { stroke: white; stroke-width: 2; }
+    .line-path { fill: none; stroke-width: 2.5; }
+    .area-fill { opacity: 0.15; }
+    .data-dot { stroke-width: 2; }
+    .scatter-point { stroke-width: 1.5; }
+    .bubble-point { stroke-width: 1.5; }
+    .radar-grid { stroke: rgba(0,0,0,0.08); fill: none; stroke-width: 0.5; }
+    .radar-axis { stroke: rgba(0,0,0,0.1); stroke-width: 0.5; }
+    .radar-data { stroke-width: 2; stroke-linejoin: round; }
+    .funnel-stage { stroke: white; stroke-width: 1; }
+    .funnel-label { fill: #0f172a; font-size: 13px; font-weight: 600; font-family: 'Inter', system-ui, -apple-system, sans-serif; }
+    .table-header { font-weight: 600; text-align: left; padding: 8px 12px; border-bottom: 2px solid #e2e8f0; }
+    .table-row { border-bottom: 1px solid rgba(0,0,0,0.06); }
+    .table-cell { padding: 8px 12px; font-size: 13px; }
+    .highlight-max { font-weight: 600; }
+    .highlight-min { font-weight: 600; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <div class="header-bar"></div>
+      <div>
+        <h1>Enterprise AI Platform</h1>
+        <div class="subtitle">Three-layer architecture powering intelligent business applications with scalable services and unified data management</div>
+      </div>
+    </div>
+
+    <div class="diagram-container">
+      <svg viewBox="0 0 960 620" xmlns="http://www.w3.org/2000/svg">
+
+        <!-- Defs: Arrowhead markers -->
+        <defs>
+          <marker id="arrow" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+            <polygon points="0 0, 8 3, 0 6" fill="#64748b"/>
+          </marker>
+          <marker id="arrow-blue" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+            <polygon points="0 0, 8 3, 0 6" fill="#1e40af"/>
+          </marker>
+          <marker id="arrow-rev" markerWidth="8" markerHeight="6" refX="0" refY="3" orient="auto">
+            <polygon points="8 0, 0 3, 8 6" fill="#64748b"/>
+          </marker>
+        </defs>
+
+        <!-- === CONNECTIONS (drawn first, behind components) === -->
+
+        <!-- Application Layer → Service Layer (left module) -->
+        <line x1="240" y1="148" x2="240" y2="215"
+              stroke="#64748b" stroke-width="1"
+              marker-end="url(#arrow)"/>
+        <rect x="217" y="170" width="46" height="16" rx="3" fill="white" stroke="#e2e8f0" stroke-width="0.5"/>
+        <text x="240" y="182" font-size="9" fill="#64748b" font-family="system-ui, sans-serif" text-anchor="middle">REST</text>
+
+        <!-- Application Layer → Service Layer (right module) -->
+        <line x1="620" y1="148" x2="620" y2="215"
+              stroke="#64748b" stroke-width="1"
+              marker-end="url(#arrow)"/>
+        <rect x="597" y="170" width="46" height="16" rx="3" fill="white" stroke="#e2e8f0" stroke-width="0.5"/>
+        <text x="620" y="182" font-size="9" fill="#64748b" font-family="system-ui, sans-serif" text-anchor="middle">gRPC</text>
+
+        <!-- Service Layer → Data Layer (left) -->
+        <line x1="260" y1="358" x2="220" y2="430"
+              stroke="#64748b" stroke-width="1" stroke-dasharray="4,3"
+              marker-end="url(#arrow)"/>
+        <rect x="206" y="386" width="50" height="16" rx="3" fill="white" stroke="#e2e8f0" stroke-width="0.5"/>
+        <text x="231" y="397" font-size="9" fill="#64748b" font-family="system-ui, sans-serif" text-anchor="middle">TCP</text>
+
+        <!-- Service Layer → Data Layer (center) -->
+        <line x1="430" y1="358" x2="430" y2="430"
+              stroke="#64748b" stroke-width="1" stroke-dasharray="4,3"
+              marker-end="url(#arrow)"/>
+        <rect x="408" y="386" width="44" height="16" rx="3" fill="white" stroke="#e2e8f0" stroke-width="0.5"/>
+        <text x="430" y="397" font-size="9" fill="#64748b" font-family="system-ui, sans-serif" text-anchor="middle">SQL</text>
+
+        <!-- Service Layer → Data Layer (right) -->
+        <line x1="600" y1="358" x2="640" y2="430"
+              stroke="#64748b" stroke-width="1" stroke-dasharray="4,3"
+              marker-end="url(#arrow)"/>
+        <rect x="600" y="386" width="48" height="16" rx="3" fill="white" stroke="#e2e8f0" stroke-width="0.5"/>
+        <text x="624" y="397" font-size="9" fill="#64748b" font-family="system-ui, sans-serif" text-anchor="middle">API</text>
+
+        <!-- Cross-layer: AI Portal → ML Pipeline -->
+        <line x1="620" y1="148" x2="620" y2="215"
+              stroke="#1e40af" stroke-width="1" stroke-dasharray="6,3"
+              marker-end="url(#arrow-blue)" opacity="0"/>
+
+        <!-- === LAYER 1: Application Layer === -->
+        <g>
+          <!-- Layer background -->
+          <rect x="40" y="28" width="880" height="120" rx="6"
+                fill="#eff6ff" stroke="#bfdbfe" stroke-width="1"/>
+          <text x="60" y="50" font-size="13" font-weight="600" fill="#1e40af"
+                font-family="system-ui, sans-serif">APPLICATION LAYER</text>
+
+          <!-- Module: AI Dashboard (process type) -->
+          <rect x="80" y="62" width="200" height="68" rx="5"
+                fill="#dbeafe" stroke="#1e40af" stroke-width="1"/>
+          <text x="180" y="90" font-size="12" font-weight="600" fill="#1e40af"
+                font-family="system-ui, sans-serif" text-anchor="middle">AI Dashboard</text>
+          <rect x="127" y="100" width="106" height="16" rx="3"
+                fill="white" stroke="#93c5fd" stroke-width="0.5"/>
+          <text x="180" y="112" font-size="8" fill="#3b82f6" font-family="system-ui, sans-serif" text-anchor="middle">React + TypeScript</text>
+
+          <!-- Module: Business Portal (channel type) -->
+          <rect x="310" y="62" width="200" height="68" rx="5"
+                fill="#ffedd5" stroke="#ea580c" stroke-width="1"/>
+          <text x="410" y="90" font-size="12" font-weight="600" fill="#ea580c"
+                font-family="system-ui, sans-serif" text-anchor="middle">Business Portal</text>
+          <rect x="357" y="100" width="106" height="16" rx="3"
+                fill="white" stroke="#fdba74" stroke-width="0.5"/>
+          <text x="410" y="112" font-size="8" fill="#ea580c" font-family="system-ui, sans-serif" text-anchor="middle">Vue.js + SSO</text>
+
+          <!-- Module: AI Portal (process type) -->
+          <rect x="540" y="62" width="200" height="68" rx="5"
+                fill="#dbeafe" stroke="#1e40af" stroke-width="1"/>
+          <text x="640" y="90" font-size="12" font-weight="600" fill="#1e40af"
+                font-family="system-ui, sans-serif" text-anchor="middle">AI Portal</text>
+          <rect x="597" y="100" width="86" height="16" rx="3"
+                fill="white" stroke="#93c5fd" stroke-width="0.5"/>
+          <text x="640" y="112" font-size="8" fill="#3b82f6" font-family="system-ui, sans-serif" text-anchor="middle">Next.js App</text>
+
+          <!-- External: Mobile App -->
+          <rect x="780" y="62" width="120" height="68" rx="5"
+                fill="#f1f5f9" stroke="#475569" stroke-width="1"/>
+          <text x="840" y="94" font-size="11" font-weight="600" fill="#475569"
+                font-family="system-ui, sans-serif" text-anchor="middle">Mobile App</text>
+          <rect x="809" y="104" width="62" height="14" rx="3"
+                fill="white" stroke="#cbd5e1" stroke-width="0.5"/>
+          <text x="840" y="114" font-size="7" fill="#64748b" font-family="system-ui, sans-serif" text-anchor="middle">External</text>
+        </g>
+
+        <!-- === LAYER 2: Service Layer === -->
+        <g>
+          <!-- Layer background -->
+          <rect x="40" y="208" width="880" height="150" rx="6"
+                fill="#ecfdf5" stroke="#a7f3d0" stroke-width="1"/>
+          <text x="60" y="230" font-size="13" font-weight="600" fill="#059669"
+                font-family="system-ui, sans-serif">SERVICE LAYER</text>
+
+          <!-- Module: API Gateway (infra type) -->
+          <rect x="80" y="244" width="160" height="52" rx="5"
+                fill="#fef3c7" stroke="#d97706" stroke-width="1"/>
+          <text x="160" y="274" font-size="12" font-weight="600" fill="#d97706"
+                font-family="system-ui, sans-serif" text-anchor="middle">API Gateway</text>
+
+          <!-- Module: AI Engine (module type) -->
+          <rect x="270" y="244" width="170" height="52" rx="5"
+                fill="#d1fae5" stroke="#059669" stroke-width="1"/>
+          <text x="355" y="268" font-size="12" font-weight="600" fill="#059669"
+                font-family="system-ui, sans-serif" text-anchor="middle">AI Engine</text>
+          <rect x="312" y="278" width="86" height="14" rx="3"
+                fill="white" stroke="#6ee7b7" stroke-width="0.5"/>
+          <text x="355" y="289" font-size="8" fill="#059669" font-family="system-ui, sans-serif" text-anchor="middle">Model Serving</text>
+
+          <!-- Module: Auth Service (security type) -->
+          <rect x="470" y="244" width="160" height="52" rx="5"
+                fill="#fee2e2" stroke="#dc2626" stroke-width="1"/>
+          <text x="550" y="268" font-size="12" font-weight="600" fill="#dc2626"
+                font-family="system-ui, sans-serif" text-anchor="middle">Auth Service</text>
+          <rect x="517" y="278" width="66" height="14" rx="3"
+                fill="white" stroke="#fca5a5" stroke-width="0.5"/>
+          <text x="550" y="289" font-size="8" fill="#dc2626" font-family="system-ui, sans-serif" text-anchor="middle">OAuth 2.0</text>
+
+          <!-- Module: ML Pipeline (module type) -->
+          <rect x="660" y="244" width="170" height="52" rx="5"
+                fill="#d1fae5" stroke="#059669" stroke-width="1"/>
+          <text x="745" y="268" font-size="12" font-weight="600" fill="#059669"
+                font-family="system-ui, sans-serif" text-anchor="middle">ML Pipeline</text>
+          <rect x="708" y="278" width="74" height="14" rx="3"
+                fill="white" stroke="#6ee7b7" stroke-width="0.5"/>
+          <text x="745" y="289" font-size="8" fill="#059669" font-family="system-ui, sans-serif" text-anchor="middle">Kubeflow</text>
+
+          <!-- Horizontal connection: API Gateway → AI Engine -->
+          <line x1="240" y1="310" x2="290" y2="310"
+                stroke="#94a3b8" stroke-width="1"
+                marker-end="url(#arrow)"/>
+          <rect x="243" y="300" width="38" height="14" rx="3" fill="white" stroke="#e2e8f0" stroke-width="0.5"/>
+          <text x="262" y="310" font-size="7" fill="#94a3b8" font-family="system-ui, sans-serif" text-anchor="middle">route</text>
+
+          <!-- Horizontal connection: AI Engine → Auth Service -->
+          <line x1="440" y1="270" x2="470" y2="270"
+                stroke="#94a3b8" stroke-width="1"
+                marker-end="url(#arrow)"/>
+
+          <!-- Horizontal connection: Auth Service → ML Pipeline -->
+          <line x1="630" y1="310" x2="660" y2="310"
+                stroke="#94a3b8" stroke-width="1"
+                marker-end="url(#arrow)"/>
+          <rect x="623" y="300" width="42" height="14" rx="3" fill="white" stroke="#e2e8f0" stroke-width="0.5"/>
+          <text x="644" y="310" font-size="7" fill="#94a3b8" font-family="system-ui, sans-serif" text-anchor="middle">trigger</text>
+        </g>
+
+        <!-- === LAYER 3: Data Layer === -->
+        <g>
+          <!-- Layer background -->
+          <rect x="40" y="425" width="880" height="120" rx="6"
+                fill="#f5f3ff" stroke="#ddd6fe" stroke-width="1"/>
+          <text x="60" y="447" font-size="13" font-weight="600" fill="#7c3aed"
+                font-family="system-ui, sans-serif">DATA LAYER</text>
+
+          <!-- Module: Vector DB (data type) -->
+          <rect x="80" y="460" width="180" height="60" rx="5"
+                fill="#ede9fe" stroke="#7c3aed" stroke-width="1"/>
+          <text x="170" y="487" font-size="12" font-weight="600" fill="#7c3aed"
+                font-family="system-ui, sans-serif" text-anchor="middle">Vector DB</text>
+          <rect x="126" y="496" width="88" height="14" rx="3"
+                fill="white" stroke="#c4b5fd" stroke-width="0.5"/>
+          <text x="170" y="506" font-size="8" fill="#7c3aed" font-family="system-ui, sans-serif" text-anchor="middle">Embeddings</text>
+
+          <!-- Module: PostgreSQL (data type) -->
+          <rect x="300" y="460" width="180" height="60" rx="5"
+                fill="#ede9fe" stroke="#7c3aed" stroke-width="1"/>
+          <text x="390" y="487" font-size="12" font-weight="600" fill="#7c3aed"
+                font-family="system-ui, sans-serif" text-anchor="middle">PostgreSQL</text>
+          <rect x="348" y="496" width="84" height="14" rx="3"
+                fill="white" stroke="#c4b5fd" stroke-width="0.5"/>
+          <text x="390" y="506" font-size="8" fill="#7c3aed" font-family="system-ui, sans-serif" text-anchor="middle">Structured</text>
+
+          <!-- Module: Redis Cache (data type) -->
+          <rect x="520" y="460" width="180" height="60" rx="5"
+                fill="#ede9fe" stroke="#7c3aed" stroke-width="1"/>
+          <text x="610" y="487" font-size="12" font-weight="600" fill="#7c3aed"
+                font-family="system-ui, sans-serif" text-anchor="middle">Redis Cache</text>
+          <rect x="568" y="496" width="84" height="14" rx="3"
+                fill="white" stroke="#c4b5fd" stroke-width="0.5"/>
+          <text x="610" y="506" font-size="8" fill="#7c3aed" font-family="system-ui, sans-serif" text-anchor="middle">In-Memory</text>
+
+          <!-- Module: S3 Storage (infra type) -->
+          <rect x="740" y="460" width="160" height="60" rx="5"
+                fill="#fef3c7" stroke="#d97706" stroke-width="1"/>
+          <text x="820" y="487" font-size="12" font-weight="600" fill="#d97706"
+                font-family="system-ui, sans-serif" text-anchor="middle">Object Storage</text>
+          <rect x="785" y="496" width="70" height="14" rx="3"
+                fill="white" stroke="#fcd34d" stroke-width="0.5"/>
+          <text x="820" y="506" font-size="8" fill="#d97706" font-family="system-ui, sans-serif" text-anchor="middle">S3 / MinIO</text>
+        </g>
+
+        <!-- === LEGEND === -->
+        <g transform="translate(40, 568)">
+          <text x="0" y="0" font-size="10" font-weight="600" fill="#475569"
+                font-family="system-ui, sans-serif" letter-spacing="0.5">LEGEND</text>
+
+          <rect x="0" y="10" width="16" height="12" rx="2" fill="#dbeafe" stroke="#1e40af" stroke-width="1"/>
+          <text x="22" y="20" font-size="10" fill="#64748b" font-family="system-ui, sans-serif">Application</text>
+
+          <rect x="100" y="10" width="16" height="12" rx="2" fill="#d1fae5" stroke="#059669" stroke-width="1"/>
+          <text x="122" y="20" font-size="10" fill="#64748b" font-family="system-ui, sans-serif">Service</text>
+
+          <rect x="190" y="10" width="16" height="12" rx="2" fill="#ede9fe" stroke="#7c3aed" stroke-width="1"/>
+          <text x="212" y="20" font-size="10" fill="#64748b" font-family="system-ui, sans-serif">Data</text>
+
+          <rect x="260" y="10" width="16" height="12" rx="2" fill="#fef3c7" stroke="#d97706" stroke-width="1"/>
+          <text x="282" y="20" font-size="10" fill="#64748b" font-family="system-ui, sans-serif">Infra</text>
+
+          <rect x="330" y="10" width="16" height="12" rx="2" fill="#fee2e2" stroke="#dc2626" stroke-width="1"/>
+          <text x="352" y="20" font-size="10" fill="#64748b" font-family="system-ui, sans-serif">Security</text>
+
+          <rect x="420" y="10" width="16" height="12" rx="2" fill="#ffedd5" stroke="#ea580c" stroke-width="1"/>
+          <text x="442" y="20" font-size="10" fill="#64748b" font-family="system-ui, sans-serif">Channel</text>
+
+          <rect x="510" y="10" width="16" height="12" rx="2" fill="#f1f5f9" stroke="#475569" stroke-width="1"/>
+          <text x="532" y="20" font-size="10" fill="#64748b" font-family="system-ui, sans-serif">External</text>
+
+          <!-- Connection types -->
+          <line x1="600" y1="17" x2="640" y2="17" stroke="#64748b" stroke-width="1" marker-end="url(#arrow)"/>
+          <text x="648" y="20" font-size="10" fill="#64748b" font-family="system-ui, sans-serif">Sync</text>
+
+          <line x1="695" y1="17" x2="735" y2="17" stroke="#64748b" stroke-width="1" stroke-dasharray="4,3" marker-end="url(#arrow)"/>
+          <text x="743" y="20" font-size="10" fill="#64748b" font-family="system-ui, sans-serif">Async</text>
+        </g>
+
+      </svg>
+    </div>
+
+    <div class="footer">
+      Generated by gmdiagram &middot; Light Corporate &middot; 2026-04-11
+    </div>
+  </div>
+</body>
+</html>

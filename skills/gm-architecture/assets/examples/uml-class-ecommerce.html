@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>E-Commerce Order System</title>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      background: #020617;
+      color: #e2e8f0;
+      font-family: 'JetBrains Mono', 'SF Mono', 'Fira Code', monospace;
+      min-height: 100vh;
+      padding: 40px 20px;
+    }
+    .container { max-width: 1100px; margin: 0 auto; }
+    .header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 32px;
+    }
+    .pulse-dot {
+      width: 10px; height: 10px; border-radius: 50%;
+      background: #22d3ee;
+      box-shadow: 0 0 8px rgba(34, 211, 238, 0.6);
+      animation: pulse 2s ease-in-out infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.4; }
+    }
+    h1 { font-size: 22px; font-weight: 700; color: #f1f5f9; }
+    .subtitle { font-size: 13px; color: #64748b; margin-top: 4px; }
+    .diagram-container {
+      background: #0f172a;
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 12px;
+      padding: 24px;
+      margin-bottom: 32px;
+      overflow-x: auto;
+    }
+    .diagram-container svg {
+      width: 100%;
+      min-width: 900px;
+      height: auto;
+      display: block;
+    }
+    .footer {
+      font-size: 11px;
+      color: #475569;
+      text-align: center;
+      padding-top: 16px;
+      border-top: 1px solid rgba(255,255,255,0.04);
+    }
+
+    /* === UML Class Styles === */
+    .uml-class-box {
+      font-family: 'JetBrains Mono', monospace;
+      background: #0f172a;
+      border-radius: 6px;
+      overflow: hidden;
+    }
+    .uml-header {
+      text-align: center;
+      padding: 8px 12px;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+    }
+    .uml-stereotype {
+      font-size: 10px;
+      font-style: italic;
+      color: #94a3b8;
+      margin-bottom: 2px;
+    }
+    .uml-class-name {
+      font-size: 13px;
+      font-weight: 600;
+      color: #f1f5f9;
+    }
+    .uml-attributes {
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+      padding: 4px 0;
+    }
+    .uml-attr {
+      font-size: 11px;
+      color: #cbd5e1;
+      padding: 2px 12px;
+      white-space: nowrap;
+    }
+    .uml-methods {
+      padding: 4px 0;
+    }
+    .uml-method {
+      font-size: 11px;
+      color: #cbd5e1;
+      padding: 2px 12px;
+      white-space: nowrap;
+    }
+
+    /* Class type colors */
+    .type-entity .uml-header { background: rgba(6, 78, 59, 0.4); border-bottom-color: #34d399; }
+    .type-entity { border: 1.5px solid #34d399; }
+
+    .type-value .uml-header { background: rgba(76, 29, 149, 0.4); border-bottom-color: #a78bfa; }
+    .type-value { border: 1.5px solid #a78bfa; }
+
+    .type-service .uml-header { background: rgba(120, 53, 15, 0.3); border-bottom-color: #fbbf24; }
+    .type-service { border: 1.5px solid #fbbf24; }
+
+    /* Legend */
+    .legend-container { display: flex; gap: 100px; align-items: center; }
+    .legend-item { display: flex; align-items: center; gap: 6px; }
+    .legend-swatch { width: 14px; height: 14px; border-radius: 3px; }
+    .legend-text { font-size: 11px; color: #cbd5e1; font-family: 'JetBrains Mono', monospace; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <div class="pulse-dot"></div>
+      <div>
+        <h1>E-Commerce Order System</h1>
+        <div class="subtitle">UML Class Diagram for an online shopping platform</div>
+      </div>
+    </div>
+
+    <div class="diagram-container">
+      <svg viewBox="0 0 1000 700" xmlns="http://www.w3.org/2000/svg">
+        <!-- Defs -->
+        <defs>
+          <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+            <path d="M 40 0 L 0 0 0 40" fill="none" stroke="rgba(51, 65, 85, 0.3)" stroke-width="0.5"/>
+          </pattern>
+          <!-- Composition: filled diamond -->
+          <marker id="composition" markerWidth="12" markerHeight="10" refX="0" refY="5" orient="auto">
+            <polygon points="0,5 6,0 12,5 6,10" fill="#64748b"/>
+          </marker>
+          <!-- Association: open arrow -->
+          <marker id="association" markerWidth="10" markerHeight="8" refX="10" refY="4" orient="auto">
+            <polyline points="0,0 10,4 0,8" fill="none" stroke="#64748b" stroke-width="1.5"/>
+          </marker>
+        </defs>
+
+        <!-- Grid background -->
+        <rect width="1000" height="700" fill="url(#grid)"/>
+
+        <!-- === RELATIONSHIP LINES (drawn first, behind classes) === -->
+
+        <!-- User 1:N Order (Composition) -->
+        <line x1="218" y1="130" x2="332" y2="130" stroke="#64748b" stroke-width="1.5" marker-start="url(#composition)"/>
+        <rect x="265" y="122" width="20" height="16" rx="3" fill="#020617" opacity="0.9"/>
+        <text x="275" y="134" font-size="10" fill="#94a3b8" font-family="JetBrains Mono, monospace" text-anchor="middle">1</text>
+        <rect x="308" y="122" width="20" height="16" rx="3" fill="#020617" opacity="0.9"/>
+        <text x="318" y="134" font-size="10" fill="#94a3b8" font-family="JetBrains Mono, monospace" text-anchor="middle">*</text>
+
+        <!-- Order 1:N OrderItem (Composition) -->
+        <line x1="518" y1="130" x2="632" y2="130" stroke="#64748b" stroke-width="1.5" marker-start="url(#composition)"/>
+        <rect x="565" y="122" width="20" height="16" rx="3" fill="#020617" opacity="0.9"/>
+        <text x="575" y="134" font-size="10" fill="#94a3b8" font-family="JetBrains Mono, monospace" text-anchor="middle">1</text>
+        <rect x="608" y="122" width="20" height="16" rx="3" fill="#020617" opacity="0.9"/>
+        <text x="618" y="134" font-size="10" fill="#94a3b8" font-family="JetBrains Mono, monospace" text-anchor="middle">*</text>
+
+        <!-- OrderItem N:1 Product (Association) -->
+        <path d="M 740 210 L 740 280" fill="none" stroke="#64748b" stroke-width="1.5" marker-end="url(#association)"/>
+        <rect x="732" y="235" width="20" height="16" rx="3" fill="#020617" opacity="0.9"/>
+        <text x="742" y="247" font-size="10" fill="#94a3b8" font-family="JetBrains Mono, monospace" text-anchor="middle">*</text>
+        <rect x="732" y="263" width="20" height="16" rx="3" fill="#020617" opacity="0.9"/>
+        <text x="742" y="275" font-size="10" fill="#94a3b8" font-family="JetBrains Mono, monospace" text-anchor="middle">1</text>
+
+        <!-- Product N:1 Category (Association) -->
+        <path d="M 632 330 L 518 330" fill="none" stroke="#64748b" stroke-width="1.5" marker-end="url(#association)"/>
+        <rect x="565" y="322" width="20" height="16" rx="3" fill="#020617" opacity="0.9"/>
+        <text x="575" y="334" font-size="10" fill="#94a3b8" font-family="JetBrains Mono, monospace" text-anchor="middle">*</text>
+        <rect x="632" y="322" width="20" height="16" rx="3" fill="#020617" opacity="0.9"/>
+        <text x="642" y="334" font-size="10" fill="#94a3b8" font-family="JetBrains Mono, monospace" text-anchor="middle">1</text>
+
+        <!-- Order 1:1 Payment (Association) -->
+        <path d="M 425 290 L 425 470" fill="none" stroke="#64748b" stroke-width="1.5" marker-end="url(#association)"/>
+        <rect x="417" y="360" width="20" height="16" rx="3" fill="#020617" opacity="0.9"/>
+        <text x="427" y="372" font-size="10" fill="#94a3b8" font-family="JetBrains Mono, monospace" text-anchor="middle">1</text>
+        <rect x="417" y="453" width="20" height="16" rx="3" fill="#020617" opacity="0.9"/>
+        <text x="427" y="465" font-size="10" fill="#94a3b8" font-family="JetBrains Mono, monospace" text-anchor="middle">1</text>
+
+        <!-- === CLASS BOXES === -->
+
+        <!-- User Class -->
+        <g transform="translate(50, 50)">
+          <rect width="168" height="160" rx="6" fill="#0f172a"/>
+          <rect width="168" height="160" rx="6" fill="rgba(6, 78, 59, 0.4)" stroke="#34d399" stroke-width="1.5"/>
+          <foreignObject width="168" height="34">
+            <div xmlns="http://www.w3.org/1999/xhtml" class="uml-class-box type-entity">
+              <div class="uml-header" style="background: rgba(6, 78, 59, 0.4); border-bottom: 1px solid #34d399;">
+                <div class="uml-class-name">User</div>
+              </div>
+            </div>
+          </foreignObject>
+          <foreignObject y="34" width="168" height="66">
+            <div xmlns="http://www.w3.org/1999/xhtml" class="uml-class-box">
+              <div class="uml-attributes">
+                <div class="uml-attr">- id: int</div>
+                <div class="uml-attr">- email: string</div>
+                <div class="uml-attr">- name: string</div>
+              </div>
+            </div>
+          </foreignObject>
+          <line x1="0" y1="100" x2="168" y2="100" stroke="rgba(255,255,255,0.1)" stroke-width="0.5"/>
+          <foreignObject y="100" width="168" height="60">
+            <div xmlns="http://www.w3.org/1999/xhtml" class="uml-class-box">
+              <div class="uml-methods">
+                <div class="uml-method">+ login(): bool</div>
+                <div class="uml-method">+ register(): bool</div>
+                <div class="uml-method">+ placeOrder(): Order</div>
+              </div>
+            </div>
+          </foreignObject>
+        </g>
+
+        <!-- Order Class -->
+        <g transform="translate(350, 50)">
+          <rect width="168" height="200" rx="6" fill="#0f172a"/>
+          <rect width="168" height="200" rx="6" fill="rgba(6, 78, 59, 0.4)" stroke="#34d399" stroke-width="1.5"/>
+          <foreignObject width="168" height="34">
+            <div xmlns="http://www.w3.org/1999/xhtml" class="uml-class-box type-entity">
+              <div class="uml-header" style="background: rgba(6, 78, 59, 0.4); border-bottom: 1px solid #34d399;">
+                <div class="uml-class-name">Order</div>
+              </div>
+            </div>
+          </foreignObject>
+          <foreignObject y="34" width="168" height="106">
+            <div xmlns="http://www.w3.org/1999/xhtml" class="uml-class-box">
+              <div class="uml-attributes">
+                <div class="uml-attr">- id: int</div>
+                <div class="uml-attr">- userId: int</div>
+                <div class="uml-attr">- total: float</div>
+                <div class="uml-attr">- status: OrderStatus</div>
+                <div class="uml-attr">- createdAt: datetime</div>
+              </div>
+            </div>
+          </foreignObject>
+          <line x1="0" y1="140" x2="168" y2="140" stroke="rgba(255,255,255,0.1)" stroke-width="0.5"/>
+          <foreignObject y="140" width="168" height="60">
+            <div xmlns="http://www.w3.org/1999/xhtml" class="uml-class-box">
+              <div class="uml-methods">
+                <div class="uml-method">+ addItem(...)</div>
+                <div class="uml-method">+ removeItem(...)</div>
+                <div class="uml-method">+ calculateTotal(): float</div>
+                <div class="uml-method">+ pay(): Payment</div>
+              </div>
+            </div>
+          </foreignObject>
+        </g>
+
+        <!-- OrderItem Class -->
+        <g transform="translate(650, 50)">
+          <rect width="180" height="140" rx="6" fill="#0f172a"/>
+          <rect width="180" height="140" rx="6" fill="rgba(76, 29, 149, 0.4)" stroke="#a78bfa" stroke-width="1.5"/>
+          <foreignObject width="180" height="34">
+            <div xmlns="http://www.w3.org/1999/xhtml" class="uml-class-box type-value">
+              <div class="uml-header" style="background: rgba(76, 29, 149, 0.4); border-bottom: 1px solid #a78bfa;">
+                <div class="uml-class-name">OrderItem</div>
+              </div>
+            </div>
+          </foreignObject>
+          <foreignObject y="34" width="180" height="106">
+            <div xmlns="http://www.w3.org/1999/xhtml" class="uml-class-box">
+              <div class="uml-attributes">
+                <div class="uml-attr">- id: int</div>
+                <div class="uml-attr">- orderId: int</div>
+                <div class="uml-attr">- productId: int</div>
+                <div class="uml-attr">- quantity: int</div>
+                <div class="uml-attr">- price: float</div>
+              </div>
+            </div>
+          </foreignObject>
+        </g>
+
+        <!-- Product Class -->
+        <g transform="translate(650, 300)">
+          <rect width="168" height="160" rx="6" fill="#0f172a"/>
+          <rect width="168" height="160" rx="6" fill="rgba(6, 78, 59, 0.4)" stroke="#34d399" stroke-width="1.5"/>
+          <foreignObject width="168" height="34">
+            <div xmlns="http://www.w3.org/1999/xhtml" class="uml-class-box type-entity">
+              <div class="uml-header" style="background: rgba(6, 78, 59, 0.4); border-bottom: 1px solid #34d399;">
+                <div class="uml-class-name">Product</div>
+              </div>
+            </div>
+          </foreignObject>
+          <foreignObject y="34" width="168" height="86">
+            <div xmlns="http://www.w3.org/1999/xhtml" class="uml-class-box">
+              <div class="uml-attributes">
+                <div class="uml-attr">- id: int</div>
+                <div class="uml-attr">- name: string</div>
+                <div class="uml-attr">- price: float</div>
+                <div class="uml-attr">- stock: int</div>
+                <div class="uml-attr">- categoryId: int</div>
+              </div>
+            </div>
+          </foreignObject>
+          <line x1="0" y1="120" x2="168" y2="120" stroke="rgba(255,255,255,0.1)" stroke-width="0.5"/>
+          <foreignObject y="120" width="168" height="40">
+            <div xmlns="http://www.w3.org/1999/xhtml" class="uml-class-box">
+              <div class="uml-methods">
+                <div class="uml-method">+ reduceStock(qty): bool</div>
+              </div>
+            </div>
+          </foreignObject>
+        </g>
+
+        <!-- Category Class -->
+        <g transform="translate(350, 300)">
+          <rect width="168" height="120" rx="6" fill="#0f172a"/>
+          <rect width="168" height="120" rx="6" fill="rgba(120, 53, 15, 0.3)" stroke="#fbbf24" stroke-width="1.5"/>
+          <foreignObject width="168" height="34">
+            <div xmlns="http://www.w3.org/1999/xhtml" class="uml-class-box type-service">
+              <div class="uml-header" style="background: rgba(120, 53, 15, 0.3); border-bottom: 1px solid #fbbf24;">
+                <div class="uml-class-name">Category</div>
+              </div>
+            </div>
+          </foreignObject>
+          <foreignObject y="34" width="168" height="86">
+            <div xmlns="http://www.w3.org/1999/xhtml" class="uml-class-box">
+              <div class="uml-attributes">
+                <div class="uml-attr">- id: int</div>
+                <div class="uml-attr">- name: string</div>
+                <div class="uml-attr">- description: string</div>
+              </div>
+            </div>
+          </foreignObject>
+        </g>
+
+        <!-- Payment Class -->
+        <g transform="translate(350, 500)">
+          <rect width="168" height="160" rx="6" fill="#0f172a"/>
+          <rect width="168" height="160" rx="6" fill="rgba(120, 53, 15, 0.3)" stroke="#fbbf24" stroke-width="1.5"/>
+          <foreignObject width="168" height="34">
+            <div xmlns="http://www.w3.org/1999/xhtml" class="uml-class-box type-service">
+              <div class="uml-header" style="background: rgba(120, 53, 15, 0.3); border-bottom: 1px solid #fbbf24;">
+                <div class="uml-class-name">Payment</div>
+              </div>
+            </div>
+          </foreignObject>
+          <foreignObject y="34" width="168" height="86">
+            <div xmlns="http://www.w3.org/1999/xhtml" class="uml-class-box">
+              <div class="uml-attributes">
+                <div class="uml-attr">- id: int</div>
+                <div class="uml-attr">- orderId: int</div>
+                <div class="uml-attr">- amount: float</div>
+                <div class="uml-attr">- status: PaymentStatus</div>
+                <div class="uml-attr">- paidAt: datetime</div>
+              </div>
+            </div>
+          </foreignObject>
+          <line x1="0" y1="120" x2="168" y2="120" stroke="rgba(255,255,255,0.1)" stroke-width="0.5"/>
+          <foreignObject y="120" width="168" height="40">
+            <div xmlns="http://www.w3.org/1999/xhtml" class="uml-class-box">
+              <div class="uml-methods">
+                <div class="uml-method">+ process(): bool</div>
+                <div class="uml-method">+ refund(): bool</div>
+              </div>
+            </div>
+          </foreignObject>
+        </g>
+
+        <!-- === LEGEND === -->
+        <g transform="translate(50, 600)">
+          <text x="0" y="0" font-size="11" font-weight="600" fill="#cbd5e1" font-family="JetBrains Mono, monospace">Legend</text>
+
+          <rect x="0" y="14" width="14" height="14" rx="3" fill="rgba(6, 78, 59, 0.4)" stroke="#34d399" stroke-width="1"/>
+          <text x="20" y="25" font-size="11" fill="#cbd5e1" font-family="JetBrains Mono, monospace">Entity Class</text>
+
+          <rect x="130" y="14" width="14" height="14" rx="3" fill="rgba(76, 29, 149, 0.4)" stroke="#a78bfa" stroke-width="1"/>
+          <text x="150" y="25" font-size="11" fill="#cbd5e1" font-family="JetBrains Mono, monospace">Value Object</text>
+
+          <rect x="270" y="14" width="14" height="14" rx="3" fill="rgba(120, 53, 15, 0.3)" stroke="#fbbf24" stroke-width="1"/>
+          <text x="290" y="25" font-size="11" fill="#cbd5e1" font-family="JetBrains Mono, monospace">Domain Model</text>
+
+          <rect x="410" y="14" width="14" height="14" rx="3" fill="#64748b"/>
+          <text x="430" y="25" font-size="11" fill="#cbd5e1" font-family="JetBrains Mono, monospace">Composition (◆)</text>
+
+          <rect x="560" y="14" width="14" height="14" rx="3" fill="none" stroke="#64748b" stroke-width="1.5"/>
+          <text x="580" y="25" font-size="11" fill="#cbd5e1" font-family="JetBrains Mono, monospace">Association (→)</text>
+        </g>
+
+      </svg>
+    </div>
+
+    <div class="footer">
+      Generated by gmdiagram &middot; Dark Professional &middot; 2026-04-14
+    </div>
+  </div>
+</body>
+</html>

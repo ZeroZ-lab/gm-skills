@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chrome Multi-Process Architecture</title>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      background: #020617;
+      color: #e2e8f0;
+      font-family: 'JetBrains Mono', 'SF Mono', 'Fira Code', monospace;
+      min-height: 100vh;
+      padding: 40px 20px;
+    }
+    .container { max-width: 1100px; margin: 0 auto; }
+    .header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 32px;
+    }
+    .pulse-dot {
+      width: 10px; height: 10px; border-radius: 50%;
+      background: #22d3ee;
+      box-shadow: 0 0 8px rgba(34, 211, 238, 0.6);
+      animation: pulse 2s ease-in-out infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.4; }
+    }
+    h1 { font-size: 22px; font-weight: 700; color: #f1f5f9; }
+    .subtitle { font-size: 13px; color: #64748b; margin-top: 4px; }
+    .diagram-container {
+      background: #0f172a;
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 12px;
+      padding: 24px;
+      margin-bottom: 32px;
+      overflow-x: auto;
+    }
+    .diagram-container svg {
+      width: 100%;
+      min-width: 700px;
+      height: auto;
+      display: block;
+    }
+    .footer {
+      font-size: 11px;
+      color: #475569;
+      text-align: center;
+      padding-top: 16px;
+      border-top: 1px solid rgba(255,255,255,0.04);
+    }
+    /* === foreignObject component classes (dark-professional) === */
+    .layer-card { width: 100%; height: 100%; border-radius: 8px; padding: 10px 16px 14px; box-sizing: border-box; display: flex; flex-direction: column; }
+    .layer-header { margin-bottom: 8px; }
+    .layer-label { font-size: 14px; font-weight: 600; color: #f1f5f9; font-family: 'JetBrains Mono', 'SF Mono', 'Fira Code', monospace; }
+    .layer-description { font-size: 11px; color: #64748b; font-family: 'JetBrains Mono', 'SF Mono', 'Fira Code', monospace; margin-top: 2px; }
+    .modules { display: flex; gap: 20px; justify-content: center; align-items: flex-start; flex-wrap: wrap; flex: 1; }
+    .module { min-width: 100px; min-height: 50px; border-radius: 6px; display: flex; align-items: center; justify-content: center; padding: 10px 16px; box-sizing: border-box; background: #0f172a; }
+    .module-label { font-size: 12px; font-weight: 500; color: white; text-align: center; white-space: nowrap; font-family: 'JetBrains Mono', 'SF Mono', 'Fira Code', monospace; }
+    .tech-badges { display: flex; gap: 4px; justify-content: center; flex-wrap: wrap; margin-top: 6px; }
+    .tech-badge { font-size: 8px; padding: 2px 6px; border-radius: 4px; white-space: nowrap; background: rgba(255,255,255,0.08); border: 0.5px solid rgba(255,255,255,0.15); color: #94a3b8; font-family: 'JetBrains Mono', 'SF Mono', 'Fira Code', monospace; }
+    .module.has-badges { height: 58px; flex-direction: column; gap: 2px; }
+    .module.has-badges .module-label { height: 20px; }
+
+    /* Type-specific colors */
+    .type-process { background: rgba(8, 51, 68, 0.4); border: 1.5px solid #22d3ee; }
+    .type-process .module { background: rgba(6, 78, 59, 0.4); border: 1.5px solid #34d399; }
+    .type-process .tech-badge { border-color: rgba(52, 211, 153, 0.3); color: #34d399; }
+
+    .type-module { background: rgba(6, 78, 59, 0.4); border: 1.5px solid #34d399; }
+    .type-module .module { background: rgba(6, 78, 59, 0.4); border: 1.5px solid #34d399; }
+    .type-module .tech-badge { border-color: rgba(52, 211, 153, 0.3); color: #34d399; }
+
+    .type-data { background: rgba(76, 29, 149, 0.4); border: 1.5px solid #a78bfa; }
+    .type-data .module { background: rgba(76, 29, 149, 0.4); border: 1.5px solid #a78bfa; }
+    .type-data .tech-badge { border-color: rgba(167, 139, 250, 0.3); color: #a78bfa; }
+
+    .type-infra { background: rgba(120, 53, 15, 0.3); border: 1.5px solid #fbbf24; }
+    .type-infra .module { background: rgba(120, 53, 15, 0.3); border: 1.5px solid #fbbf24; }
+    .type-infra .tech-badge { border-color: rgba(251, 191, 36, 0.3); color: #fbbf24; }
+
+    .type-security { background: rgba(136, 19, 55, 0.4); border: 1.5px solid #fb7185; border-style: dashed; }
+    .type-security .module { background: rgba(136, 19, 55, 0.4); border: 1.5px dashed #fb7185; }
+    .type-security .tech-badge { border-color: rgba(251, 113, 133, 0.3); color: #fb7185; }
+
+    .type-channel { background: rgba(251, 146, 60, 0.3); border: 1.5px solid #fb923c; }
+    .type-channel .module { background: rgba(251, 146, 60, 0.3); border: 1.5px solid #fb923c; }
+    .type-channel .tech-badge { border-color: rgba(251, 146, 60, 0.3); color: #fb923c; }
+
+    .type-external { background: rgba(30, 41, 59, 0.5); border: 1.5px solid #94a3b8; }
+    .type-external .module { background: rgba(30, 41, 59, 0.5); border: 1.5px solid #94a3b8; }
+    .type-external .tech-badge { border-color: rgba(148, 163, 184, 0.3); color: #94a3b8; }
+
+    /* Legend */
+    .legend-container { display: flex; gap: 24px; align-items: center; flex-wrap: wrap; }
+    .legend-item { display: flex; align-items: center; gap: 6px; }
+    .legend-swatch { width: 14px; height: 14px; border-radius: 3px; }
+    .legend-text { font-size: 11px; color: #cbd5e1; font-family: 'JetBrains Mono', 'SF Mono', 'Fira Code', monospace; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <div class="pulse-dot"></div>
+      <div>
+        <h1>Chrome Multi-Process Architecture</h1>
+        <div class="subtitle">Browser Process coordinates multiple subprocesses via IPC channels</div>
+      </div>
+    </div>
+
+    <div class="diagram-container">
+      <svg viewBox="0 0 1000 680" xmlns="http://www.w3.org/2000/svg">
+        <!-- Defs -->
+        <defs>
+          <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+            <path d="M 40 0 L 0 0 0 40" fill="none" stroke="rgba(51, 65, 85, 0.3)" stroke-width="0.5"/>
+          </pattern>
+          <marker id="arrowhead" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+            <polygon points="0 0, 8 3, 0 6" fill="#64748b"/>
+          </marker>
+          <marker id="arrowhead-rev" markerWidth="8" markerHeight="6" refX="0" refY="3" orient="auto">
+            <polygon points="8 0, 0 3, 8 6" fill="#64748b"/>
+          </marker>
+        </defs>
+
+        <!-- Grid background -->
+        <rect width="1000" height="680" fill="url(#grid)"/>
+
+        <!-- === CONNECTIONS (drawn first, behind layers) === -->
+
+        <!-- Browser Process &lt;-&gt; Renderer Process (IPC) -->
+        <line x1="500" y1="130" x2="500" y2="200"
+              stroke="#fb923c" stroke-width="1.5"
+              marker-start="url(#arrowhead-rev)" marker-end="url(#arrowhead)"/>
+        <rect x="478" y="157" width="44" height="16" rx="3" fill="#020617" opacity="0.9"/>
+        <text x="500" y="169" font-size="10" fill="#fb923c" font-family="JetBrains Mono, monospace" text-anchor="middle">IPC</text>
+
+        <!-- Browser Process &rarr; GPU Process (Command Buffer) -->
+        <line x1="300" y1="130" x2="240" y2="385"
+              stroke="#64748b" stroke-width="1.5" stroke-dasharray="6,4"
+              marker-end="url(#arrowhead)"/>
+        <rect x="228" y="248" width="84" height="16" rx="3" fill="#020617" opacity="0.9"/>
+        <text x="270" y="260" font-size="9" fill="#94a3b8" font-family="JetBrains Mono, monospace" text-anchor="middle">Command Buffer</text>
+
+        <!-- Renderer Process &rarr; GPU Process (GPU Commands) -->
+        <line x1="240" y1="320" x2="240" y2="385"
+              stroke="#64748b" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+        <rect x="198" y="345" width="84" height="16" rx="3" fill="#020617" opacity="0.9"/>
+        <text x="240" y="357" font-size="9" fill="#94a3b8" font-family="JetBrains Mono, monospace" text-anchor="middle">GPU Commands</text>
+
+        <!-- Browser Process &lt;-&gt; Utility Process (IPC) -->
+        <line x1="700" y1="130" x2="700" y2="385"
+              stroke="#fb923c" stroke-width="1.5"
+              marker-start="url(#arrowhead-rev)" marker-end="url(#arrowhead)"/>
+        <rect x="678" y="249" width="44" height="16" rx="3" fill="#020617" opacity="0.9"/>
+        <text x="700" y="261" font-size="10" fill="#fb923c" font-family="JetBrains Mono, monospace" text-anchor="middle">IPC</text>
+
+        <!-- === LAYER 1: Browser Process (type: process) === -->
+        <g transform="translate(40, 30)">
+          <foreignObject width="920" height="100" xmlns="http://www.w3.org/1999/xhtml">
+            <div class="layer-card type-process">
+              <div class="layer-header">
+                <span class="layer-label">Browser Process</span>
+              </div>
+              <div class="modules">
+                <div class="module">
+                  <span class="module-label">UI / Tabs</span>
+                </div>
+                <div class="module">
+                  <span class="module-label">Network</span>
+                </div>
+                <div class="module">
+                  <span class="module-label">Storage</span>
+                </div>
+              </div>
+            </div>
+          </foreignObject>
+        </g>
+
+        <!-- === LAYER 2: Renderer Process (type: process, count: multiple) === -->
+        <g transform="translate(40, 200)">
+          <!-- Multiple indicator shadow -->
+          <rect x="4" y="3" width="600" height="120" rx="8" fill="none" stroke="#22d3ee" stroke-width="0.5" opacity="0.3"/>
+          <foreignObject width="600" height="120" xmlns="http://www.w3.org/1999/xhtml">
+            <div class="layer-card type-process">
+              <div class="layer-header">
+                <span class="layer-label">Renderer Process</span>
+              </div>
+              <div class="modules">
+                <div class="module has-badges">
+                  <span class="module-label">Blink</span>
+                  <span class="tech-badges">
+                    <span class="tech-badge">Rendering Engine</span>
+                  </span>
+                </div>
+                <div class="module has-badges">
+                  <span class="module-label">V8 Engine</span>
+                  <span class="tech-badges">
+                    <span class="tech-badge">JavaScript</span>
+                  </span>
+                </div>
+                <div class="module">
+                  <span class="module-label">DOM / CSS</span>
+                </div>
+              </div>
+            </div>
+          </foreignObject>
+        </g>
+
+        <!-- === LAYER 3: GPU Process (type: infra) === -->
+        <g transform="translate(40, 385)">
+          <foreignObject width="400" height="90" xmlns="http://www.w3.org/1999/xhtml">
+            <div class="layer-card type-infra">
+              <div class="layer-header">
+                <span class="layer-label">GPU Process</span>
+              </div>
+              <div class="modules">
+                <div class="module">
+                  <span class="module-label">OpenGL / Vulkan</span>
+                </div>
+              </div>
+            </div>
+          </foreignObject>
+        </g>
+
+        <!-- === LAYER 4: Utility Process (type: infra) === -->
+        <g transform="translate(500, 385)">
+          <foreignObject width="460" height="90" xmlns="http://www.w3.org/1999/xhtml">
+            <div class="layer-card type-infra">
+              <div class="layer-header">
+                <span class="layer-label">Utility Process</span>
+              </div>
+              <div class="modules">
+                <div class="module">
+                  <span class="module-label">Audio</span>
+                </div>
+                <div class="module">
+                  <span class="module-label">Plugin / PPAPI</span>
+                </div>
+              </div>
+            </div>
+          </foreignObject>
+        </g>
+
+        <!-- === LEGEND === -->
+        <g transform="translate(40, 520)">
+          <text x="0" y="0" font-size="11" font-weight="600" fill="#cbd5e1" font-family="JetBrains Mono, monospace">Legend</text>
+
+          <rect x="0" y="14" width="14" height="14" rx="3" fill="rgba(8, 51, 68, 0.4)" stroke="#22d3ee" stroke-width="1"/>
+          <text x="20" y="25" font-size="11" fill="#cbd5e1" font-family="JetBrains Mono, monospace">Process</text>
+
+          <rect x="110" y="14" width="14" height="14" rx="3" fill="rgba(6, 78, 59, 0.4)" stroke="#34d399" stroke-width="1"/>
+          <text x="130" y="25" font-size="11" fill="#cbd5e1" font-family="JetBrains Mono, monospace">Module</text>
+
+          <rect x="220" y="14" width="14" height="14" rx="3" fill="rgba(76, 29, 149, 0.4)" stroke="#a78bfa" stroke-width="1"/>
+          <text x="240" y="25" font-size="11" fill="#cbd5e1" font-family="JetBrains Mono, monospace">Data</text>
+
+          <rect x="310" y="14" width="14" height="14" rx="3" fill="rgba(120, 53, 15, 0.3)" stroke="#fbbf24" stroke-width="1"/>
+          <text x="330" y="25" font-size="11" fill="#cbd5e1" font-family="JetBrains Mono, monospace">Infrastructure</text>
+
+          <rect x="460" y="14" width="14" height="14" rx="3" fill="rgba(251, 146, 60, 0.3)" stroke="#fb923c" stroke-width="1"/>
+          <text x="480" y="25" font-size="11" fill="#cbd5e1" font-family="JetBrains Mono, monospace">IPC Channel</text>
+        </g>
+
+      </svg>
+    </div>
+
+    <div class="footer">
+      Generated by gmdiagram &middot; 2026-04-11
+    </div>
+  </div>
+</body>
+</html>

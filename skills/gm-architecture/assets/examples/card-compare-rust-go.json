@@ -1,0 +1,36 @@
+{
+  "diagramType": "card",
+  "cardType": "compare",
+  "title": "Rust vs Go",
+  "subtitle": "系统编程语言对比",
+  "size": "twitter",
+  "style": "dark-professional",
+  "format": "html",
+  "sides": [
+    {
+      "label": "Rust",
+      "icon": "🦀",
+      "color": "#CE422B",
+      "points": [
+        { "label": "性能", "value": "极快，零成本抽象" },
+        { "label": "内存", "value": "无 GC，所有权系统" },
+        { "label": "学习曲线", "value": "陡峭" }
+      ]
+    },
+    {
+      "label": "Go",
+      "icon": "🐹",
+      "color": "#00ADD8",
+      "points": [
+        { "label": "性能", "value": "快，GC 优化良好" },
+        { "label": "内存", "value": "自动垃圾回收" },
+        { "label": "学习曲线", "value": "平缓" }
+      ]
+    }
+  ],
+  "tags": ["Rust", "Go", "系统编程"],
+  "footer": {
+    "author": "@zhengjianqiao",
+    "brand": "GM Diagram"
+  }
+}

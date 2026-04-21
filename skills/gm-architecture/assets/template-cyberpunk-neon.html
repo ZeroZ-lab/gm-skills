@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI Agent System</title>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      background: #11111b;
+      color: #cdd6f4;
+      font-family: 'JetBrains Mono', 'SF Mono', 'Fira Code', monospace;
+      min-height: 100vh;
+      padding: 40px 20px;
+    }
+    .container { max-width: 1100px; margin: 0 auto; }
+    .header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 32px;
+    }
+    .pulse-dot {
+      width: 10px; height: 10px; border-radius: 50%;
+      background: #89b4fa;
+      box-shadow: 0 0 8px rgba(137, 180, 250, 0.6);
+      animation: pulse 2s ease-in-out infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; box-shadow: 0 0 8px rgba(137, 180, 250, 0.6); }
+      50% { opacity: 0.4; box-shadow: 0 0 16px rgba(137, 180, 250, 0.9); }
+    }
+    h1 { font-size: 22px; font-weight: 700; color: #cdd6f4; }
+    .subtitle { font-size: 13px; color: #6c7086; margin-top: 4px; }
+    .diagram-container {
+      background: #1e1e2e;
+      border: 1px solid #313244;
+      border-radius: 12px;
+      padding: 24px;
+      margin-bottom: 32px;
+      overflow-x: auto;
+      box-shadow: 0 0 20px rgba(137, 180, 250, 0.03);
+    }
+    .diagram-container svg {
+      width: 100%;
+      min-width: 700px;
+      height: auto;
+      display: block;
+    }
+    .footer {
+      font-size: 11px;
+      color: #585b70;
+      text-align: center;
+      padding-top: 16px;
+      border-top: 1px solid #313244;
+    }
+
+    /* === foreignObject component classes (cyberpunk-neon) === */
+    .layer-card { width: 100%; border-radius: 8px; padding: 8px 0 12px; box-sizing: border-box; }
+    .layer-label { font-size: 14px; font-weight: 600; color: #cdd6f4; padding: 0 16px; font-family: 'JetBrains Mono', monospace; }
+    .modules { display: flex; gap: 20px; justify-content: center; padding: 8px 16px 0; flex-wrap: wrap; }
+    .module { min-width: 100px; height: 50px; border-radius: 6px; display: flex; align-items: center; justify-content: center; padding: 0 16px; box-sizing: border-box; }
+    .module-label { font-size: 12px; font-weight: 500; color: #cdd6f4; text-align: center; white-space: nowrap; font-family: 'JetBrains Mono', monospace; }
+    .tech-badges { display: flex; gap: 4px; justify-content: center; padding-top: 4px; }
+    .tech-badge { font-size: 8px; padding: 2px 6px; border-radius: 4px; white-space: nowrap; background: rgba(255,255,255,0.05); border: 0.5px solid rgba(255,255,255,0.1); color: #6c7086; font-family: 'JetBrains Mono', monospace; }
+    .module.has-badges { height: 58px; flex-direction: column; gap: 2px; }
+    .module.has-badges .module-label { height: 20px; }
+
+    /* Type-specific colors (Catppuccin Mocha) */
+    .type-process { background: rgba(137,180,250,0.1); border: 1.5px solid #89b4fa; }
+    .type-module { background: rgba(166,227,161,0.1); border: 1.5px solid #a6e3a1; }
+    .type-data { background: rgba(203,166,247,0.1); border: 1.5px solid #cba6f7; }
+    .type-infra { background: rgba(249,226,175,0.1); border: 1.5px solid #f9e2af; }
+    .type-security { background: rgba(243,139,168,0.1); border: 1.5px dashed #f38ba8; }
+    .type-channel { background: rgba(250,179,135,0.1); border: 1.5px solid #fab387; }
+    .type-external { background: rgba(108,112,134,0.1); border: 1.5px solid #6c7086; }
+
+    .legend-container { display: flex; gap: 100px; align-items: center; }
+    .legend-item { display: flex; align-items: center; gap: 6px; }
+    .legend-swatch { width: 14px; height: 14px; border-radius: 3px; }
+    .legend-text { font-size: 11px; color: #a6adc8; font-family: 'JetBrains Mono', monospace; }
+
+    /* === Chart classes (cyberpunk-neon) === */
+    .axis-line { stroke: #81a1c1; stroke-width: 1.5; fill: none; }
+    .axis-label { fill: #a6adc8; font-size: 12px; font-family: 'JetBrains Mono', monospace; }
+    .axis-title { fill: #cdd6f4; font-size: 13px; font-weight: 600; font-family: 'JetBrains Mono', monospace; }
+    .tick-label { fill: #a6adc8; font-size: 11px; font-family: 'JetBrains Mono', monospace; }
+    .grid-line { stroke: rgba(49,50,68,0.4); stroke-dasharray: 4,4; stroke-width: 0.5; fill: none; }
+    .bar { rx: 2; }
+    .bar:hover { opacity: 0.85; }
+    .slice { stroke: #1e1e2e; stroke-width: 2; }
+    .line-path { fill: none; stroke-width: 2.5; }
+    .area-fill { opacity: 0.15; }
+    .data-dot { stroke-width: 2; }
+    .scatter-point { stroke-width: 1.5; }
+    .bubble-point { stroke-width: 1.5; }
+    .radar-grid { stroke: rgba(255,255,255,0.08); fill: none; stroke-width: 0.5; }
+    .radar-axis { stroke: rgba(255,255,255,0.1); stroke-width: 0.5; }
+    .radar-data { stroke-width: 2; stroke-linejoin: round; }
+    .funnel-stage { stroke: #0f172a; stroke-width: 1; }
+    .funnel-label { fill: #f1f5f9; font-size: 13px; font-weight: 600; font-family: 'JetBrains Mono', monospace; }
+    .table-header { font-weight: 600; text-align: left; padding: 8px 12px; border-bottom: 2px solid #334155; }
+    .table-row { border-bottom: 1px solid rgba(255,255,255,0.06); }
+    .table-cell { padding: 8px 12px; font-size: 13px; }
+    .highlight-max { font-weight: 600; }
+    .highlight-min { font-weight: 600; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <div class="pulse-dot"></div>
+      <div>
+        <h1>AI Agent System</h1>
+        <div class="subtitle">Orchestration, Tool Execution, and Knowledge Base three-layer agent architecture</div>
+      </div>
+    </div>
+
+    <div class="diagram-container">
+      <svg viewBox="0 0 1000 620" xmlns="http://www.w3.org/2000/svg">
+        <!-- Defs -->
+        <defs>
+          <!-- Neon glow filter -->
+          <filter id="glow">
+            <feGaussianBlur stdDeviation="2" result="coloredBlur"/>
+            <feMerge>
+              <feMergeNode in="coloredBlur"/>
+              <feMergeNode in="SourceGraphic"/>
+            </feMerge>
+          </filter>
+          <!-- Grid pattern -->
+          <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+            <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#313244" stroke-width="0.5" opacity="0.4"/>
+          </pattern>
+          <!-- Arrow markers with neon colors -->
+          <marker id="arrow-blue" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+            <polygon points="0 0, 8 3, 0 6" fill="#89b4fa"/>
+          </marker>
+          <marker id="arrow-blue-rev" markerWidth="8" markerHeight="6" refX="0" refY="3" orient="auto">
+            <polygon points="8 0, 0 3, 8 6" fill="#89b4fa"/>
+          </marker>
+          <marker id="arrow-green" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+            <polygon points="0 0, 8 3, 0 6" fill="#a6e3a1"/>
+          </marker>
+          <marker id="arrow-green-rev" markerWidth="8" markerHeight="6" refX="0" refY="3" orient="auto">
+            <polygon points="8 0, 0 3, 8 6" fill="#a6e3a1"/>
+          </marker>
+          <marker id="arrow-mauve" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+            <polygon points="0 0, 8 3, 0 6" fill="#cba6f7"/>
+          </marker>
+          <marker id="arrow-peach" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+            <polygon points="0 0, 8 3, 0 6" fill="#fab387"/>
+          </marker>
+        </defs>
+
+        <!-- Grid background -->
+        <rect width="1000" height="620" fill="#181825"/>
+        <rect width="1000" height="620" fill="url(#grid)"/>
+
+        <!-- ========================================== -->
+        <!-- CONNECTIONS (drawn first, behind layers)   -->
+        <!-- ========================================== -->
+
+        <!-- Orchestration → Tool Execution (dispatch) -->
+        <line x1="500" y1="140" x2="500" y2="190"
+              stroke="#89b4fa" stroke-width="1.5" filter="url(#glow)"
+              marker-end="url(#arrow-blue)"/>
+        <rect x="468" y="152" width="64" height="16" rx="3" fill="#181825" opacity="0.95"/>
+        <text x="500" y="164" font-size="9" fill="#89b4fa" font-family="JetBrains Mono, monospace" text-anchor="middle" filter="url(#glow)">dispatch</text>
+
+        <!-- Tool Execution ↔ Knowledge Base (query) -->
+        <line x1="500" y1="330" x2="500" y2="380"
+              stroke="#a6e3a1" stroke-width="1.5" filter="url(#glow)"
+              marker-start="url(#arrow-green-rev)" marker-end="url(#arrow-green)"/>
+        <rect x="476" y="342" width="48" height="16" rx="3" fill="#181825" opacity="0.95"/>
+        <text x="500" y="354" font-size="9" fill="#a6e3a1" font-family="JetBrains Mono, monospace" text-anchor="middle" filter="url(#glow)">query</text>
+
+        <!-- Tool Execution → External API -->
+        <line x1="700" y1="265" x2="780" y2="265"
+              stroke="#fab387" stroke-width="1.5" stroke-dasharray="6,4" filter="url(#glow)"
+              marker-end="url(#arrow-peach)"/>
+        <rect x="718" y="248" width="48" height="14" rx="3" fill="#181825" opacity="0.95"/>
+        <text x="742" y="258" font-size="8" fill="#fab387" font-family="JetBrains Mono, monospace" text-anchor="middle">HTTPS</text>
+
+        <!-- ========================================== -->
+        <!-- LAYER 1: Orchestration                     -->
+        <!-- ========================================== -->
+        <g>
+          <!-- Layer background (process type: Blue) -->
+          <rect x="40" y="30" width="720" height="110" rx="8" fill="#181825"/>
+          <rect x="40" y="30" width="720" height="110" rx="8"
+                fill="rgba(137,180,250,0.08)" stroke="#89b4fa" stroke-width="1.2" filter="url(#glow)"/>
+          <text x="60" y="52" font-size="13" font-weight="600" fill="#cdd6f4" font-family="JetBrains Mono, monospace">Orchestration</text>
+
+          <!-- Module: Agent Router (module type: Green) -->
+          <rect x="80" y="65" width="150" height="55" rx="6" fill="#181825"/>
+          <rect x="80" y="65" width="150" height="55" rx="6"
+                fill="rgba(166,227,161,0.1)" stroke="#a6e3a1" stroke-width="1.2" filter="url(#glow)"/>
+          <text x="155" y="90" font-size="12" font-weight="500" fill="#cdd6f4" font-family="JetBrains Mono, monospace" text-anchor="middle">Agent Router</text>
+          <rect x="112" y="98" width="86" height="14" rx="4" fill="rgba(255,255,255,0.05)" stroke="rgba(166,227,161,0.2)" stroke-width="0.5"/>
+          <text x="155" y="109" font-size="8" fill="#a6adc8" font-family="JetBrains Mono, monospace" text-anchor="middle">Task Dispatch</text>
+
+          <!-- Module: Planner (module type: Green) -->
+          <rect x="260" y="65" width="150" height="55" rx="6" fill="#181825"/>
+          <rect x="260" y="65" width="150" height="55" rx="6"
+                fill="rgba(166,227,161,0.1)" stroke="#a6e3a1" stroke-width="1.2" filter="url(#glow)"/>
+          <text x="335" y="90" font-size="12" font-weight="500" fill="#cdd6f4" font-family="JetBrains Mono, monospace" text-anchor="middle">Planner</text>
+          <rect x="299" y="98" width="72" height="14" rx="4" fill="rgba(255,255,255,0.05)" stroke="rgba(166,227,161,0.2)" stroke-width="0.5"/>
+          <text x="335" y="109" font-size="8" fill="#a6adc8" font-family="JetBrains Mono, monospace" text-anchor="middle">Chain-of</text>
+
+          <!-- Module: Memory (data type: Mauve) -->
+          <rect x="440" y="65" width="150" height="55" rx="6" fill="#181825"/>
+          <rect x="440" y="65" width="150" height="55" rx="6"
+                fill="rgba(203,166,247,0.1)" stroke="#cba6f7" stroke-width="1.2" filter="url(#glow)"/>
+          <text x="515" y="90" font-size="12" font-weight="500" fill="#cdd6f4" font-family="JetBrains Mono, monospace" text-anchor="middle">Memory</text>
+          <rect x="479" y="98" width="72" height="14" rx="4" fill="rgba(255,255,255,0.05)" stroke="rgba(203,166,247,0.2)" stroke-width="0.5"/>
+          <text x="515" y="109" font-size="8" fill="#a6adc8" font-family="JetBrains Mono, monospace" text-anchor="middle">Context</text>
+
+          <!-- Module: Guard Rails (security type: Red) -->
+          <rect x="620" y="65" width="120" height="55" rx="6" fill="#181825"/>
+          <rect x="620" y="65" width="120" height="55" rx="6"
+                fill="rgba(243,139,168,0.1)" stroke="#f38ba8" stroke-width="1.2" stroke-dasharray="6,3" filter="url(#glow)"/>
+          <text x="680" y="90" font-size="12" font-weight="500" fill="#cdd6f4" font-family="JetBrains Mono, monospace" text-anchor="middle">Guard Rails</text>
+          <rect x="644" y="98" width="72" height="14" rx="4" fill="rgba(255,255,255,0.05)" stroke="rgba(243,139,168,0.2)" stroke-width="0.5"/>
+          <text x="680" y="109" font-size="8" fill="#a6adc8" font-family="JetBrains Mono, monospace" text-anchor="middle">Safety</text>
+        </g>
+
+        <!-- ========================================== -->
+        <!-- LAYER 2: Tool Execution                    -->
+        <!-- ========================================== -->
+        <g>
+          <!-- Layer background (infra type: Yellow) -->
+          <rect x="40" y="190" width="720" height="140" rx="8" fill="#181825"/>
+          <rect x="40" y="190" width="720" height="140" rx="8"
+                fill="rgba(249,226,175,0.06)" stroke="#f9e2af" stroke-width="1.2" filter="url(#glow)"/>
+          <text x="60" y="214" font-size="13" font-weight="600" fill="#cdd6f4" font-family="JetBrains Mono, monospace">Tool Execution</text>
+
+          <!-- Module: Code Interpreter (module type: Green) -->
+          <rect x="80" y="230" width="150" height="75" rx="6" fill="#181825"/>
+          <rect x="80" y="230" width="150" height="75" rx="6"
+                fill="rgba(166,227,161,0.1)" stroke="#a6e3a1" stroke-width="1.2" filter="url(#glow)"/>
+          <text x="155" y="258" font-size="12" font-weight="500" fill="#cdd6f4" font-family="JetBrains Mono, monospace" text-anchor="middle">Code Interpreter</text>
+          <rect x="105" y="268" width="100" height="14" rx="4" fill="rgba(255,255,255,0.05)" stroke="rgba(166,227,161,0.2)" stroke-width="0.5"/>
+          <text x="155" y="279" font-size="8" fill="#a6adc8" font-family="JetBrains Mono, monospace" text-anchor="middle">Sandboxed Exec</text>
+
+          <!-- Module: Web Search (module type: Green) -->
+          <rect x="260" y="230" width="150" height="75" rx="6" fill="#181825"/>
+          <rect x="260" y="230" width="150" height="75" rx="6"
+                fill="rgba(166,227,161,0.1)" stroke="#a6e3a1" stroke-width="1.2" filter="url(#glow)"/>
+          <text x="335" y="258" font-size="12" font-weight="500" fill="#cdd6f4" font-family="JetBrains Mono, monospace" text-anchor="middle">Web Search</text>
+          <rect x="299" y="268" width="72" height="14" rx="4" fill="rgba(255,255,255,0.05)" stroke="rgba(166,227,161,0.2)" stroke-width="0.5"/>
+          <text x="335" y="279" font-size="8" fill="#a6adc8" font-family="JetBrains Mono, monospace" text-anchor="middle">Browsing</text>
+
+          <!-- Module: API Caller (channel type: Peach) -->
+          <rect x="440" y="230" width="150" height="75" rx="6" fill="#181825"/>
+          <rect x="440" y="230" width="150" height="75" rx="6"
+                fill="rgba(250,179,135,0.1)" stroke="#fab387" stroke-width="1.2" filter="url(#glow)"/>
+          <text x="515" y="258" font-size="12" font-weight="500" fill="#cdd6f4" font-family="JetBrains Mono, monospace" text-anchor="middle">API Caller</text>
+          <rect x="479" y="268" width="72" height="14" rx="4" fill="rgba(255,255,255,0.05)" stroke="rgba(250,179,135,0.2)" stroke-width="0.5"/>
+          <text x="515" y="279" font-size="8" fill="#a6adc8" font-family="JetBrains Mono, monospace" text-anchor="middle">REST / gRPC</text>
+
+          <!-- Module: File I/O (data type: Mauve) -->
+          <rect x="620" y="230" width="120" height="75" rx="6" fill="#181825"/>
+          <rect x="620" y="230" width="120" height="75" rx="6"
+                fill="rgba(203,166,247,0.1)" stroke="#cba6f7" stroke-width="1.2" filter="url(#glow)"/>
+          <text x="680" y="258" font-size="12" font-weight="500" fill="#cdd6f4" font-family="JetBrains Mono, monospace" text-anchor="middle">File I/O</text>
+          <rect x="644" y="268" width="72" height="14" rx="4" fill="rgba(255,255,255,0.05)" stroke="rgba(203,166,247,0.2)" stroke-width="0.5"/>
+          <text x="680" y="279" font-size="8" fill="#a6adc8" font-family="JetBrains Mono, monospace" text-anchor="middle">Read/Write</text>
+        </g>
+
+        <!-- External: API Gateway (external type: Overlay) -->
+        <g>
+          <rect x="790" y="230" width="170" height="75" rx="6" fill="#181825"/>
+          <rect x="790" y="230" width="170" height="75" rx="6"
+                fill="rgba(108,112,134,0.15)" stroke="#6c7086" stroke-width="1" stroke-dasharray="4,3"/>
+          <text x="875" y="258" font-size="12" font-weight="500" fill="#a6adc8" font-family="JetBrains Mono, monospace" text-anchor="middle">API Gateway</text>
+          <rect x="839" y="268" width="72" height="14" rx="4" fill="rgba(255,255,255,0.04)" stroke="rgba(108,112,134,0.3)" stroke-width="0.5"/>
+          <text x="875" y="279" font-size="8" fill="#6c7086" font-family="JetBrains Mono, monospace" text-anchor="middle">External</text>
+        </g>
+
+        <!-- ========================================== -->
+        <!-- LAYER 3: Knowledge Base                    -->
+        <!-- ========================================== -->
+        <g>
+          <!-- Layer background (data type: Mauve) -->
+          <rect x="40" y="380" width="720" height="110" rx="8" fill="#181825"/>
+          <rect x="40" y="380" width="720" height="110" rx="8"
+                fill="rgba(203,166,247,0.06)" stroke="#cba6f7" stroke-width="1.2" filter="url(#glow)"/>
+          <text x="60" y="402" font-size="13" font-weight="600" fill="#cdd6f4" font-family="JetBrains Mono, monospace">Knowledge Base</text>
+
+          <!-- Module: Vector Store (data type: Mauve) -->
+          <rect x="80" y="415" width="170" height="55" rx="6" fill="#181825"/>
+          <rect x="80" y="415" width="170" height="55" rx="6"
+                fill="rgba(203,166,247,0.1)" stroke="#cba6f7" stroke-width="1.2" filter="url(#glow)"/>
+          <text x="165" y="440" font-size="12" font-weight="500" fill="#cdd6f4" font-family="JetBrains Mono, monospace" text-anchor="middle">Vector Store</text>
+          <rect x="115" y="448" width="100" height="14" rx="4" fill="rgba(255,255,255,0.05)" stroke="rgba(203,166,247,0.2)" stroke-width="0.5"/>
+          <text x="165" y="459" font-size="8" fill="#a6adc8" font-family="JetBrains Mono, monospace" text-anchor="middle">Embeddings</text>
+
+          <!-- Module: Doc Index (data type: Mauve) -->
+          <rect x="280" y="415" width="170" height="55" rx="6" fill="#181825"/>
+          <rect x="280" y="415" width="170" height="55" rx="6"
+                fill="rgba(203,166,247,0.1)" stroke="#cba6f7" stroke-width="1.2" filter="url(#glow)"/>
+          <text x="365" y="440" font-size="12" font-weight="500" fill="#cdd6f4" font-family="JetBrains Mono, monospace" text-anchor="middle">Doc Index</text>
+          <rect x="315" y="448" width="100" height="14" rx="4" fill="rgba(255,255,255,0.05)" stroke="rgba(203,166,247,0.2)" stroke-width="0.5"/>
+          <text x="365" y="459" font-size="8" fill="#a6adc8" font-family="JetBrains Mono, monospace" text-anchor="middle">Full-Text Search</text>
+
+          <!-- Module: Cache (infra type: Yellow) -->
+          <rect x="480" y="415" width="150" height="55" rx="6" fill="#181825"/>
+          <rect x="480" y="415" width="150" height="55" rx="6"
+                fill="rgba(249,226,175,0.1)" stroke="#f9e2af" stroke-width="1.2" filter="url(#glow)"/>
+          <text x="555" y="440" font-size="12" font-weight="500" fill="#cdd6f4" font-family="JetBrains Mono, monospace" text-anchor="middle">Cache</text>
+          <rect x="519" y="448" width="72" height="14" rx="4" fill="rgba(255,255,255,0.05)" stroke="rgba(249,226,175,0.2)" stroke-width="0.5"/>
+          <text x="555" y="459" font-size="8" fill="#a6adc8" font-family="JetBrains Mono, monospace" text-anchor="middle">Redis</text>
+
+          <!-- Module: Prompt Store (data type: Mauve) -->
+          <rect x="660" y="415" width="80" height="55" rx="6" fill="#181825"/>
+          <rect x="660" y="415" width="80" height="55" rx="6"
+                fill="rgba(203,166,247,0.1)" stroke="#cba6f7" stroke-width="1.2" filter="url(#glow)"/>
+          <text x="700" y="445" font-size="11" font-weight="500" fill="#cdd6f4" font-family="JetBrains Mono, monospace" text-anchor="middle">Prompts</text>
+        </g>
+
+        <!-- ========================================== -->
+        <!-- LEGEND                                     -->
+        <!-- ========================================== -->
+        <g transform="translate(40, 530)">
+          <text x="0" y="0" font-size="11" font-weight="600" fill="#cdd6f4" font-family="JetBrains Mono, monospace">Legend</text>
+
+          <!-- Process -->
+          <rect x="0" y="14" width="14" height="14" rx="3"
+                fill="rgba(137,180,250,0.15)" stroke="#89b4fa" stroke-width="1" filter="url(#glow)"/>
+          <text x="20" y="25" font-size="10" fill="#bac2de" font-family="JetBrains Mono, monospace">Process</text>
+
+          <!-- Module -->
+          <rect x="100" y="14" width="14" height="14" rx="3"
+                fill="rgba(166,227,161,0.15)" stroke="#a6e3a1" stroke-width="1" filter="url(#glow)"/>
+          <text x="120" y="25" font-size="10" fill="#bac2de" font-family="JetBrains Mono, monospace">Module</text>
+
+          <!-- Data -->
+          <rect x="200" y="14" width="14" height="14" rx="3"
+                fill="rgba(203,166,247,0.15)" stroke="#cba6f7" stroke-width="1" filter="url(#glow)"/>
+          <text x="220" y="25" font-size="10" fill="#bac2de" font-family="JetBrains Mono, monospace">Data</text>
+
+          <!-- Infra -->
+          <rect x="280" y="14" width="14" height="14" rx="3"
+                fill="rgba(249,226,175,0.15)" stroke="#f9e2af" stroke-width="1" filter="url(#glow)"/>
+          <text x="300" y="25" font-size="10" fill="#bac2de" font-family="JetBrains Mono, monospace">Infra</text>
+
+          <!-- Security -->
+          <rect x="365" y="14" width="14" height="14" rx="3"
+                fill="rgba(243,139,168,0.15)" stroke="#f38ba8" stroke-width="1" stroke-dasharray="4,2" filter="url(#glow)"/>
+          <text x="385" y="25" font-size="10" fill="#bac2de" font-family="JetBrains Mono, monospace">Security</text>
+
+          <!-- Channel -->
+          <rect x="470" y="14" width="14" height="14" rx="3"
+                fill="rgba(250,179,135,0.15)" stroke="#fab387" stroke-width="1" filter="url(#glow)"/>
+          <text x="490" y="25" font-size="10" fill="#bac2de" font-family="JetBrains Mono, monospace">Channel</text>
+
+          <!-- External -->
+          <rect x="570" y="14" width="14" height="14" rx="3"
+                fill="rgba(108,112,134,0.2)" stroke="#6c7086" stroke-width="1" stroke-dasharray="4,3"/>
+          <text x="590" y="25" font-size="10" fill="#bac2de" font-family="JetBrains Mono, monospace">External</text>
+        </g>
+
+      </svg>
+    </div>
+
+    <div class="footer">
+      Generated by gmdiagram &middot; Cyberpunk Neon &middot; 2026-04-11
+    </div>
+  </div>
+</body>
+</html>

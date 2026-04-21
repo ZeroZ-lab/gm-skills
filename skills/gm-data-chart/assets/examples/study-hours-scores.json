@@ -1,0 +1,43 @@
+{
+  "diagramType": "scatter",
+  "title": "学习时间与考试成绩",
+  "subtitle": "相关性分析",
+  "style": "dark-professional",
+  "format": "html",
+  "series": [
+    {
+      "name": "A班",
+      "pointShape": "circle",
+      "pointSize": 5,
+      "data": [
+        { "x": 2, "y": 65 },
+        { "x": 3, "y": 70 },
+        { "x": 5, "y": 80 },
+        { "x": 7, "y": 88 },
+        { "x": 8, "y": 92 }
+      ]
+    },
+    {
+      "name": "B班",
+      "pointShape": "diamond",
+      "pointSize": 5,
+      "data": [
+        { "x": 1, "y": 55 },
+        { "x": 4, "y": 68 },
+        { "x": 6, "y": 75 },
+        { "x": 7, "y": 82 },
+        { "x": 9, "y": 95 }
+      ]
+    }
+  ],
+  "axis": {
+    "x": { "label": "学习时间（小时/天）", "ticks": [0, 2, 4, 6, 8, 10], "gridLines": true },
+    "y": { "label": "考试成绩", "ticks": [50, 60, 70, 80, 90, 100], "gridLines": true }
+  },
+  "legend": { "visible": true, "position": "top" },
+  "metadata": {
+    "author": "gmdiagram",
+    "date": "2026-04-14",
+    "version": "0.6.0"
+  }
+}

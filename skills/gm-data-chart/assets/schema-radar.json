@@ -1,0 +1,133 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "radar-chart-schema",
+  "title": "Radar Chart Schema",
+  "description": "Intermediate representation for radar (spider) chart diagrams. LLM extracts data from natural language into this format, then rendering pipeline generates HTML/SVG from it.",
+  "type": "object",
+  "required": ["diagramType", "title", "axes", "series"],
+  "additionalProperties": false,
+  "properties": {
+    "diagramType": {
+      "type": "string",
+      "const": "radar",
+      "description": "Identifies this JSON as a radar chart. Must always be 'radar'."
+    },
+    "title": {
+      "$ref": "schema-shared.json#/$defs/sanitizedString",
+      "maxLength": 200,
+      "description": "Chart title, displayed at the top of the rendered page.",
+      "examples": ["Team Skills Comparison", "团队技能对比"]
+    },
+    "subtitle": {
+      "$ref": "schema-shared.json#/$defs/sanitizedString",
+      "maxLength": 300,
+      "description": "Optional subtitle shown below the title.",
+      "examples": ["满分 10 分", "Score out of 10"]
+    },
+    "style": {
+      "$ref": "schema-shared.json#/$defs/styleEnum",
+      "description": "Visual style preset. Each style has its own template and design rules.",
+      "default": "dark-professional"
+    },
+    "format": {
+      "$ref": "schema-shared.json#/$defs/formatEnum",
+      "description": "Output format. HTML is the default. Radar charts do not support Mermaid output.",
+      "default": "html"
+    },
+    "axes": {
+      "type": "array",
+      "description": "Dimension axes radiating from the center. Each axis represents one evaluation dimension.",
+      "items": {
+        "$ref": "#/$defs/axisItem"
+      },
+      "minItems": 3,
+      "maxItems": 12
+    },
+    "series": {
+      "type": "array",
+      "description": "Data series. Each series is rendered as a filled polygon overlaid on the grid.",
+      "items": {
+        "$ref": "#/$defs/seriesItem"
+      },
+      "minItems": 1,
+      "maxItems": 6
+    },
+    "scaleLevels": {
+      "type": "integer",
+      "minimum": 2,
+      "maximum": 10,
+      "default": 5,
+      "description": "Number of concentric polygon layers in the grid. Default is 5."
+    },
+    "legend": {
+      "$ref": "schema-shared.json#/$defs/legendConfig",
+      "description": "Legend configuration. Auto-generated from series names if not provided."
+    },
+    "colors": {
+      "$ref": "schema-shared.json#/$defs/colorsOverride",
+      "description": "Optional color overrides for the style's environment colors (background, text, etc.). Does NOT affect data polygon colors — use series[].color for that."
+    },
+    "metadata": {
+      "$ref": "schema-shared.json#/$defs/metadata",
+      "description": "Optional metadata. author field is for internal tracking only and MUST NOT be rendered into the output."
+    }
+  },
+  "$defs": {
+    "axisItem": {
+      "type": "object",
+      "required": ["label"],
+      "additionalProperties": false,
+      "description": "A single dimension axis with a label and optional max value.",
+      "properties": {
+        "label": {
+          "$ref": "schema-shared.json#/$defs/sanitizedString",
+          "maxLength": 30,
+          "description": "Axis dimension label displayed outside the perimeter.",
+          "examples": ["Frontend", "Backend", "DevOps", "Design", "Testing"]
+        },
+        "maxValue": {
+          "type": "number",
+          "exclusiveMinimum": 0,
+          "description": "Maximum value for this axis. If specified, must be specified for ALL axes (all-or-nothing). If omitted for all axes, auto-calculated from series data."
+        }
+      }
+    },
+    "seriesItem": {
+      "type": "object",
+      "required": ["name", "data"],
+      "additionalProperties": false,
+      "description": "A data series rendered as a filled polygon on the radar grid.",
+      "properties": {
+        "name": {
+          "$ref": "schema-shared.json#/$defs/sanitizedString",
+          "maxLength": 100,
+          "description": "Series name displayed in the legend.",
+          "examples": ["Dev A", "Developer 1"]
+        },
+        "color": {
+          "type": "string",
+          "pattern": "^#[0-9a-fA-F]{6}$",
+          "description": "Optional color override for this series polygon. Must be 6-digit hex (#RRGGBB). If omitted, uses the chart palette."
+        },
+        "fillOpacity": {
+          "type": "number",
+          "minimum": 0.0,
+          "maximum": 0.5,
+          "default": 0.15,
+          "description": "Fill opacity of the data polygon. Range 0.0 (transparent) to 0.5 (semi-opaque). Default 0.15."
+        },
+        "data": {
+          "type": "array",
+          "description": "Data values for each axis. Length must exactly match axes.length.",
+          "items": {
+            "type": "number",
+            "minimum": 0,
+            "description": "Value for this axis. Must be >= 0 and <= axes[i].maxValue."
+          },
+          "minItems": 3,
+          "maxItems": 12
+        }
+      }
+    }
+  }
+}

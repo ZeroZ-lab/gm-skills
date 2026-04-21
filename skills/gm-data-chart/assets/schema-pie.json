@@ -1,0 +1,125 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "pie-chart-schema",
+  "title": "Pie Chart Schema",
+  "description": "Intermediate representation for pie/donut chart diagrams. LLM extracts data from natural language into this format, then rendering pipeline generates HTML/SVG from it.",
+  "type": "object",
+  "required": ["diagramType", "title", "data"],
+  "additionalProperties": false,
+  "properties": {
+    "diagramType": {
+      "type": "string",
+      "const": "pie",
+      "description": "Identifies this JSON as a pie chart. Must always be 'pie'."
+    },
+    "title": {
+      "type": "string",
+      "maxLength": 200,
+      "description": "Chart title, displayed at the top of the rendered page.",
+      "examples": ["浏览器市场份额", "Revenue by Category"]
+    },
+    "subtitle": {
+      "type": "string",
+      "maxLength": 300,
+      "description": "Optional subtitle shown below the title, typically describing the scope or time period.",
+      "examples": ["2025年全球数据", "Q1-Q4 Breakdown"]
+    },
+    "style": {
+      "$ref": "schema-shared.json#/$defs/styleEnum",
+      "description": "Visual style preset. Each style has its own template and design rules.",
+      "default": "dark-professional"
+    },
+    "format": {
+      "$ref": "schema-shared.json#/$defs/formatEnum",
+      "description": "Output format. HTML is the default (single-file with inline SVG and CSS). SVG outputs standalone SVG. Mermaid uses pie title syntax.",
+      "default": "html"
+    },
+    "variant": {
+      "type": "string",
+      "enum": ["pie", "donut"],
+      "description": "Chart variant. pie=full pie sectors. donut=annular ring with optional center text.",
+      "default": "pie"
+    },
+    "data": {
+      "type": "array",
+      "description": "Data items. Each has a label, numeric value, and optional color override. 2-12 items allowed; for more than 12, merge smallest items into '其他' or 'Other'.",
+      "items": {
+        "type": "object",
+        "required": ["label", "value"],
+        "additionalProperties": false,
+        "properties": {
+          "label": {
+            "$ref": "schema-shared.json#/$defs/sanitizedString",
+            "maxLength": 100,
+            "description": "Category label displayed in the legend and optionally on the slice.",
+            "examples": ["Chrome", "Safari"]
+          },
+          "value": {
+            "type": "number",
+            "exclusiveMinimum": 0,
+            "description": "Numeric value for this slice. Must be positive (no negative values in pie charts)."
+          },
+          "color": {
+            "type": "string",
+            "pattern": "^#[0-9a-fA-F]{6}$",
+            "description": "Optional color override for this slice. Must be 6-digit hex (#RRGGBB). If omitted, uses the chart palette."
+          }
+        }
+      },
+      "minItems": 2,
+      "maxItems": 12
+    },
+    "donut": {
+      "type": "object",
+      "description": "Donut-specific configuration. Only effective when variant is 'donut'.",
+      "additionalProperties": false,
+      "properties": {
+        "innerRadiusRatio": {
+          "type": "number",
+          "minimum": 0.1,
+          "maximum": 0.9,
+          "default": 0.6,
+          "description": "Ratio of inner radius to outer radius. 0.6 means the hole is 60% of the pie radius."
+        },
+        "centerText": {
+          "$ref": "schema-shared.json#/$defs/sanitizedString",
+          "maxLength": 50,
+          "description": "Text displayed in the center of the donut (e.g., '总计', 'Total').",
+          "examples": ["总计", "Total"]
+        },
+        "centerValue": {
+          "$ref": "schema-shared.json#/$defs/sanitizedString",
+          "maxLength": 30,
+          "description": "Value displayed in the center of the donut (e.g., '1,234').",
+          "examples": ["1,234", "100%"]
+        }
+      }
+    },
+    "legend": {
+      "type": "object",
+      "description": "Legend configuration for the pie chart.",
+      "additionalProperties": false,
+      "properties": {
+        "visible": {
+          "type": "boolean",
+          "description": "Whether to show the legend.",
+          "default": true
+        },
+        "position": {
+          "type": "string",
+          "enum": ["right", "bottom"],
+          "description": "Legend placement. 'right' places it beside the pie; 'bottom' places it below.",
+          "default": "right"
+        }
+      }
+    },
+    "colors": {
+      "$ref": "schema-shared.json#/$defs/colorsOverride",
+      "description": "Optional color overrides for the style's environment colors (background, text, etc.). Does NOT affect slice colors — use data[].color for that."
+    },
+    "metadata": {
+      "$ref": "schema-shared.json#/$defs/metadata",
+      "description": "Optional metadata. author field is for internal tracking only and MUST NOT be rendered into the output."
+    }
+  }
+}

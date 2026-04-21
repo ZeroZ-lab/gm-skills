@@ -1,0 +1,27 @@
+{
+  "diagramType": "table",
+  "title": "Team Performance Q1 2025",
+  "subtitle": "Revenue in thousands (USD)",
+  "style": "dark-professional",
+  "format": "html",
+  "columns": [
+    { "key": "name", "label": "Name", "align": "left" },
+    { "key": "revenue", "label": "Revenue ($k)", "align": "right" },
+    { "key": "deals", "label": "Deals", "align": "right" },
+    { "key": "avg-deal-size", "label": "Avg Deal Size ($k)", "align": "right" }
+  ],
+  "rows": [
+    { "name": "Alice", "revenue": 120, "deals": 8, "avg-deal-size": 15 },
+    { "name": "Bob", "revenue": 95, "deals": 6, "avg-deal-size": 15.8 },
+    { "name": "Carol", "revenue": 140, "deals": 10, "avg-deal-size": 14 }
+  ],
+  "showRowNumbers": false,
+  "stripeRows": true,
+  "highlightMax": "revenue",
+  "legend": { "visible": false },
+  "metadata": {
+    "author": "gmdiagram",
+    "date": "2026-04-14",
+    "version": "0.6.0"
+  }
+}

@@ -1,0 +1,22 @@
+{
+  "diagramType": "funnel",
+  "title": "销售漏斗分析",
+  "subtitle": "2025年Q1",
+  "style": "dark-professional",
+  "format": "html",
+  "density": "normal",
+  "data": [
+    { "label": "线索", "value": 1000 },
+    { "label": "合格线索", "value": 600 },
+    { "label": "方案报价", "value": 300 },
+    { "label": "商务谈判", "value": 150 },
+    { "label": "成交", "value": 80 }
+  ],
+  "showConversionRate": true,
+  "variant": "trapezoid",
+  "metadata": {
+    "author": "gmdiagram",
+    "date": "2026-04-14",
+    "version": "0.6.0"
+  }
+}

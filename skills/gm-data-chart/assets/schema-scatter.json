@@ -1,0 +1,124 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "scatter-chart-schema",
+  "title": "Scatter Chart Schema",
+  "description": "Intermediate representation for scatter chart diagrams. LLM extracts data from natural language into this format, then rendering pipeline generates HTML/SVG from it. Both X and Y axes are numeric value axes.",
+  "type": "object",
+  "required": ["diagramType", "title", "series"],
+  "additionalProperties": false,
+  "properties": {
+    "diagramType": {
+      "type": "string",
+      "const": "scatter",
+      "description": "Identifies this JSON as a scatter chart. Must always be 'scatter'."
+    },
+    "title": {
+      "type": "string",
+      "maxLength": 200,
+      "description": "Chart title, displayed at the top of the rendered page.",
+      "examples": ["学习时间与考试成绩", "Height vs Weight Distribution"]
+    },
+    "subtitle": {
+      "type": "string",
+      "maxLength": 300,
+      "description": "Optional subtitle shown below the title.",
+      "examples": ["相关性分析", "Sample size: 200"]
+    },
+    "style": {
+      "$ref": "schema-shared.json#/$defs/styleEnum",
+      "description": "Visual style preset. Each style has its own template and design rules.",
+      "default": "dark-professional"
+    },
+    "format": {
+      "$ref": "schema-shared.json#/$defs/formatEnum",
+      "description": "Output format. HTML is the default. SVG outputs standalone SVG. Mermaid is not supported for scatter charts.",
+      "default": "html"
+    },
+    "density": {
+      "type": "string",
+      "enum": ["compact", "normal", "spacious"],
+      "description": "Layout density. compact=tighter spacing; normal=standard; spacious=generous spacing.",
+      "default": "normal"
+    },
+    "series": {
+      "type": "array",
+      "description": "Data series. Each series contains scatter data points with X and Y coordinates. Multiple series are displayed with different shapes or colors.",
+      "items": {
+        "$ref": "#/$defs/seriesItem"
+      },
+      "minItems": 1,
+      "maxItems": 8
+    },
+    "axis": {
+      "type": "object",
+      "description": "Axis configuration for both X and Y axes. Both are numeric value axes for scatter charts.",
+      "additionalProperties": false,
+      "required": ["x", "y"],
+      "properties": {
+        "x": {
+          "$ref": "schema-shared.json#/$defs/scatterAxisConfig",
+          "description": "X-axis configuration (numeric value axis)."
+        },
+        "y": {
+          "$ref": "schema-shared.json#/$defs/scatterAxisConfig",
+          "description": "Y-axis configuration (numeric value axis)."
+        }
+      }
+    },
+    "legend": {
+      "$ref": "schema-shared.json#/$defs/legendConfig",
+      "description": "Legend configuration. Auto-generated from series names if not provided."
+    },
+    "colors": {
+      "$ref": "schema-shared.json#/$defs/colorsOverride",
+      "description": "Optional color overrides for the style's environment colors (background, text, etc.). Does NOT affect data point colors — use series[].color for that."
+    },
+    "metadata": {
+      "$ref": "schema-shared.json#/$defs/metadata",
+      "description": "Optional metadata. author field is for internal tracking only and MUST NOT be rendered into the output."
+    }
+  },
+  "$defs": {
+    "seriesItem": {
+      "type": "object",
+      "required": ["name", "data"],
+      "additionalProperties": false,
+      "description": "A data series containing scatter data points with X/Y coordinates.",
+      "properties": {
+        "name": {
+          "$ref": "schema-shared.json#/$defs/sanitizedString",
+          "maxLength": 100,
+          "description": "Series name displayed in the legend.",
+          "examples": ["A班", "B班", "Group A"]
+        },
+        "color": {
+          "type": "string",
+          "pattern": "^#[0-9a-fA-F]{6}$",
+          "description": "Optional color override for all points in this series. Must be 6-digit hex (#RRGGBB). If omitted, uses the chart palette."
+        },
+        "pointSize": {
+          "type": "number",
+          "minimum": 3,
+          "maximum": 12,
+          "description": "Size of data points in pixels (radius for circles, half-side for squares).",
+          "default": 5
+        },
+        "pointShape": {
+          "type": "string",
+          "enum": ["circle", "square", "diamond", "triangle"],
+          "description": "Shape of data points in this series.",
+          "default": "circle"
+        },
+        "data": {
+          "type": "array",
+          "description": "Data points in this series. Each has X and Y numeric coordinates.",
+          "items": {
+            "$ref": "schema-shared.json#/$defs/dataPointXY"
+          },
+          "minItems": 2,
+          "maxItems": 50
+        }
+      }
+    }
+  }
+}

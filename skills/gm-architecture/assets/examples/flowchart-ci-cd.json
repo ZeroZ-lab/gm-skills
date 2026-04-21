@@ -1,0 +1,120 @@
+{
+  "diagramType": "flowchart",
+  "title": "CI/CD Pipeline",
+  "subtitle": "Automated build, test, and deployment pipeline from code commit to production",
+  "style": "dark-professional",
+  "format": "html",
+  "nodes": [
+    {
+      "id": "start",
+      "label": "Start",
+      "type": "start",
+      "description": "Pipeline triggered"
+    },
+    {
+      "id": "code-commit",
+      "label": "Code Commit",
+      "type": "process",
+      "icon": "git-commit",
+      "description": "Push to feature/main branch"
+    },
+    {
+      "id": "build",
+      "label": "Build",
+      "type": "subprocess",
+      "icon": "gear",
+      "description": "Compile & package artifacts"
+    },
+    {
+      "id": "unit-test",
+      "label": "Unit Tests",
+      "type": "process",
+      "icon": "check-circle",
+      "description": "Run unit test suite"
+    },
+    {
+      "id": "tests-pass",
+      "label": "Tests Pass?",
+      "type": "decision",
+      "description": "All unit tests passing?"
+    },
+    {
+      "id": "integration-test",
+      "label": "Integration Tests",
+      "type": "subprocess",
+      "icon": "check-circle",
+      "description": "End-to-end integration suite"
+    },
+    {
+      "id": "deploy-staging",
+      "label": "Deploy Staging",
+      "type": "process",
+      "icon": "cloud",
+      "description": "Deploy to staging environment"
+    },
+    {
+      "id": "approved",
+      "label": "Approved?",
+      "type": "decision",
+      "description": "Manual QA approval gate"
+    },
+    {
+      "id": "deploy-prod",
+      "label": "Deploy Production",
+      "type": "process",
+      "icon": "rocket",
+      "description": "Rolling deploy to production"
+    },
+    {
+      "id": "end",
+      "label": "End",
+      "type": "end",
+      "description": "Pipeline complete"
+    }
+  ],
+  "connections": [
+    { "from": "start", "to": "code-commit", "direction": "down", "style": "solid" },
+    { "from": "code-commit", "to": "build", "direction": "down", "style": "solid" },
+    { "from": "build", "to": "unit-test", "direction": "down", "style": "solid" },
+    { "from": "unit-test", "to": "tests-pass", "direction": "down", "style": "solid" },
+    { "from": "tests-pass", "to": "integration-test", "label": "Yes", "branch": "yes", "direction": "down", "style": "solid" },
+    { "from": "tests-pass", "to": "code-commit", "label": "No (fix)", "branch": "no", "direction": "right", "style": "dashed" },
+    { "from": "integration-test", "to": "deploy-staging", "direction": "down", "style": "solid" },
+    { "from": "deploy-staging", "to": "approved", "direction": "down", "style": "solid" },
+    { "from": "approved", "to": "deploy-prod", "label": "Yes", "branch": "yes", "direction": "down", "style": "solid" },
+    { "from": "approved", "to": "code-commit", "label": "No (reject)", "branch": "no", "direction": "right", "style": "dashed" },
+    { "from": "deploy-prod", "to": "end", "direction": "down", "style": "solid" }
+  ],
+  "swimlanes": [
+    {
+      "id": "developer",
+      "label": "Developer",
+      "direction": "horizontal",
+      "children": ["start", "code-commit"]
+    },
+    {
+      "id": "ci-system",
+      "label": "CI System",
+      "direction": "horizontal",
+      "children": ["build", "unit-test", "tests-pass", "integration-test"]
+    },
+    {
+      "id": "qa",
+      "label": "QA / Ops",
+      "direction": "horizontal",
+      "children": ["deploy-staging", "approved", "deploy-prod", "end"]
+    }
+  ],
+  "legend": [
+    { "label": "Start / End", "type": "start" },
+    { "label": "Process", "type": "process" },
+    { "label": "Subprocess", "type": "subprocess" },
+    { "label": "Decision", "type": "decision" },
+    { "label": "Loop-back (fail path)", "color": "#fb923c" }
+  ],
+  "metadata": {
+    "author": "gmdiagram",
+    "date": "2026-04-14",
+    "version": "0.6.0"
+  }
+}

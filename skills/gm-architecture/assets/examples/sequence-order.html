@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Order Processing Flow</title>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    body { background: #2e3440; color: #eceff4; font-family: 'JetBrains Mono', monospace; min-height: 100vh; padding: 40px 20px; }
+    .container { max-width: 1000px; margin: 0 auto; }
+    .header { display: flex; align-items: center; gap: 12px; margin-bottom: 32px; }
+    .blueprint-dot { width: 10px; height: 10px; border-radius: 50%; background: #88c0d0; border: 1px solid #88c0d0; }
+    h1 { font-size: 22px; font-weight: 700; color: #eceff4; letter-spacing: 0.5px; }
+    .subtitle { font-size: 13px; color: #d8dee9; margin-top: 4px; }
+    .diagram-container { background: #3b4252; border: 1px solid #4c566a; border-radius: 2px; padding: 24px; margin-bottom: 32px; overflow-x: auto; }
+    .diagram-container svg { width: 100%; min-width: 700px; height: auto; display: block; }
+    .footer { font-size: 11px; color: #4c566a; text-align: center; padding-top: 16px; border-top: 1px solid #434c5e; }
+    .seq-actor { min-width: 100px; height: 36px; border-radius: 2px; display: flex; align-items: center; justify-content: center; padding: 0 12px; font-size: 11px; font-weight: 600; color: white; font-family: 'JetBrains Mono', monospace; white-space: nowrap; }
+    .type-participant { background: rgba(136,192,208,0.1); border: 1px solid #88c0d0; }
+    .type-boundary { background: rgba(180,142,173,0.1); border: 1px solid #b48ead; }
+    .type-control { background: rgba(163,190,140,0.1); border: 1px solid #a3be8c; }
+    .type-entity { background: rgba(235,203,139,0.1); border: 1px solid #ebcb8b; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <div class="blueprint-dot"></div>
+      <div>
+        <h1>Order Processing Flow</h1>
+        <div class="subtitle">E-commerce order creation with inventory check and payment</div>
+      </div>
+    </div>
+
+    <div class="diagram-container">
+      <svg viewBox="0 0 1000 520" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <pattern id="bp-grid" width="20" height="20" patternUnits="userSpaceOnUse">
+            <path d="M 20 0 L 0 0 0 20" fill="none" stroke="#4c566a" stroke-width="0.3"/>
+          </pattern>
+          <marker id="arrowhead" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+            <polygon points="0 0, 8 3, 0 6" fill="#81a1c1"/>
+          </marker>
+          <marker id="arrowhead-open" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+            <polyline points="0 0, 8 3, 0 6" fill="none" stroke="#81a1c1" stroke-width="1"/>
+          </marker>
+          <marker id="arrowhead-dim" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+            <polygon points="0 0, 8 3, 0 6" fill="#5e81ac"/>
+          </marker>
+        </defs>
+
+        <rect width="1000" height="520" fill="url(#bp-grid)"/>
+
+        <!-- Actor: Customer (stick figure) -->
+        <g transform="translate(80, 20)">
+          <circle cx="40" cy="12" r="10" fill="none" stroke="#88c0d0" stroke-width="1.5"/>
+          <line x1="40" y1="22" x2="40" y2="42" stroke="#88c0d0" stroke-width="1.5"/>
+          <line x1="25" y1="32" x2="55" y2="32" stroke="#88c0d0" stroke-width="1.5"/>
+          <line x1="40" y1="42" x2="28" y2="56" stroke="#88c0d0" stroke-width="1.5"/>
+          <line x1="40" y1="42" x2="52" y2="56" stroke="#88c0d0" stroke-width="1.5"/>
+          <text x="40" y="70" font-size="11" fill="#d8dee9" text-anchor="middle" font-family="JetBrains Mono, monospace">Customer</text>
+        </g>
+
+        <!-- Actor: API Gateway -->
+        <g transform="translate(260, 20)">
+          <foreignObject width="110" height="36">
+            <div xmlns="http://www.w3.org/1999/xhtml" class="seq-actor type-participant">API Gateway</div>
+          </foreignObject>
+        </g>
+
+        <!-- Actor: Order Service -->
+        <g transform="translate(440, 20)">
+          <foreignObject width="110" height="36">
+            <div xmlns="http://www.w3.org/1999/xhtml" class="seq-actor type-control">Order Service</div>
+          </foreignObject>
+        </g>
+
+        <!-- Actor: Payment Service -->
+        <g transform="translate(620, 20)">
+          <foreignObject width="110" height="36">
+            <div xmlns="http://www.w3.org/1999/xhtml" class="seq-actor type-boundary">Payment Service</div>
+          </foreignObject>
+        </g>
+
+        <!-- Actor: Inventory Service -->
+        <g transform="translate(800, 20)">
+          <foreignObject width="110" height="36">
+            <div xmlns="http://www.w3.org/1999/xhtml" class="seq-actor type-entity">Inventory Service</div>
+          </foreignObject>
+        </g>
+
+        <!-- Lifelines -->
+        <line x1="120" y1="85" x2="120" y2="500" stroke="#4c566a" stroke-width="1" stroke-dasharray="6,4"/>
+        <line x1="315" y1="85" x2="315" y2="500" stroke="#4c566a" stroke-width="1" stroke-dasharray="6,4"/>
+        <line x1="495" y1="85" x2="495" y2="500" stroke="#4c566a" stroke-width="1" stroke-dasharray="6,4"/>
+        <line x1="675" y1="85" x2="675" y2="500" stroke="#4c566a" stroke-width="1" stroke-dasharray="6,4"/>
+        <line x1="855" y1="85" x2="855" y2="500" stroke="#4c566a" stroke-width="1" stroke-dasharray="6,4"/>
+
+        <!-- Activation boxes -->
+        <rect x="489" y="140" width="12" height="200" rx="2" fill="rgba(163,190,140,0.15)" stroke="#a3be8c" stroke-width="1"/>
+
+        <!-- 1. Customer -> Gateway -->
+        <line x1="120" y1="110" x2="305" y2="110" stroke="#81a1c1" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+        <text x="212" y="103" font-size="9" fill="#81a1c1" text-anchor="middle" font-family="JetBrains Mono, monospace">POST /orders</text>
+
+        <!-- 2. Gateway -> Order Service -->
+        <line x1="315" y1="140" x2="485" y2="140" stroke="#81a1c1" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+        <text x="400" y="133" font-size="9" fill="#81a1c1" text-anchor="middle" font-family="JetBrains Mono, monospace">Create order</text>
+
+        <!-- 3. Order Service -> Inventory -->
+        <line x1="495" y1="170" x2="845" y2="170" stroke="#81a1c1" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+        <text x="670" y="163" font-size="9" fill="#81a1c1" text-anchor="middle" font-family="JetBrains Mono, monospace">Check stock availability</text>
+
+        <!-- 4. Inventory -> Order Service (return) -->
+        <line x1="845" y1="200" x2="505" y2="200" stroke="#5e81ac" stroke-width="1.5" stroke-dasharray="6,4" marker-end="url(#arrowhead-dim)"/>
+        <text x="675" y="193" font-size="9" fill="#5e81ac" text-anchor="middle" font-family="JetBrains Mono, monospace">Stock confirmed</text>
+
+        <!-- 5. Order Service -> Payment -->
+        <line x1="495" y1="230" x2="665" y2="230" stroke="#81a1c1" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+        <text x="580" y="223" font-size="9" fill="#81a1c1" text-anchor="middle" font-family="JetBrains Mono, monospace">Charge payment</text>
+
+        <!-- 6. Payment -> Order Service (return) -->
+        <line x1="675" y1="260" x2="505" y2="260" stroke="#5e81ac" stroke-width="1.5" stroke-dasharray="6,4" marker-end="url(#arrowhead-dim)"/>
+        <text x="590" y="253" font-size="9" fill="#5e81ac" text-anchor="middle" font-family="JetBrains Mono, monospace">Payment success</text>
+
+        <!-- 7. Order Service -> Inventory (async) -->
+        <line x1="495" y1="290" x2="845" y2="290" stroke="#d08770" stroke-width="1.5" stroke-dasharray="4,3" marker-end="url(#arrowhead-open)"/>
+        <text x="670" y="283" font-size="9" fill="#d08770" text-anchor="middle" font-family="JetBrains Mono, monospace">Reserve items</text>
+
+        <!-- 8. Order Service -> Gateway (return) -->
+        <line x1="495" y1="320" x2="325" y2="320" stroke="#5e81ac" stroke-width="1.5" stroke-dasharray="6,4" marker-end="url(#arrowhead-dim)"/>
+        <text x="410" y="313" font-size="9" fill="#5e81ac" text-anchor="middle" font-family="JetBrains Mono, monospace">Order confirmed (201)</text>
+
+        <!-- 9. Gateway -> Customer -->
+        <line x1="315" y1="350" x2="130" y2="350" stroke="#81a1c1" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+        <text x="222" y="343" font-size="9" fill="#81a1c1" text-anchor="middle" font-family="JetBrains Mono, monospace">Order confirmation</text>
+
+        <!-- Technical watermark -->
+        <text x="500" y="500" font-size="9" fill="#434c5e" font-family="JetBrains Mono, monospace" text-anchor="middle" letter-spacing="2">TECHNICAL DIAGRAM — NOT TO SCALE</text>
+      </svg>
+    </div>
+
+    <div class="footer">
+      Generated by gmdiagram &middot; Blueprint &middot; 2026-04-14
+    </div>
+  </div>
+</body>
+</html>

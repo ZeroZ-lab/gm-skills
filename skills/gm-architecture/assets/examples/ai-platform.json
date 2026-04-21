@@ -1,0 +1,78 @@
+{
+  "title": "Enterprise AI Platform",
+  "subtitle": "End-to-end architecture from channel integration to model serving",
+  "style": "dark-professional",
+  "diagramType": "architecture",
+  "format": "html",
+  "layers": [
+    {
+      "id": "channel-layer",
+      "label": "Channel Layer",
+      "type": "external",
+      "children": [
+        { "id": "web-chat", "label": "Web Chat", "type": "module" },
+        { "id": "api-gateway", "label": "API Gateway", "type": "module", "tech": ["REST", "WebSocket"] },
+        { "id": "mobile", "label": "Mobile App", "type": "module" }
+      ]
+    },
+    {
+      "id": "application-layer",
+      "label": "Application Layer",
+      "type": "process",
+      "children": [
+        { "id": "session-mgr", "label": "Session Manager", "type": "module" },
+        { "id": "intent-parser", "label": "Intent Parser", "type": "module" },
+        { "id": "task-router", "label": "Task Router", "type": "module" }
+      ]
+    },
+    {
+      "id": "orchestration-layer",
+      "label": "Orchestration Layer",
+      "type": "process",
+      "children": [
+        { "id": "agent-engine", "label": "Agent Engine", "type": "module", "tech": ["LangChain", "Dify"] },
+        { "id": "workflow-engine", "label": "Workflow Engine", "type": "module" },
+        { "id": "tool-scheduler", "label": "Tool Scheduler", "type": "module" }
+      ]
+    },
+    {
+      "id": "model-layer",
+      "label": "Model Layer",
+      "type": "infra",
+      "children": [
+        { "id": "llm-service", "label": "LLM Service", "type": "module", "tech": ["GPT-4", "Claude"] },
+        { "id": "embedding-svc", "label": "Embedding Service", "type": "module" },
+        { "id": "rag-engine", "label": "RAG Engine", "type": "module" }
+      ]
+    },
+    {
+      "id": "data-layer",
+      "label": "Data Layer",
+      "type": "data",
+      "children": [
+        { "id": "vector-db", "label": "Vector Database", "type": "data", "tech": ["Pinecone", "Milvus"] },
+        { "id": "knowledge-base", "label": "Knowledge Base", "type": "data" },
+        { "id": "log-store", "label": "Log & Trace Store", "type": "data" }
+      ]
+    }
+  ],
+  "connections": [
+    { "from": "channel-layer", "to": "application-layer", "label": "Request", "direction": "unidirectional" },
+    { "from": "application-layer", "to": "orchestration-layer", "label": "Task", "direction": "unidirectional" },
+    { "from": "orchestration-layer", "to": "model-layer", "label": "Inference", "direction": "bidirectional" },
+    { "from": "model-layer", "to": "data-layer", "label": "Query", "direction": "bidirectional" },
+    { "from": "orchestration-layer", "to": "data-layer", "label": "Context", "direction": "unidirectional", "style": "dashed" }
+  ],
+  "groups": [],
+  "legend": [
+    { "label": "Channel", "type": "external" },
+    { "label": "Service", "type": "process" },
+    { "label": "Infrastructure", "type": "infra" },
+    { "label": "Data Store", "type": "data" }
+  ],
+  "metadata": {
+    "author": "gmdiagram",
+    "date": "2026-04-14",
+    "version": "0.6.0"
+  }
+}

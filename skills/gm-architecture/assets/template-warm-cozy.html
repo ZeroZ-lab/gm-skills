@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Content Creation Pipeline</title>
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      background: #f9f5eb;
+      color: #3c3836;
+      font-family: Georgia, 'Times New Roman', system-ui, serif;
+      min-height: 100vh;
+      padding: 40px 20px;
+    }
+    .container { max-width: 960px; margin: 0 auto; }
+    .header {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin-bottom: 30px;
+    }
+    .warm-dot {
+      width: 14px; height: 14px; border-radius: 50%;
+      background: #b45309;
+      box-shadow: 0 0 6px rgba(180, 83, 9, 0.25);
+    }
+    h1 {
+      font-size: 26px;
+      font-weight: 700;
+      color: #3c3836;
+      letter-spacing: -0.3px;
+    }
+    .subtitle {
+      font-size: 14px;
+      color: #78716c;
+      margin-top: 3px;
+      font-family: system-ui, -apple-system, sans-serif;
+    }
+    .diagram-container {
+      background: #fffdf7;
+      border: 2px solid #d5c4a1;
+      border-radius: 12px;
+      padding: 28px;
+      margin-bottom: 30px;
+      box-shadow: 3px 3px 0px rgba(180, 83, 9, 0.1);
+      overflow-x: auto;
+    }
+    .diagram-container svg {
+      width: 100%;
+      min-width: 700px;
+      height: auto;
+      display: block;
+    }
+    .footer {
+      font-size: 11px;
+      color: #a89984;
+      text-align: center;
+      padding-top: 16px;
+      border-top: 2px dashed #d5c4a1;
+      font-family: system-ui, -apple-system, sans-serif;
+    }
+
+    /* === foreignObject component classes (warm-cozy) === */
+    .layer-card { width: 100%; border-radius: 12px; padding: 8px 0 12px; box-sizing: border-box; }
+    .layer-label { font-size: 14px; font-weight: 600; color: #3c3836; padding: 0 16px; font-family: Georgia, serif; }
+    .modules { display: flex; gap: 20px; justify-content: center; padding: 8px 16px 0; flex-wrap: wrap; }
+    .module { min-width: 100px; height: 50px; border-radius: 10px; display: flex; align-items: center; justify-content: center; padding: 0 16px; box-sizing: border-box; }
+    .module-label { font-size: 12px; font-weight: 500; color: #3c3836; text-align: center; white-space: nowrap; font-family: system-ui, -apple-system, sans-serif; }
+    .tech-badges { display: flex; gap: 4px; justify-content: center; padding-top: 4px; }
+    .tech-badge { font-size: 8px; padding: 2px 6px; border-radius: 4px; white-space: nowrap; background: rgba(0,0,0,0.03); border: 1px solid rgba(0,0,0,0.06); color: #78716c; font-family: system-ui, -apple-system, sans-serif; }
+    .module.has-badges { height: 58px; flex-direction: column; gap: 2px; }
+    .module.has-badges .module-label { height: 20px; }
+
+    /* Type-specific colors (warm cozy palette) */
+    .type-process { background: #dcfce7; border: 2px solid #15803d; }
+    .type-module { background: #f3e8ff; border: 2px solid #7e22ce; }
+    .type-data { background: #fef3c7; border: 2px solid #b45309; }
+    .type-infra { background: #fef9c3; border: 2px solid #a16207; }
+    .type-security { background: #fff1f2; border: 2px dashed #be123c; }
+    .type-channel { background: #fff7ed; border: 2px solid #c2410c; }
+    .type-external { background: #f5f5f4; border: 2px solid #78716c; }
+
+    .legend-container { display: flex; gap: 100px; align-items: center; }
+    .legend-item { display: flex; align-items: center; gap: 6px; }
+    .legend-swatch { width: 14px; height: 14px; border-radius: 3px; }
+    .legend-text { font-size: 11px; color: #78716c; font-family: system-ui, -apple-system, sans-serif; }
+
+    /* === Chart classes (warm-cozy) === */
+    .axis-line { stroke: #78716c; stroke-width: 1.5; fill: none; }
+    .axis-label { fill: #78716c; font-size: 12px; font-family: system-ui, -apple-system, sans-serif; }
+    .axis-title { fill: #3c3836; font-size: 13px; font-weight: 600; font-family: system-ui, -apple-system, sans-serif; }
+    .tick-label { fill: #78716c; font-size: 11px; font-family: system-ui, -apple-system, sans-serif; }
+    .grid-line { stroke: #d5c4a1; stroke-dasharray: 4,4; stroke-width: 0.5; fill: none; }
+    .bar { rx: 2; }
+    .bar:hover { opacity: 0.85; }
+    .slice { stroke: #fffdf7; stroke-width: 2; }
+    .line-path { fill: none; stroke-width: 2.5; }
+    .area-fill { opacity: 0.15; }
+    .data-dot { stroke-width: 2; }
+    .scatter-point { stroke-width: 1.5; }
+    .bubble-point { stroke-width: 1.5; }
+    .radar-grid { stroke: rgba(0,0,0,0.08); fill: none; stroke-width: 0.5; }
+    .radar-axis { stroke: rgba(0,0,0,0.1); stroke-width: 0.5; }
+    .radar-data { stroke-width: 2; stroke-linejoin: round; }
+    .funnel-stage { stroke: #fffdf7; stroke-width: 1; }
+    .funnel-label { fill: #3c3836; font-size: 13px; font-weight: 600; font-family: system-ui, -apple-system, sans-serif; }
+    .table-header { font-weight: 600; text-align: left; padding: 8px 12px; border-bottom: 2px solid #d5c4a1; }
+    .table-row { border-bottom: 1px solid rgba(0,0,0,0.06); }
+    .table-cell { padding: 8px 12px; font-size: 13px; }
+    .highlight-max { font-weight: 600; }
+    .highlight-min { font-weight: 600; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <div class="warm-dot"></div>
+      <div>
+        <h1>Content Creation Pipeline</h1>
+        <div class="subtitle">From topic research to publishing and feedback in three streamlined stages</div>
+      </div>
+    </div>
+
+    <div class="diagram-container">
+      <svg viewBox="0 0 920 560" xmlns="http://www.w3.org/2000/svg">
+        <!-- Defs -->
+        <defs>
+          <marker id="arrowhead-warm" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto">
+            <polygon points="0 0, 10 3.5, 0 7" fill="#78716c"/>
+          </marker>
+          <marker id="arrowhead-warm-rev" markerWidth="10" markerHeight="7" refX="0" refY="3.5" orient="auto">
+            <polygon points="10 0, 0 3.5, 10 7" fill="#78716c"/>
+          </marker>
+        </defs>
+
+        <!-- === CONNECTIONS (drawn first, behind components) === -->
+
+        <!-- Topic Research → Writing -->
+        <path d="M 220 155 L 220 185 L 360 185 L 360 210"
+              stroke="#78716c" stroke-width="2" fill="none"
+              marker-end="url(#arrowhead-warm)" stroke-linecap="round" stroke-linejoin="round"/>
+
+        <!-- Content Brief → AI Review -->
+        <path d="M 460 155 L 460 185 L 530 185 L 530 210"
+              stroke="#78716c" stroke-width="2" fill="none"
+              marker-end="url(#arrowhead-warm)" stroke-linecap="round" stroke-linejoin="round"/>
+
+        <!-- Topic Research → Writing (curved alternative) -->
+        <path d="M 270 130 L 310 130 L 310 240 L 320 240"
+              stroke="#78716c" stroke-width="2" fill="none" opacity="0.4"
+              stroke-dasharray="5,4" stroke-linecap="round"/>
+
+        <!-- Writing → AI Review -->
+        <line x1="440" y1="240" x2="470" y2="240"
+              stroke="#78716c" stroke-width="2" marker-end="url(#arrowhead-warm)" stroke-linecap="round"/>
+
+        <!-- AI Review → Editing -->
+        <line x1="620" y1="240" x2="650" y2="240"
+              stroke="#78716c" stroke-width="2" marker-end="url(#arrowhead-warm)" stroke-linecap="round"/>
+
+        <!-- Editing → Publish -->
+        <path d="M 730 270 L 730 300 L 220 300 L 220 365"
+              stroke="#78716c" stroke-width="2" fill="none"
+              marker-end="url(#arrowhead-warm)" stroke-linecap="round" stroke-linejoin="round"/>
+
+        <!-- Editing → Analytics -->
+        <path d="M 730 270 L 730 300 L 460 300 L 460 365"
+              stroke="#78716c" stroke-width="2" fill="none"
+              marker-end="url(#arrowhead-warm)" stroke-linecap="round" stroke-linejoin="round"/>
+
+        <!-- Analytics → Feedback Loop -->
+        <line x1="530" y1="395" x2="590" y2="395"
+              stroke="#78716c" stroke-width="2" marker-end="url(#arrowhead-warm)" stroke-linecap="round"/>
+
+        <!-- Feedback Loop → Topic Research (curved feedback) -->
+        <path d="M 730 365 L 800 365 L 800 70 L 340 70 L 340 100"
+              stroke="#78716c" stroke-width="2" fill="none"
+              stroke-dasharray="6,4"
+              marker-end="url(#arrowhead-warm)" stroke-linecap="round" stroke-linejoin="round"/>
+        <rect x="780" y="200" width="52" height="18" rx="9" fill="#fffdf7" stroke="#d5c4a1" stroke-width="1"/>
+        <text x="806" y="213" font-size="9" fill="#78716c" font-family="system-ui, sans-serif" text-anchor="middle">feedback</text>
+
+        <!-- === Decorative accents === -->
+        <circle cx="30" cy="30" r="4" fill="#fef3c7" stroke="#d5c4a1" stroke-width="1"/>
+        <circle cx="890" cy="30" r="3" fill="#dcfce7" stroke="#d5c4a1" stroke-width="1"/>
+        <circle cx="30" cy="530" r="3" fill="#f3e8ff" stroke="#d5c4a1" stroke-width="1"/>
+        <circle cx="890" cy="530" r="4" fill="#fefce8" stroke="#d5c4a1" stroke-width="1"/>
+        <circle cx="455" cy="30" r="2.5" fill="#fff7ed" stroke="#d5c4a1" stroke-width="0.8"/>
+        <circle cx="455" cy="530" r="2.5" fill="#fff1f2" stroke="#d5c4a1" stroke-width="0.8"/>
+
+        <!-- === LAYER 1: Input === -->
+        <g>
+          <rect x="60" y="50" width="800" height="120" rx="10"
+                fill="#fef3c7" stroke="#b45309" stroke-width="2"/>
+          <!-- Small accent dot -->
+          <circle cx="80" cy="68" r="4" fill="#b45309" opacity="0.3"/>
+          <text x="92" y="74" font-size="15" font-weight="700" fill="#3c3836"
+                font-family="Georgia, serif">Input</text>
+
+          <!-- Module: Topic Research -->
+          <rect x="120" y="90" width="190" height="60" rx="8"
+                fill="#fffdf7" stroke="#b45309" stroke-width="2"
+                style="filter: drop-shadow(2px 2px 0px rgba(180,83,9,0.1))"/>
+          <text x="215" y="120" font-size="13" font-weight="600" fill="#3c3836"
+                font-family="system-ui, sans-serif" text-anchor="middle">Topic Research</text>
+          <rect x="170" y="130" width="90" height="16" rx="4"
+                fill="#fef3c7" stroke="#b45309" stroke-width="0.8"/>
+          <text x="215" y="142" font-size="8" fill="#b45309" font-family="system-ui, sans-serif" text-anchor="middle">Keywords + Trends</text>
+
+          <!-- Module: Content Brief -->
+          <rect x="360" y="90" width="190" height="60" rx="8"
+                fill="#fffdf7" stroke="#b45309" stroke-width="2"
+                style="filter: drop-shadow(2px 2px 0px rgba(180,83,9,0.1))"/>
+          <text x="455" y="120" font-size="13" font-weight="600" fill="#3c3836"
+                font-family="system-ui, sans-serif" text-anchor="middle">Content Brief</text>
+          <rect x="400" y="130" width="110" height="16" rx="4"
+                fill="#fef3c7" stroke="#b45309" stroke-width="0.8"/>
+          <text x="455" y="142" font-size="8" fill="#b45309" font-family="system-ui, sans-serif" text-anchor="middle">Outline + Strategy</text>
+        </g>
+
+        <!-- === LAYER 2: Production === -->
+        <g>
+          <rect x="60" y="200" width="800" height="120" rx="10"
+                fill="#dcfce7" stroke="#15803d" stroke-width="2"/>
+          <circle cx="80" cy="218" r="4" fill="#15803d" opacity="0.3"/>
+          <text x="92" y="224" font-size="15" font-weight="700" fill="#3c3836"
+                font-family="Georgia, serif">Production</text>
+
+          <!-- Module: Writing -->
+          <rect x="120" y="240" width="190" height="60" rx="8"
+                fill="#fffdf7" stroke="#15803d" stroke-width="2"
+                style="filter: drop-shadow(2px 2px 0px rgba(21,128,61,0.1))"/>
+          <text x="215" y="270" font-size="13" font-weight="600" fill="#3c3836"
+                font-family="system-ui, sans-serif" text-anchor="middle">Writing</text>
+          <rect x="178" y="280" width="74" height="16" rx="4"
+                fill="#dcfce7" stroke="#15803d" stroke-width="0.8"/>
+          <text x="215" y="292" font-size="8" fill="#15803d" font-family="system-ui, sans-serif" text-anchor="middle">Draft Content</text>
+
+          <!-- Module: AI Review -->
+          <rect x="350" y="240" width="190" height="60" rx="8"
+                fill="#fffdf7" stroke="#15803d" stroke-width="2"
+                style="filter: drop-shadow(2px 2px 0px rgba(21,128,61,0.1))"/>
+          <text x="445" y="270" font-size="13" font-weight="600" fill="#3c3836"
+                font-family="system-ui, sans-serif" text-anchor="middle">AI Review</text>
+          <rect x="393" y="280" width="104" height="16" rx="4"
+                fill="#f3e8ff" stroke="#7e22ce" stroke-width="0.8"/>
+          <text x="445" y="292" font-size="8" fill="#7e22ce" font-family="system-ui, sans-serif" text-anchor="middle">Quality Check + AI</text>
+
+          <!-- Module: Editing -->
+          <rect x="580" y="240" width="190" height="60" rx="8"
+                fill="#fffdf7" stroke="#15803d" stroke-width="2"
+                style="filter: drop-shadow(2px 2px 0px rgba(21,128,61,0.1))"/>
+          <text x="675" y="270" font-size="13" font-weight="600" fill="#3c3836"
+                font-family="system-ui, sans-serif" text-anchor="middle">Editing</text>
+          <rect x="625" y="280" width="100" height="16" rx="4"
+                fill="#dcfce7" stroke="#15803d" stroke-width="0.8"/>
+          <text x="675" y="292" font-size="8" fill="#15803d" font-family="system-ui, sans-serif" text-anchor="middle">Refine + Finalize</text>
+        </g>
+
+        <!-- === LAYER 3: Distribution === -->
+        <g>
+          <rect x="60" y="355" width="800" height="120" rx="10"
+                fill="#f3e8ff" stroke="#7e22ce" stroke-width="2"/>
+          <circle cx="80" cy="373" r="4" fill="#7e22ce" opacity="0.3"/>
+          <text x="92" y="379" font-size="15" font-weight="700" fill="#3c3836"
+                font-family="Georgia, serif">Distribution</text>
+
+          <!-- Module: Publish -->
+          <rect x="120" y="395" width="190" height="60" rx="8"
+                fill="#fffdf7" stroke="#7e22ce" stroke-width="2"
+                style="filter: drop-shadow(2px 2px 0px rgba(126,34,206,0.1))"/>
+          <text x="215" y="425" font-size="13" font-weight="600" fill="#3c3836"
+                font-family="system-ui, sans-serif" text-anchor="middle">Publish</text>
+          <rect x="175" y="435" width="80" height="16" rx="4"
+                fill="#f3e8ff" stroke="#7e22ce" stroke-width="0.8"/>
+          <text x="215" y="447" font-size="8" fill="#7e22ce" font-family="system-ui, sans-serif" text-anchor="middle">CMS + Social</text>
+
+          <!-- Module: Analytics -->
+          <rect x="350" y="395" width="190" height="60" rx="8"
+                fill="#fffdf7" stroke="#7e22ce" stroke-width="2"
+                style="filter: drop-shadow(2px 2px 0px rgba(126,34,206,0.1))"/>
+          <text x="445" y="425" font-size="13" font-weight="600" fill="#3c3836"
+                font-family="system-ui, sans-serif" text-anchor="middle">Analytics</text>
+          <rect x="390" y="435" width="110" height="16" rx="4"
+                fill="#fff7ed" stroke="#c2410c" stroke-width="0.8"/>
+          <text x="445" y="447" font-size="8" fill="#c2410c" font-family="system-ui, sans-serif" text-anchor="middle">Metrics + Insights</text>
+
+          <!-- Module: Feedback Loop -->
+          <rect x="580" y="395" width="190" height="60" rx="8"
+                fill="#fffdf7" stroke="#7e22ce" stroke-width="2"
+                style="filter: drop-shadow(2px 2px 0px rgba(126,34,206,0.1))"/>
+          <text x="675" y="425" font-size="13" font-weight="600" fill="#3c3836"
+                font-family="system-ui, sans-serif" text-anchor="middle">Feedback Loop</text>
+          <rect x="625" y="435" width="100" height="16" rx="4"
+                fill="#fff1f2" stroke="#be123c" stroke-width="0.8"/>
+          <text x="675" y="447" font-size="8" fill="#be123c" font-family="system-ui, sans-serif" text-anchor="middle">Learn + Improve</text>
+        </g>
+
+        <!-- === LEGEND === -->
+        <g transform="translate(60, 510)">
+          <text x="0" y="0" font-size="11" font-weight="600" fill="#78716c" font-family="system-ui, sans-serif">Legend</text>
+
+          <rect x="0" y="12" width="14" height="14" rx="3" fill="#fef3c7" stroke="#b45309" stroke-width="1.5"/>
+          <text x="20" y="24" font-size="11" fill="#78716c" font-family="system-ui, sans-serif">Process</text>
+
+          <rect x="100" y="12" width="14" height="14" rx="3" fill="#dcfce7" stroke="#15803d" stroke-width="1.5"/>
+          <text x="120" y="24" font-size="11" fill="#78716c" font-family="system-ui, sans-serif">Module</text>
+
+          <rect x="200" y="12" width="14" height="14" rx="3" fill="#f3e8ff" stroke="#7e22ce" stroke-width="1.5"/>
+          <text x="220" y="24" font-size="11" fill="#78716c" font-family="system-ui, sans-serif">Data</text>
+
+          <rect x="280" y="12" width="14" height="14" rx="3" fill="#fff7ed" stroke="#c2410c" stroke-width="1.5"/>
+          <text x="300" y="24" font-size="11" fill="#78716c" font-family="system-ui, sans-serif">Infra</text>
+
+          <rect x="360" y="12" width="14" height="14" rx="3" fill="#fff1f2" stroke="#be123c" stroke-width="1.5"/>
+          <text x="380" y="24" font-size="11" fill="#78716c" font-family="system-ui, sans-serif">Security</text>
+
+          <rect x="460" y="12" width="14" height="14" rx="3" fill="#fefce8" stroke="#a16207" stroke-width="1.5"/>
+          <text x="480" y="24" font-size="11" fill="#78716c" font-family="system-ui, sans-serif">Channel</text>
+
+          <rect x="560" y="12" width="14" height="14" rx="3" fill="#f5f5f4" stroke="#57534e" stroke-width="1.5"/>
+          <text x="580" y="24" font-size="11" fill="#78716c" font-family="system-ui, sans-serif">External</text>
+
+          <line x1="660" y1="19" x2="690" y2="19" stroke="#78716c" stroke-width="2" stroke-dasharray="5,3"/>
+          <text x="696" y="24" font-size="11" fill="#78716c" font-family="system-ui, sans-serif">Feedback</text>
+        </g>
+
+      </svg>
+    </div>
+
+    <div class="footer">
+      Generated by gmdiagram &middot; Warm Cozy &middot; 2026-04-11
+    </div>
+  </div>
+</body>
+</html>

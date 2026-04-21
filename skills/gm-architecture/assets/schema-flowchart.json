@@ -1,0 +1,362 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "flowchart-diagram-schema",
+  "title": "Flowchart Diagram Schema",
+  "description": "Intermediate representation for flowchart and process flow diagrams. LLM extracts structure from natural language into this format, then rendering pipeline generates HTML/SVG from it.",
+  "type": "object",
+  "required": [
+    "diagramType",
+    "title",
+    "nodes",
+    "connections"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "diagramType": {
+      "type": "string",
+      "const": "flowchart",
+      "description": "Identifies this JSON as a flowchart diagram. Must always be 'flowchart'."
+    },
+    "title": {
+      "type": "string",
+      "description": "Diagram title, displayed as h1 at the top of the rendered page.",
+      "examples": [
+        "CI/CD Pipeline",
+        "User Authentication Flow",
+        "Order Processing"
+      ]
+    },
+    "subtitle": {
+      "type": "string",
+      "description": "Optional subtitle shown below the title, typically describing the process scope.",
+      "examples": [
+        "From code commit to production deployment",
+        "OAuth 2.0 + 2FA authentication flow"
+      ]
+    },
+    "style": {
+      "type": "string",
+      "enum": [
+        "dark-professional",
+        "hand-drawn",
+        "light-corporate",
+        "cyberpunk-neon",
+        "blueprint",
+        "warm-cozy",
+        "minimalist",
+        "terminal-retro",
+        "pastel-dream",
+        "notion",
+        "material",
+        "glassmorphism"
+      ],
+      "description": "Visual style preset. Each style has its own template and design rules. Options: dark-professional (dark tech), hand-drawn (sketch/whiteboard), light-corporate (business/clean), cyberpunk-neon (neon glow/Catppuccin), blueprint (engineering/Nord), warm-cozy (friendly/Gruvbox), minimalist (ultra-clean monochrome), terminal-retro (CRT green-on-black), pastel-dream (soft pastels, rounded), notion (Notion-like document aesthetic), material (Google Material Design), glassmorphism (frosted glass/translucent).",
+      "default": "dark-professional"
+    },
+    "format": {
+      "type": "string",
+      "enum": [
+        "html",
+        "svg",
+        "mermaid"
+      ],
+      "description": "Output format. HTML is the default (single-file with inline SVG and CSS). SVG outputs standalone SVG. Mermaid outputs Mermaid text syntax.",
+      "default": "html"
+    },
+    "density": {
+      "type": "string",
+      "enum": [
+        "compact",
+        "normal",
+        "spacious"
+      ],
+      "description": "Layout density. compact=tighter spacing for dense diagrams; normal=standard spacing; spacious=generous spacing for presentations.",
+      "default": "normal"
+    },
+    "direction": {
+      "type": "string",
+      "enum": [
+        "TB",
+        "LR"
+      ],
+      "description": "Layout direction. TB=top-to-bottom (default). LR=left-to-right (primary flow horizontal).",
+      "default": "TB"
+    },
+    "nodes": {
+      "type": "array",
+      "description": "Flowchart nodes representing process steps, decisions, I/O operations, etc. Each node is positioned in the flow based on connections.",
+      "items": {
+        "$ref": "#/$defs/node"
+      },
+      "minItems": 2
+    },
+    "connections": {
+      "type": "array",
+      "description": "Directed connections (arrows) between nodes. Defines the flow order and branching logic.",
+      "items": {
+        "$ref": "#/$defs/connection"
+      },
+      "minItems": 1
+    },
+    "swimlanes": {
+      "type": "array",
+      "description": "Optional horizontal swimlanes that group nodes into responsibility bands (e.g., Developer, CI System, QA).",
+      "items": {
+        "$ref": "#/$defs/swimlane"
+      },
+      "default": []
+    },
+    "legend": {
+      "type": "array",
+      "description": "Legend entries shown below the diagram. Auto-generated from node types if not provided.",
+      "items": {
+        "$ref": "#/$defs/legendEntry"
+      },
+      "default": []
+    },
+    "font": {
+      "type": "string",
+      "pattern": "^[a-zA-Z0-9][a-zA-Z0-9 ._+\\-]{0,50}$",
+      "description": "Optional font override. Use a Google Fonts name. Alphanumeric, spaces, dots, hyphens, plus, underscores allowed.",
+      "default": null
+    },
+    "colors": {
+      "type": "object",
+      "description": "Optional color overrides. Each key overrides the corresponding semantic color from the chosen style.",
+      "properties": {
+        "primary": {
+          "type": "string",
+          "pattern": "^#[0-9a-fA-F]{6}$",
+          "description": "Primary accent color (borders, highlights)"
+        },
+        "secondary": {
+          "type": "string",
+          "pattern": "^#[0-9a-fA-F]{6}$",
+          "description": "Secondary color (subtle borders, backgrounds)"
+        },
+        "accent": {
+          "type": "string",
+          "pattern": "^#[0-9a-fA-F]{6}$",
+          "description": "Accent color (highlights, call-to-action elements)"
+        },
+        "background": {
+          "type": "string",
+          "pattern": "^#[0-9a-fA-F]{6}$",
+          "description": "Page background color"
+        },
+        "text": {
+          "type": "string",
+          "pattern": "^#[0-9a-fA-F]{6}$",
+          "description": "Primary text color"
+        }
+      },
+      "additionalProperties": false
+    },
+    "metadata": {
+      "type": "object",
+      "description": "Optional metadata for the generated page.",
+      "properties": {
+        "author": {
+          "type": "string"
+        },
+        "date": {
+          "type": "string",
+          "format": "date"
+        },
+        "version": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "$defs": {
+    "nodeType": {
+      "type": "string",
+      "enum": [
+        "start",
+        "end",
+        "process",
+        "decision",
+        "io",
+        "subprocess",
+        "document"
+      ],
+      "description": "Shape type of the node. start/end=rounded rect (stadium), process=rectangle, decision=diamond, io=parallelogram, subprocess=double-border rect, document=wavy-bottom rect."
+    },
+    "node": {
+      "type": "object",
+      "required": [
+        "id",
+        "label",
+        "type"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier. Used as connection source/target and layout reference.",
+          "pattern": "^[a-z0-9][a-z0-9-]*$"
+        },
+        "label": {
+          "type": "string",
+          "description": "Display text inside the node shape.",
+          "examples": [
+            "Start",
+            "Build Application",
+            "Tests Pass?",
+            "Deploy to Production"
+          ]
+        },
+        "type": {
+          "$ref": "#/$defs/nodeType",
+          "description": "Node shape type. Determines the SVG element and visual treatment."
+        },
+        "description": {
+          "type": "string",
+          "description": "Optional short annotation shown below the node in smaller text."
+        },
+        "icon": {
+          "type": "string",
+          "description": "Optional icon identifier from the icons catalog. Rendered inside the node shape.",
+          "examples": [
+            "git-commit",
+            "gear",
+            "check-circle",
+            "shield"
+          ]
+        }
+      }
+    },
+    "connection": {
+      "type": "object",
+      "required": [
+        "from",
+        "to"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "from": {
+          "type": "string",
+          "description": "Source node id. Must reference an existing node id."
+        },
+        "to": {
+          "type": "string",
+          "description": "Target node id. Must reference an existing node id."
+        },
+        "label": {
+          "type": "string",
+          "description": "Label displayed on or near the connection arrow.",
+          "examples": [
+            "Yes",
+            "No",
+            "pass",
+            "fail",
+            "retry",
+            "success"
+          ]
+        },
+        "direction": {
+          "type": "string",
+          "enum": [
+            "down",
+            "right",
+            "left",
+            "up"
+          ],
+          "description": "The direction the arrow points from source to target. Used for layout routing.",
+          "default": "down"
+        },
+        "style": {
+          "type": "string",
+          "enum": [
+            "solid",
+            "dashed",
+            "dotted"
+          ],
+          "description": "Line style. Dashed typically used for conditional or optional flows.",
+          "default": "solid"
+        },
+        "branch": {
+          "type": "string",
+          "enum": [
+            "yes",
+            "no",
+            "default"
+          ],
+          "description": "For decision nodes, indicates which branch this connection represents. 'yes' is the positive/true path, 'no' is the negative/false path, 'default' is the fallback."
+        }
+      }
+    },
+    "swimlane": {
+      "type": "object",
+      "required": [
+        "id",
+        "label",
+        "children"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the swimlane.",
+          "pattern": "^[a-z0-9][a-z0-9-]*$"
+        },
+        "label": {
+          "type": "string",
+          "description": "Swimlane label displayed on the left side of the horizontal band.",
+          "examples": [
+            "Developer",
+            "CI System",
+            "QA Team",
+            "User"
+          ]
+        },
+        "direction": {
+          "type": "string",
+          "enum": [
+            "horizontal",
+            "vertical"
+          ],
+          "description": "Direction of flow within the swimlane. Horizontal = left-to-right, Vertical = top-to-bottom.",
+          "default": "horizontal"
+        },
+        "children": {
+          "type": "array",
+          "description": "Node ids contained within this swimlane. Must reference existing node ids.",
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1
+        }
+      }
+    },
+    "legendEntry": {
+      "type": "object",
+      "required": [
+        "label"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "label": {
+          "type": "string",
+          "description": "Legend item label.",
+          "examples": [
+            "Start / End",
+            "Process",
+            "Decision",
+            "Data I/O"
+          ]
+        },
+        "color": {
+          "type": "string",
+          "description": "Hex color for the legend swatch. Auto-derived from node type if omitted."
+        },
+        "type": {
+          "$ref": "#/$defs/nodeType",
+          "description": "If provided, uses the predefined color for this node type."
+        }
+      }
+    }
+  }
+}
