@@ -1,0 +1,118 @@
+{
+  "title": "SaaS 产品迭代开发进度",
+  "subtitle": "8周迭代计划 - 从需求到正式发布",
+  "diagramType": "gantt",
+  "style": "dark-professional",
+  "format": "html",
+  "density": "normal",
+  "timeAxis": {
+    "unit": "weeks",
+    "start": "Week 1",
+    "end": "Week 8"
+  },
+  "tasks": [
+    {
+      "id": "requirement-analysis",
+      "label": "需求分析",
+      "start": "W1",
+      "duration": 2,
+      "progress": 100,
+      "assignee": "产品经理",
+      "group": "规划阶段"
+    },
+    {
+      "id": "prototype-design",
+      "label": "原型设计",
+      "start": "W2",
+      "duration": 2,
+      "progress": 80,
+      "dependencies": ["requirement-analysis"],
+      "assignee": "设计师",
+      "group": "规划阶段"
+    },
+    {
+      "id": "frontend-dev",
+      "label": "前端开发",
+      "start": "W3",
+      "duration": 3,
+      "progress": 45,
+      "dependencies": ["prototype-design"],
+      "assignee": "前端团队",
+      "group": "开发阶段"
+    },
+    {
+      "id": "backend-dev",
+      "label": "后端开发",
+      "start": "W3",
+      "duration": 4,
+      "progress": 40,
+      "dependencies": ["prototype-design"],
+      "assignee": "后端团队",
+      "group": "开发阶段"
+    },
+    {
+      "id": "api-integration",
+      "label": "接口联调",
+      "start": "W5",
+      "duration": 2,
+      "progress": 0,
+      "dependencies": ["frontend-dev", "backend-dev"],
+      "assignee": "全栈团队",
+      "group": "联调阶段"
+    },
+    {
+      "id": "testing",
+      "label": "测试",
+      "start": "W6",
+      "duration": 2,
+      "progress": 0,
+      "dependencies": ["api-integration"],
+      "assignee": "QA团队",
+      "group": "测试阶段"
+    },
+    {
+      "id": "beta-release",
+      "label": "Beta 发布",
+      "start": "W7",
+      "duration": 1,
+      "progress": 0,
+      "dependencies": ["testing"],
+      "milestone": true,
+      "assignee": "产品团队",
+      "group": "发布阶段"
+    },
+    {
+      "id": "gray-release",
+      "label": "线上灰度",
+      "start": "W7",
+      "duration": 2,
+      "progress": 0,
+      "dependencies": ["beta-release"],
+      "assignee": "运维团队",
+      "group": "发布阶段"
+    },
+    {
+      "id": "official-release",
+      "label": "正式发布",
+      "start": "W8",
+      "duration": 1,
+      "progress": 0,
+      "dependencies": ["gray-release"],
+      "milestone": true,
+      "assignee": "产品团队",
+      "group": "发布阶段"
+    }
+  ],
+  "colors": {
+    "primary": "#22d3ee",
+    "secondary": "#34d399",
+    "accent": "#fbbf24",
+    "background": "#0f172a",
+    "text": "#e2e8f0"
+  },
+  "metadata": {
+    "author": "gmdiagram",
+    "date": "2026-04-14",
+    "version": "0.6.1"
+  }
+}

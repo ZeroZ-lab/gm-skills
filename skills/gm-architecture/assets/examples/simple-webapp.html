@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Simple Web Application</title>
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      background: #faf9f6;
+      color: #1a1a2e;
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      min-height: 100vh;
+      padding: 40px 20px;
+    }
+    .container { max-width: 1000px; margin: 0 auto; }
+    .header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 28px;
+    }
+    .sketch-dot {
+      width: 12px; height: 12px; border-radius: 50%;
+      background: #e74c3c;
+      border: 2px solid #2c3e50;
+    }
+    h1 { font-size: 24px; font-weight: 700; color: #2c3e50; letter-spacing: -0.5px; }
+    .subtitle { font-size: 14px; color: #7f8c8d; margin-top: 2px; }
+    .diagram-container {
+      background: white;
+      border: 2.5px solid #2c3e50;
+      border-radius: 8px;
+      padding: 24px;
+      margin-bottom: 28px;
+      box-shadow: 3px 3px 0px rgba(0,0,0,0.1);
+      overflow-x: auto;
+    }
+    .diagram-container svg {
+      width: 100%;
+      min-width: 800px;
+      height: auto;
+      display: block;
+    }
+    .footer {
+      font-size: 11px;
+      color: #bdc3c7;
+      text-align: center;
+      padding-top: 14px;
+      border-top: 2px dashed #ecf0f1;
+    }
+
+    /* === foreignObject component classes (hand-drawn sketch) === */
+    .layer-card { width: 100%; height: 100%; border-radius: 8px; padding: 10px 16px 14px; box-sizing: border-box; display: flex; flex-direction: column; }
+    .layer-header { margin-bottom: 8px; }
+    .layer-label { font-size: 15px; font-weight: 700; color: #2c3e50; font-family: 'Segoe UI', system-ui, sans-serif; }
+    .layer-description { font-size: 11px; color: #7f8c8d; font-family: 'Segoe UI', sans-serif; margin-top: 2px; }
+    .modules { display: flex; gap: 20px; justify-content: center; align-items: flex-start; flex-wrap: wrap; flex: 1; }
+    .module { min-width: 100px; min-height: 50px; border-radius: 6px; display: flex; align-items: center; justify-content: center; padding: 10px 16px; box-sizing: border-box; background: white; }
+    .module-label { font-size: 13px; font-weight: 600; color: #2c3e50; text-align: center; white-space: nowrap; font-family: 'Segoe UI', system-ui, sans-serif; line-height: 1.2; }
+    .tech-badges { display: flex; gap: 4px; justify-content: center; flex-wrap: wrap; margin-top: 6px; }
+    .tech-badge { font-size: 9px; padding: 3px 8px; border-radius: 4px; white-space: nowrap; background: rgba(255,255,255,0.9); border: 1px solid; font-family: 'Segoe UI', sans-serif; line-height: 1.2; }
+    .module.has-badges { min-height: 60px; flex-direction: column; gap: 2px; padding-top: 8px; padding-bottom: 8px; }
+    .module.has-badges .module-label { min-height: 18px; }
+
+    /* Type-specific colors (hand-drawn palette: bold, pastel) */
+    .type-process { background: #eafaf1 !important; border: 2.5px solid #27ae60; }
+    .type-process .module { border: 2px solid #27ae60; }
+    .type-process .tech-badge { border-color: rgba(39,174,96,0.4); color: #27ae60; }
+
+    .type-module { background: #ebf5fb !important; border: 2.5px solid #3498db; }
+    .type-module .module { border: 2px solid #3498db; }
+    .type-module .tech-badge { border-color: rgba(52,152,219,0.4); color: #3498db; }
+
+    .type-data { background: #f5eef8 !important; border: 2.5px solid #8e44ad; }
+    .type-data .module { border: 2px solid #8e44ad; }
+    .type-data .tech-badge { border-color: rgba(142,68,173,0.4); color: #8e44ad; }
+
+    .type-infra { background: #fef9e7 !important; border: 2.5px solid #f39c12; }
+    .type-infra .module { border: 2px solid #f39c12; }
+    .type-infra .tech-badge { border-color: rgba(243,156,18,0.4); color: #d68910; }
+
+    .type-security { background: #fdedec !important; border: 2.5px solid #e74c3c; }
+    .type-security .module { border: 2px dashed #e74c3c; background: rgba(231,76,60,0.05); }
+    .type-security .tech-badge { border-color: rgba(231,76,60,0.4); color: #e74c3c; }
+
+    .type-channel { background: #fdf2e9 !important; border: 2.5px solid #e67e22; }
+    .type-channel .module { border: 2px solid #e67e22; }
+    .type-channel .tech-badge { border-color: rgba(230,126,34,0.4); color: #e67e22; }
+
+    .type-external { background: #f2f3f4 !important; border: 2.5px solid #95a5a6; }
+    .type-external .module { border: 2px solid #95a5a6; }
+    .type-external .tech-badge { border-color: rgba(149,165,166,0.4); color: #7f8c8d; }
+
+    /* Legend styles */
+    .legend-container { display: flex; gap: 24px; align-items: center; flex-wrap: wrap; }
+    .legend-item { display: flex; align-items: center; gap: 6px; }
+    .legend-swatch { width: 16px; height: 16px; border-radius: 3px; }
+    .legend-text { font-size: 11px; color: #555; font-family: 'Segoe UI', sans-serif; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <div class="sketch-dot"></div>
+      <div>
+        <h1>Simple Web Application</h1>
+        <div class="subtitle">Frontend + Backend + Database three-tier architecture</div>
+      </div>
+    </div>
+
+    <div class="diagram-container">
+      <svg viewBox="0 0 1000 520" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <marker id="arrowhead-sketch" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto">
+            <polygon points="0 0, 10 3.5, 0 7" fill="#2c3e50" stroke="none"/>
+          </marker>
+          <marker id="arrowhead-sketch-rev" markerWidth="10" markerHeight="7" refX="0" refY="3.5" orient="auto">
+            <polygon points="10 0, 0 3.5, 10 7" fill="#2c3e50" stroke="none"/>
+          </marker>
+        </defs>
+
+        <!-- === CONNECTIONS (drawn first, behind layers) === -->
+
+        <!-- Frontend &rarr; Backend (REST API) -->
+        <line x1="500" y1="130" x2="500" y2="210"
+              stroke="#2c3e50" stroke-width="2"
+              marker-end="url(#arrowhead-sketch)"/>
+        <rect x="460" y="158" width="80" height="22" rx="4" fill="white" stroke="#2c3e50" stroke-width="1.5"/>
+        <text x="500" y="173" font-size="11" fill="#2c3e50" font-family="Segoe UI, sans-serif" text-anchor="middle" font-weight="600">REST API</text>
+
+        <!-- Backend &lt;-&gt; Database (SQL) -->
+        <line x1="500" y1="340" x2="500" y2="410"
+              stroke="#2c3e50" stroke-width="2"
+              marker-start="url(#arrowhead-sketch-rev)" marker-end="url(#arrowhead-sketch)"/>
+        <rect x="478" y="359" width="44" height="22" rx="4" fill="white" stroke="#2c3e50" stroke-width="1.5"/>
+        <text x="500" y="374" font-size="11" fill="#2c3e50" font-family="Segoe UI, sans-serif" text-anchor="middle" font-weight="600">SQL</text>
+
+        <!-- === LAYER 1: Frontend (type: module) === -->
+        <g transform="translate(40, 30)">
+          <foreignObject width="920" height="100" xmlns="http://www.w3.org/1999/xhtml">
+            <div class="layer-card type-module">
+              <div class="layer-header">
+                <span class="layer-label">Frontend</span>
+              </div>
+              <div class="modules">
+                <div class="module has-badges">
+                  <span class="module-label">React App</span>
+                  <span class="tech-badges">
+                    <span class="tech-badge">React</span>
+                    <span class="tech-badge">TypeScript</span>
+                  </span>
+                </div>
+              </div>
+            </div>
+          </foreignObject>
+        </g>
+
+        <!-- === LAYER 2: Backend API (type: process) === -->
+        <g transform="translate(40, 210)">
+          <foreignObject width="920" height="130" xmlns="http://www.w3.org/1999/xhtml">
+            <div class="layer-card type-process">
+              <div class="layer-header">
+                <span class="layer-label">Backend API</span>
+              </div>
+              <div class="modules">
+                <div class="module has-badges">
+                  <span class="module-label">API Server</span>
+                  <span class="tech-badges">
+                    <span class="tech-badge">Node.js</span>
+                  </span>
+                </div>
+                <div class="module">
+                  <span class="module-label">Auth Service</span>
+                </div>
+              </div>
+            </div>
+          </foreignObject>
+        </g>
+
+        <!-- === LAYER 3: Database (type: data) === -->
+        <g transform="translate(40, 410)">
+          <foreignObject width="920" height="90" xmlns="http://www.w3.org/1999/xhtml">
+            <div class="layer-card type-data">
+              <div class="layer-header">
+                <span class="layer-label">Database</span>
+              </div>
+              <div class="modules">
+                <div class="module">
+                  <span class="module-label">PostgreSQL</span>
+                </div>
+              </div>
+            </div>
+          </foreignObject>
+        </g>
+
+        <!-- === LEGEND === -->
+        <g transform="translate(40, 540)">
+          <text x="0" y="0" font-size="12" font-weight="700" fill="#2c3e50" font-family="Segoe UI, sans-serif">Legend</text>
+
+          <rect x="0" y="18" width="16" height="16" rx="3" fill="#ebf5fb" stroke="#3498db" stroke-width="2"/>
+          <text x="22" y="30" font-size="11" fill="#555" font-family="Segoe UI, sans-serif">Frontend</text>
+
+          <rect x="110" y="18" width="16" height="16" rx="3" fill="#eafaf1" stroke="#27ae60" stroke-width="2"/>
+          <text x="132" y="30" font-size="11" fill="#555" font-family="Segoe UI, sans-serif">Service</text>
+
+          <rect x="210" y="18" width="16" height="16" rx="3" fill="#fdedec" stroke="#e74c3c" stroke-width="2" stroke-dasharray="4,2"/>
+          <text x="232" y="30" font-size="11" fill="#555" font-family="Segoe UI, sans-serif">Auth</text>
+
+          <rect x="290" y="18" width="16" height="16" rx="3" fill="#f5eef8" stroke="#8e44ad" stroke-width="2"/>
+          <text x="312" y="30" font-size="11" fill="#555" font-family="Segoe UI, sans-serif">Database</text>
+        </g>
+
+      </svg>
+    </div>
+
+    <div class="footer">
+      Generated by gmdiagram &middot; Hand-Drawn Sketch Style
+    </div>
+  </div>
+</body>
+</html>

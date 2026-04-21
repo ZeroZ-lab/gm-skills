@@ -1,0 +1,113 @@
+{
+  "diagramType": "flowchart",
+  "title": "User Authentication Flow",
+  "subtitle": "OAuth 2.0 login with optional two-factor authentication",
+  "style": "light-corporate",
+  "format": "html",
+  "nodes": [
+    {
+      "id": "start",
+      "label": "Start",
+      "type": "start",
+      "description": "User opens login page"
+    },
+    {
+      "id": "user-login",
+      "label": "User Login",
+      "type": "io",
+      "description": "Enter username & password"
+    },
+    {
+      "id": "validate-creds",
+      "label": "Validate Credentials",
+      "type": "subprocess",
+      "description": "Check against auth provider"
+    },
+    {
+      "id": "creds-valid",
+      "label": "Valid?",
+      "type": "decision",
+      "description": "Credentials verified?"
+    },
+    {
+      "id": "show-error",
+      "label": "Show Error",
+      "type": "process",
+      "icon": "alert-triangle",
+      "description": "Display invalid credentials message"
+    },
+    {
+      "id": "check-2fa",
+      "label": "Check 2FA",
+      "type": "decision",
+      "description": "Is 2FA enabled for this user?"
+    },
+    {
+      "id": "prompt-2fa",
+      "label": "Prompt 2FA Code",
+      "type": "io",
+      "description": "Enter TOTP / SMS code"
+    },
+    {
+      "id": "verify-2fa",
+      "label": "Verify 2FA Code",
+      "type": "subprocess",
+      "description": "Validate one-time code"
+    },
+    {
+      "id": "2fa-valid",
+      "label": "2FA Valid?",
+      "type": "decision",
+      "description": "Code matches?"
+    },
+    {
+      "id": "generate-token",
+      "label": "Generate Token",
+      "type": "process",
+      "icon": "shield",
+      "description": "Issue JWT access + refresh tokens"
+    },
+    {
+      "id": "log-audit",
+      "label": "Log Audit Entry",
+      "type": "document",
+      "description": "Record login event with metadata"
+    },
+    {
+      "id": "end",
+      "label": "End",
+      "type": "end",
+      "description": "User authenticated"
+    }
+  ],
+  "connections": [
+    { "from": "start", "to": "user-login", "direction": "down", "style": "solid" },
+    { "from": "user-login", "to": "validate-creds", "direction": "down", "style": "solid" },
+    { "from": "validate-creds", "to": "creds-valid", "direction": "down", "style": "solid" },
+    { "from": "creds-valid", "to": "check-2fa", "label": "Yes", "branch": "yes", "direction": "down", "style": "solid" },
+    { "from": "creds-valid", "to": "show-error", "label": "No", "branch": "no", "direction": "right", "style": "dashed" },
+    { "from": "show-error", "to": "user-login", "label": "Retry", "direction": "up", "style": "dashed" },
+    { "from": "check-2fa", "to": "prompt-2fa", "label": "Enabled", "branch": "yes", "direction": "down", "style": "solid" },
+    { "from": "check-2fa", "to": "generate-token", "label": "Disabled", "branch": "no", "direction": "right", "style": "solid" },
+    { "from": "prompt-2fa", "to": "verify-2fa", "direction": "down", "style": "solid" },
+    { "from": "verify-2fa", "to": "2fa-valid", "direction": "down", "style": "solid" },
+    { "from": "2fa-valid", "to": "generate-token", "label": "Yes", "branch": "yes", "direction": "down", "style": "solid" },
+    { "from": "2fa-valid", "to": "prompt-2fa", "label": "No (retry)", "branch": "no", "direction": "right", "style": "dashed" },
+    { "from": "generate-token", "to": "log-audit", "direction": "down", "style": "solid" },
+    { "from": "log-audit", "to": "end", "direction": "down", "style": "solid" }
+  ],
+  "swimlanes": [],
+  "legend": [
+    { "label": "Start / End", "type": "start" },
+    { "label": "Process", "type": "process" },
+    { "label": "Decision", "type": "decision" },
+    { "label": "Data I/O", "type": "io" },
+    { "label": "Subprocess", "type": "subprocess" },
+    { "label": "Document", "type": "document" }
+  ],
+  "metadata": {
+    "author": "gmdiagram",
+    "date": "2026-04-14",
+    "version": "0.6.0"
+  }
+}

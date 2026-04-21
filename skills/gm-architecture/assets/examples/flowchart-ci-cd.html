@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CI/CD Pipeline</title>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      background: #020617;
+      color: #e2e8f0;
+      font-family: 'JetBrains Mono', 'SF Mono', 'Fira Code', monospace;
+      min-height: 100vh;
+      padding: 40px 20px;
+    }
+    .container { max-width: 1100px; margin: 0 auto; }
+    .header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 32px;
+    }
+    .pulse-dot {
+      width: 10px; height: 10px; border-radius: 50%;
+      background: #22d3ee;
+      box-shadow: 0 0 8px rgba(34, 211, 238, 0.6);
+      animation: pulse 2s ease-in-out infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.4; }
+    }
+    h1 { font-size: 22px; font-weight: 700; color: #f1f5f9; }
+    .subtitle { font-size: 13px; color: #64748b; margin-top: 4px; }
+    .diagram-container {
+      background: #0f172a;
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 12px;
+      padding: 24px;
+      margin-bottom: 32px;
+      overflow-x: auto;
+    }
+    .diagram-container svg {
+      width: 100%;
+      min-width: 900px;
+      height: auto;
+      display: block;
+    }
+    .footer {
+      font-size: 11px;
+      color: #475569;
+      text-align: center;
+      padding-top: 16px;
+      border-top: 1px solid rgba(255,255,255,0.04);
+    }
+
+    /* ---- Flowchart Node Styles ---- */
+    .flow-node {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      height: 100%;
+      box-sizing: border-box;
+      padding: 4px 8px;
+      font-family: "JetBrains Mono", monospace;
+      color: white;
+      text-align: center;
+    }
+    .flow-node .node-label {
+      font-size: 12px;
+      font-weight: 500;
+      line-height: 1.3;
+      word-wrap: break-word;
+    }
+    .flow-node .node-desc {
+      display: block;
+      font-size: 9px;
+      color: #94a3b8;
+      margin-top: 2px;
+    }
+
+    /* Type-specific styles */
+    .type-start {
+      background: rgba(6, 78, 59, 0.4);
+      border: 1.5px solid #34d399;
+      border-radius: 20px;
+    }
+    .type-start .node-label { font-weight: 600; }
+
+    .type-end {
+      background: rgba(6, 78, 59, 0.4);
+      border: 1.5px solid #34d399;
+      border-radius: 20px;
+    }
+    .type-end .node-label { font-weight: 600; }
+
+    .type-process {
+      background: rgba(6, 78, 59, 0.4);
+      border: 1.5px solid #34d399;
+      border-radius: 4px;
+    }
+
+    .type-subprocess {
+      background: rgba(6, 78, 59, 0.4);
+      border: 1.5px solid #34d399;
+      border-radius: 4px;
+      box-shadow: inset 3px 0 0 0 rgba(52, 211, 153, 0.6),
+                  inset -3px 0 0 0 rgba(52, 211, 153, 0.6);
+    }
+
+    .type-document {
+      background: rgba(76, 29, 149, 0.4);
+      border: 1.5px solid #a78bfa;
+      border-radius: 4px 4px 0 0;
+      border-bottom: none;
+      clip-path: polygon(
+        0% 0%, 100% 0%, 100% 85%,
+        75% 100%, 50% 85%, 25% 100%,
+        0% 85%
+      );
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <div class="pulse-dot"></div>
+      <div>
+        <h1>CI/CD Pipeline</h1>
+        <div class="subtitle">Automated build, test, and deployment pipeline from code commit to production</div>
+      </div>
+    </div>
+
+    <div class="diagram-container">
+      <svg viewBox="0 0 1000 780" xmlns="http://www.w3.org/2000/svg">
+        <!-- Defs -->
+        <defs>
+          <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+            <path d="M 40 0 L 0 0 0 40" fill="none" stroke="rgba(51, 65, 85, 0.3)" stroke-width="0.5"/>
+          </pattern>
+          <marker id="arrowhead" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+            <polygon points="0 0, 8 3, 0 6" fill="#64748b"/>
+          </marker>
+          <marker id="arrowhead-loop" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+            <polygon points="0 0, 8 3, 0 6" fill="#fb923c"/>
+          </marker>
+        </defs>
+
+        <!-- Grid background -->
+        <rect width="1000" height="780" fill="url(#grid)"/>
+
+        <!-- Swimlane: Developer -->
+        <rect x="40" y="20" width="920" height="130" rx="0" fill="rgba(34, 211, 238, 0.03)" stroke="rgba(148, 163, 184, 0.2)" stroke-width="1"/>
+        <text x="55" y="85" font-size="11" font-weight="600" fill="#cbd5e1" font-family="JetBrains Mono, monospace" text-anchor="middle" writing-mode="tb">Developer</text>
+        <line x1="120" y1="20" x2="120" y2="150" stroke="rgba(148, 163, 184, 0.15)" stroke-width="1"/>
+
+        <!-- Swimlane: CI System -->
+        <rect x="40" y="150" width="920" height="350" rx="0" fill="rgba(52, 211, 153, 0.03)" stroke="rgba(148, 163, 184, 0.2)" stroke-width="1"/>
+        <text x="55" y="325" font-size="11" font-weight="600" fill="#cbd5e1" font-family="JetBrains Mono, monospace" text-anchor="middle" writing-mode="tb">CI System</text>
+        <line x1="120" y1="150" x2="120" y2="500" stroke="rgba(148, 163, 184, 0.15)" stroke-width="1"/>
+
+        <!-- Swimlane: QA / Ops -->
+        <rect x="40" y="500" width="920" height="200" rx="0" fill="rgba(251, 191, 36, 0.03)" stroke="rgba(148, 163, 184, 0.2)" stroke-width="1"/>
+        <text x="55" y="600" font-size="11" font-weight="600" fill="#cbd5e1" font-family="JetBrains Mono, monospace" text-anchor="middle" writing-mode="tb">QA / Ops</text>
+        <line x1="120" y1="500" x2="120" y2="700" stroke="rgba(148, 163, 184, 0.15)" stroke-width="1"/>
+
+        <!-- === CONNECTIONS (drawn first, behind nodes) === -->
+
+        <!-- Start -> Code Commit -->
+        <line x1="500" y1="80" x2="500" y2="110" stroke="#64748b" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+
+        <!-- Code Commit -> Build -->
+        <line x1="500" y1="150" x2="500" y2="180" stroke="#64748b" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+
+        <!-- Build -> Unit Test -->
+        <line x1="500" y1="220" x2="500" y2="250" stroke="#64748b" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+
+        <!-- Unit Test -> Tests Pass? -->
+        <line x1="500" y1="290" x2="500" y2="320" stroke="#64748b" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+
+        <!-- Tests Pass? -> Integration Tests (Yes) -->
+        <line x1="500" y1="365" x2="500" y2="400" stroke="#64748b" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+        <rect x="484" y="374" width="32" height="16" rx="3" fill="#0f172a" opacity="0.9"/>
+        <text x="500" y="386" font-size="10" fill="#34d399" font-family="JetBrains Mono, monospace" text-anchor="middle" font-weight="600">Yes</text>
+
+        <!-- Tests Pass? -> Code Commit (No) loop-back -->
+        <path d="M 570,343 C 700,343 700,125 600,125" fill="none" stroke="#fb923c" stroke-width="1.5" stroke-dasharray="6,4" marker-end="url(#arrowhead-loop)"/>
+        <rect x="680" y="300" width="50" height="16" rx="3" fill="#0f172a" opacity="0.9"/>
+        <text x="705" y="312" font-size="10" fill="#fb923c" font-family="JetBrains Mono, monospace" text-anchor="middle">No (fix)</text>
+
+        <!-- Integration Tests -> Deploy Staging -->
+        <line x1="500" y1="460" x2="500" y2="500" stroke="#64748b" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+
+        <!-- Deploy Staging -> Approved? -->
+        <line x1="500" y1="560" x2="500" y2="590" stroke="#64748b" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+
+        <!-- Approved? -> Deploy Production (Yes) -->
+        <line x1="500" y1="635" x2="500" y2="670" stroke="#64748b" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+        <rect x="484" y="644" width="32" height="16" rx="3" fill="#0f172a" opacity="0.9"/>
+        <text x="500" y="656" font-size="10" fill="#34d399" font-family="JetBrains Mono, monospace" text-anchor="middle" font-weight="600">Yes</text>
+
+        <!-- Approved? -> Code Commit (No) loop-back -->
+        <path d="M 570,613 C 780,613 780,125 600,125" fill="none" stroke="#fb923c" stroke-width="1.5" stroke-dasharray="6,4" marker-end="url(#arrowhead-loop)"/>
+        <rect x="750" y="350" width="60" height="16" rx="3" fill="#0f172a" opacity="0.9"/>
+        <text x="780" y="362" font-size="10" fill="#fb923c" font-family="JetBrains Mono, monospace" text-anchor="middle">No (reject)</text>
+
+        <!-- Deploy Production -> End -->
+        <line x1="500" y1="710" x2="500" y2="740" stroke="#64748b" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+
+        <!-- === NODES === -->
+
+        <!-- Start -->
+        <rect x="450" y="40" width="100" height="40" rx="20" fill="#0f172a"/>
+        <foreignObject x="450" y="40" width="100" height="40">
+          <div xmlns="http://www.w3.org/1999/xhtml" class="flow-node type-start">
+            <span class="node-label">Start</span>
+          </div>
+        </foreignObject>
+
+        <!-- Code Commit -->
+        <rect x="430" y="110" width="140" height="40" rx="4" fill="#0f172a"/>
+        <foreignObject x="430" y="110" width="140" height="40">
+          <div xmlns="http://www.w3.org/1999/xhtml" class="flow-node type-process">
+            <span class="node-label">Code Commit</span>
+          </div>
+        </foreignObject>
+
+        <!-- Build (Subprocess) -->
+        <rect x="430" y="180" width="140" height="40" rx="4" fill="#0f172a"/>
+        <foreignObject x="430" y="180" width="140" height="40">
+          <div xmlns="http://www.w3.org/1999/xhtml" class="flow-node type-subprocess">
+            <span class="node-label">Build</span>
+          </div>
+        </foreignObject>
+
+        <!-- Unit Tests -->
+        <rect x="430" y="250" width="140" height="40" rx="4" fill="#0f172a"/>
+        <foreignObject x="430" y="250" width="140" height="40">
+          <div xmlns="http://www.w3.org/1999/xhtml" class="flow-node type-process">
+            <span class="node-label">Unit Tests</span>
+          </div>
+        </foreignObject>
+
+        <!-- Tests Pass? (Decision Diamond) -->
+        <polygon points="500,320 570,343 500,365 430,343" fill="#0f172a"/>
+        <polygon points="500,320 570,343 500,365 430,343" fill="rgba(120, 53, 15, 0.3)" stroke="#fbbf24" stroke-width="1.5"/>
+        <text x="500" y="339" font-size="11" font-weight="500" fill="white" font-family="JetBrains Mono, monospace" text-anchor="middle">Tests</text>
+        <text x="500" y="353" font-size="11" font-weight="500" fill="white" font-family="JetBrains Mono, monospace" text-anchor="middle">Pass?</text>
+
+        <!-- Integration Tests (Subprocess) -->
+        <rect x="430" y="400" width="140" height="60" rx="4" fill="#0f172a"/>
+        <foreignObject x="430" y="400" width="140" height="60">
+          <div xmlns="http://www.w3.org/1999/xhtml" class="flow-node type-subprocess">
+            <span class="node-label">Integration Tests<span class="node-desc">End-to-end suite</span></span>
+          </div>
+        </foreignObject>
+
+        <!-- Deploy Staging -->
+        <rect x="430" y="500" width="140" height="60" rx="4" fill="#0f172a"/>
+        <foreignObject x="430" y="500" width="140" height="60">
+          <div xmlns="http://www.w3.org/1999/xhtml" class="flow-node type-process">
+            <span class="node-label">Deploy Staging<span class="node-desc">To staging env</span></span>
+          </div>
+        </foreignObject>
+
+        <!-- Approved? (Decision Diamond) -->
+        <polygon points="500,590 570,613 500,635 430,613" fill="#0f172a"/>
+        <polygon points="500,590 570,613 500,635 430,613" fill="rgba(120, 53, 15, 0.3)" stroke="#fbbf24" stroke-width="1.5"/>
+        <text x="500" y="609" font-size="11" font-weight="500" fill="white" font-family="JetBrains Mono, monospace" text-anchor="middle">Approved?</text>
+        <text x="500" y="623" font-size="11" font-weight="500" fill="white" font-family="JetBrains Mono, monospace" text-anchor="middle"> </text>
+
+        <!-- Deploy Production -->
+        <rect x="430" y="670" width="140" height="40" rx="4" fill="#0f172a"/>
+        <foreignObject x="430" y="670" width="140" height="40">
+          <div xmlns="http://www.w3.org/1999/xhtml" class="flow-node type-process">
+            <span class="node-label">Deploy Production</span>
+          </div>
+        </foreignObject>
+
+        <!-- End -->
+        <rect x="450" y="740" width="100" height="40" rx="20" fill="#0f172a"/>
+        <foreignObject x="450" y="740" width="100" height="40">
+          <div xmlns="http://www.w3.org/1999/xhtml" class="flow-node type-end">
+            <span class="node-label">End</span>
+          </div>
+        </foreignObject>
+
+        <!-- === LEGEND === -->
+        <g transform="translate(40, 720)">
+          <text x="0" y="0" font-size="11" font-weight="600" fill="#cbd5e1" font-family="JetBrains Mono, monospace">Legend</text>
+
+          <!-- Start/End -->
+          <rect x="0" y="12" width="30" height="14" rx="7" fill="rgba(6, 78, 59, 0.4)" stroke="#34d399" stroke-width="1"/>
+          <text x="36" y="23" font-size="11" fill="#cbd5e1" font-family="JetBrains Mono, monospace">Start / End</text>
+
+          <!-- Process -->
+          <rect x="130" y="12" width="14" height="14" rx="2" fill="rgba(6, 78, 59, 0.4)" stroke="#34d399" stroke-width="1"/>
+          <text x="150" y="23" font-size="11" fill="#cbd5e1" font-family="JetBrains Mono, monospace">Process</text>
+
+          <!-- Subprocess -->
+          <rect x="220" y="12" width="14" height="14" rx="2" fill="rgba(6, 78, 59, 0.4)" stroke="#34d399" stroke-width="1"/>
+          <rect x="223" y="12" width="8" height="14" rx="1" fill="none" stroke="#34d399" stroke-width="0.5"/>
+          <text x="240" y="23" font-size="11" fill="#cbd5e1" font-family="JetBrains Mono, monospace">Subprocess</text>
+
+          <!-- Decision -->
+          <polygon points="305,12 312,19 305,26 298,19" fill="rgba(120, 53, 15, 0.3)" stroke="#fbbf24" stroke-width="1"/>
+          <text x="320" y="23" font-size="11" fill="#cbd5e1" font-family="JetBrains Mono, monospace">Decision</text>
+
+          <!-- Loop-back -->
+          <path d="M 390,19 C 400,19 405,12 405,12" fill="none" stroke="#fb923c" stroke-width="1.5" stroke-dasharray="4,2"/>
+          <text x="412" y="23" font-size="11" fill="#cbd5e1" font-family="JetBrains Mono, monospace">Loop-back</text>
+        </g>
+
+      </svg>
+    </div>
+
+    <div class="footer">
+      Generated by gmdiagram &middot; 2026-04-11
+    </div>
+  </div>
+</body>
+</html>

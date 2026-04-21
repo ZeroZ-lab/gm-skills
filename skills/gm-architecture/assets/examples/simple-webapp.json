@@ -1,0 +1,50 @@
+{
+  "title": "Simple Web Application",
+  "subtitle": "Frontend + Backend + Database three-tier architecture",
+  "style": "hand-drawn",
+  "diagramType": "architecture",
+  "format": "html",
+  "layers": [
+    {
+      "id": "frontend",
+      "label": "Frontend",
+      "type": "module",
+      "children": [
+        { "id": "react-app", "label": "React App", "type": "module", "tech": ["React", "TypeScript"] }
+      ]
+    },
+    {
+      "id": "backend",
+      "label": "Backend API",
+      "type": "process",
+      "children": [
+        { "id": "api-server", "label": "API Server", "type": "module", "tech": ["Node.js"] },
+        { "id": "auth-service", "label": "Auth Service", "type": "security" }
+      ]
+    },
+    {
+      "id": "database",
+      "label": "Database",
+      "type": "data",
+      "children": [
+        { "id": "postgres", "label": "PostgreSQL", "type": "data" }
+      ]
+    }
+  ],
+  "connections": [
+    { "from": "frontend", "to": "backend", "label": "REST API", "direction": "unidirectional" },
+    { "from": "backend", "to": "database", "label": "SQL", "direction": "bidirectional" }
+  ],
+  "groups": [],
+  "legend": [
+    { "label": "Frontend", "type": "module" },
+    { "label": "Service", "type": "process" },
+    { "label": "Auth", "type": "security" },
+    { "label": "Database", "type": "data" }
+  ],
+  "metadata": {
+    "author": "gmdiagram",
+    "date": "2026-04-14",
+    "version": "0.6.0"
+  }
+}

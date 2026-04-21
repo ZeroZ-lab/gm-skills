@@ -1,0 +1,88 @@
+{
+  "title": "E-Commerce Database",
+  "subtitle": "Entity relationship diagram for an online store",
+  "diagramType": "er",
+  "style": "blueprint",
+  "entities": [
+    {
+      "id": "user",
+      "label": "User",
+      "attributes": [
+        { "name": "id", "type": "int", "pk": true },
+        { "name": "email", "type": "string", "nullable": false },
+        { "name": "name", "type": "string" },
+        { "name": "created_at", "type": "timestamp" }
+      ]
+    },
+    {
+      "id": "product",
+      "label": "Product",
+      "attributes": [
+        { "name": "id", "type": "int", "pk": true },
+        { "name": "name", "type": "string", "nullable": false },
+        { "name": "price", "type": "float", "nullable": false },
+        { "name": "stock", "type": "int" },
+        { "name": "category_id", "type": "int", "fk": true }
+      ]
+    },
+    {
+      "id": "order",
+      "label": "Order",
+      "attributes": [
+        { "name": "id", "type": "int", "pk": true },
+        { "name": "user_id", "type": "int", "fk": true },
+        { "name": "total", "type": "float" },
+        { "name": "status", "type": "string" },
+        { "name": "created_at", "type": "timestamp" }
+      ]
+    },
+    {
+      "id": "order-item",
+      "label": "OrderItem",
+      "attributes": [
+        { "name": "id", "type": "int", "pk": true },
+        { "name": "order_id", "type": "int", "fk": true },
+        { "name": "product_id", "type": "int", "fk": true },
+        { "name": "quantity", "type": "int" }
+      ]
+    },
+    {
+      "id": "category",
+      "label": "Category",
+      "attributes": [
+        { "name": "id", "type": "int", "pk": true },
+        { "name": "name", "type": "string", "nullable": false },
+        { "name": "description", "type": "text" }
+      ]
+    },
+    {
+      "id": "review",
+      "label": "Review",
+      "attributes": [
+        { "name": "id", "type": "int", "pk": true },
+        { "name": "user_id", "type": "int", "fk": true },
+        { "name": "product_id", "type": "int", "fk": true },
+        { "name": "rating", "type": "int" },
+        { "name": "comment", "type": "text" }
+      ]
+    }
+  ],
+  "relationships": [
+    { "from": "user", "to": "order", "fromCard": "1", "toCard": "N", "label": "places" },
+    { "from": "order", "to": "order-item", "fromCard": "1", "toCard": "N", "label": "contains" },
+    { "from": "product", "to": "order-item", "fromCard": "1", "toCard": "N", "label": "included in" },
+    { "from": "category", "to": "product", "fromCard": "1", "toCard": "N", "label": "has" },
+    { "from": "user", "to": "review", "fromCard": "1", "toCard": "N", "label": "writes" },
+    { "from": "product", "to": "review", "fromCard": "1", "toCard": "N", "label": "receives" }
+  ],
+  "legend": [
+    { "label": "Primary Key", "color": "#fbbf24" },
+    { "label": "Foreign Key", "color": "#a78bfa" },
+    { "label": "1:N Relationship", "color": "#88c0d0" }
+  ],
+  "metadata": {
+    "author": "gmdiagram",
+    "date": "2026-04-14",
+    "version": "0.6.0"
+  }
+}

@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Architecture Diagram — Terminal Retro</title>
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      background: #0a0a0a;
+      color: #00ff41;
+      font-family: 'Courier New', 'IBM Plex Mono', 'Consolas', monospace;
+      min-height: 100vh;
+      padding: 40px 20px;
+    }
+    .container { max-width: 1100px; margin: 0 auto; }
+    .header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 32px;
+    }
+    .pulse-dot {
+      width: 10px; height: 10px; border-radius: 50%;
+      background: #00ff41;
+      box-shadow: 0 0 8px rgba(0, 255, 65, 0.8);
+      animation: blink 1s step-end infinite;
+    }
+    @keyframes blink {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0; }
+    }
+    h1 { font-size: 22px; font-weight: 700; color: #00ff41; text-shadow: 0 0 5px rgba(0,255,65,0.5); }
+    .subtitle { font-size: 13px; color: #00cc33; margin-top: 4px; text-shadow: 0 0 3px rgba(0,255,65,0.3); }
+    .diagram-container {
+      background: repeating-linear-gradient(
+        0deg,
+        rgba(0,255,0,0.03) 0px,
+        rgba(0,255,0,0.03) 1px,
+        transparent 1px,
+        transparent 3px
+      ), #0d1117;
+      border: 1px solid #00ff41;
+      border-radius: 4px;
+      padding: 24px;
+      margin-bottom: 32px;
+      overflow-x: auto;
+    }
+    .diagram-container svg {
+      width: 100%;
+      min-width: 700px;
+      height: auto;
+      display: block;
+    }
+    .footer {
+      font-size: 11px;
+      color: #006622;
+      text-align: center;
+      padding-top: 16px;
+      border-top: 1px solid rgba(0,255,65,0.2);
+    }
+    /* === foreignObject component classes (terminal-retro) === */
+    .layer-card { width: 100%; border-radius: 2px; padding: 8px 0 12px; box-sizing: border-box; }
+    .layer-label { font-size: 14px; font-weight: 600; color: #00ff41; padding: 0 16px; font-family: 'Courier New', monospace; text-shadow: 0 0 5px rgba(0,255,65,0.5); }
+    .modules { display: flex; gap: 20px; justify-content: center; padding: 8px 16px 0; flex-wrap: wrap; }
+    .module { min-width: 100px; height: 50px; border-radius: 2px; display: flex; align-items: center; justify-content: center; padding: 0 16px; box-sizing: border-box; }
+    .module-label { font-size: 12px; font-weight: 500; color: #00ff41; text-align: center; white-space: nowrap; font-family: 'Courier New', monospace; text-shadow: 0 0 5px rgba(0,255,65,0.4); }
+    .tech-badges { display: flex; gap: 4px; justify-content: center; padding-top: 4px; }
+    .tech-badge { font-size: 8px; padding: 2px 6px; border-radius: 2px; white-space: nowrap; background: rgba(0,255,65,0.06); border: 0.5px solid rgba(0,255,65,0.2); color: #00cc33; font-family: 'Courier New', monospace; }
+
+    /* Module with badge */
+    .module.has-badges { height: 58px; flex-direction: column; gap: 2px; }
+    .module.has-badges .module-label { height: 20px; }
+
+    /* Type-specific colors — phosphor green palette */
+    .type-process { background: rgba(0,255,65,0.08); border: 1px solid #00ff41; }
+    .type-module { background: rgba(0,255,65,0.05); border: 1px solid #33ff66; }
+    .type-data { background: rgba(0,204,51,0.08); border: 1px solid #00cc33; }
+    .type-infra { background: rgba(255,255,0,0.05); border: 1px solid #ffff00; }
+    .type-security { background: rgba(255,0,0,0.05); border: 1px solid #ff0000; border-style: dashed; }
+    .type-channel { background: rgba(0,255,255,0.05); border: 1px solid #00ffff; }
+    .type-external { background: rgba(0,255,65,0.03); border: 1px solid #006622; }
+
+    /* Legend */
+    .legend-container { display: flex; gap: 100px; align-items: center; }
+    .legend-item { display: flex; align-items: center; gap: 6px; }
+    .legend-swatch { width: 14px; height: 14px; border-radius: 2px; }
+    .legend-text { font-size: 11px; color: #00cc33; font-family: 'Courier New', monospace; }
+
+    /* === Chart classes (terminal-retro) === */
+    .axis-line { stroke: #005a15; stroke-width: 1.5; fill: none; }
+    .axis-label { fill: #00aa2a; font-size: 12px; font-family: 'Courier New', monospace; }
+    .axis-title { fill: #00ff41; font-size: 13px; font-weight: 600; font-family: 'Courier New', monospace; }
+    .tick-label { fill: #00aa2a; font-size: 11px; font-family: 'Courier New', monospace; }
+    .grid-line { stroke: rgba(0,255,65,0.05); stroke-dasharray: 4,4; stroke-width: 0.5; fill: none; }
+    .bar { rx: 2; }
+    .bar:hover { opacity: 0.85; }
+    .slice { stroke: #111111; stroke-width: 2; }
+    .line-path { fill: none; stroke-width: 2.5; }
+    .area-fill { opacity: 0.15; }
+    .data-dot { stroke-width: 2; }
+    .scatter-point { stroke-width: 1.5; }
+    .bubble-point { stroke-width: 1.5; }
+    .radar-grid { stroke: rgba(255,255,255,0.08); fill: none; stroke-width: 0.5; }
+    .radar-axis { stroke: rgba(255,255,255,0.1); stroke-width: 0.5; }
+    .radar-data { stroke-width: 2; stroke-linejoin: round; }
+    .funnel-stage { stroke: #0f172a; stroke-width: 1; }
+    .funnel-label { fill: #f1f5f9; font-size: 13px; font-weight: 600; font-family: 'Courier New', monospace; }
+    .table-header { font-weight: 600; text-align: left; padding: 8px 12px; border-bottom: 2px solid #334155; }
+    .table-row { border-bottom: 1px solid rgba(255,255,255,0.06); }
+    .table-cell { padding: 8px 12px; font-size: 13px; }
+    .highlight-max { font-weight: 600; }
+    .highlight-min { font-weight: 600; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <div class="pulse-dot"></div>
+      <div>
+        <h1>System Architecture</h1>
+        <div class="subtitle">Terminal Retro style template</div>
+      </div>
+    </div>
+
+    <div class="diagram-container">
+      <svg viewBox="0 0 1000 400" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+            <path d="M 40 0 L 0 0 0 40" fill="none" stroke="rgba(0,255,65,0.06)" stroke-width="0.5"/>
+          </pattern>
+          <marker id="arrowhead" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+            <polygon points="0 0, 8 3, 0 6" fill="#00ff41"/>
+          </marker>
+          <marker id="arrowhead-rev" markerWidth="8" markerHeight="6" refX="0" refY="3" orient="auto">
+            <polygon points="8 0, 0 3, 8 6" fill="#00ff41"/>
+          </marker>
+        </defs>
+
+        <!-- Grid background -->
+        <rect width="1000" height="400" fill="url(#grid)"/>
+
+        <!-- === LAYER 1: Example === -->
+        <g>
+          <rect x="40" y="30" width="920" height="90" rx="2" fill="rgba(0,255,65,0.08)" stroke="#00ff41" stroke-width="1"/>
+          <text x="60" y="52" font-size="14" font-weight="600" fill="#00ff41" font-family="Courier New, monospace" text-shadow="0 0 5px rgba(0,255,65,0.5)">Application Layer</text>
+
+          <rect x="80" y="62" width="140" height="50" rx="2" fill="rgba(0,255,65,0.05)" stroke="#33ff66" stroke-width="1"/>
+          <text x="150" y="92" font-size="12" font-weight="500" fill="#00ff41" font-family="Courier New, monospace" text-anchor="middle" text-shadow="0 0 5px rgba(0,255,65,0.4)">API Gateway</text>
+
+          <rect x="250" y="62" width="140" height="50" rx="2" fill="rgba(0,255,65,0.05)" stroke="#33ff66" stroke-width="1"/>
+          <text x="320" y="92" font-size="12" font-weight="500" fill="#00ff41" font-family="Courier New, monospace" text-anchor="middle" text-shadow="0 0 5px rgba(0,255,65,0.4)">Auth Service</text>
+        </g>
+
+        <!-- === LEGEND === -->
+        <g transform="translate(40, 150)">
+          <text x="0" y="0" font-size="11" font-weight="600" fill="#00cc33" font-family="Courier New, monospace">Legend</text>
+          <rect x="0" y="14" width="14" height="14" rx="2" fill="rgba(0,255,65,0.08)" stroke="#00ff41" stroke-width="1"/>
+          <text x="20" y="25" font-size="11" fill="#00cc33" font-family="Courier New, monospace">Process</text>
+          <rect x="100" y="14" width="14" height="14" rx="2" fill="rgba(0,255,65,0.05)" stroke="#33ff66" stroke-width="1"/>
+          <text x="120" y="25" font-size="11" fill="#00cc33" font-family="Courier New, monospace">Module</text>
+        </g>
+
+      </svg>
+    </div>
+
+    <div class="footer">
+      Generated by gmdiagram &middot; Terminal Retro
+    </div>
+  </div>
+</body>
+</html>

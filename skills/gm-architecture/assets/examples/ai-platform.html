@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Enterprise AI Platform</title>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      background: #020617;
+      color: #e2e8f0;
+      font-family: 'JetBrains Mono', 'SF Mono', 'Fira Code', monospace;
+      min-height: 100vh;
+      padding: 40px 20px;
+    }
+    .container { max-width: 1100px; margin: 0 auto; }
+    .header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 32px;
+    }
+    .pulse-dot {
+      width: 10px; height: 10px; border-radius: 50%;
+      background: #22d3ee;
+      box-shadow: 0 0 8px rgba(34, 211, 238, 0.6);
+      animation: pulse 2s ease-in-out infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.4; }
+    }
+    h1 { font-size: 22px; font-weight: 700; color: #f1f5f9; }
+    .subtitle { font-size: 13px; color: #64748b; margin-top: 4px; }
+    .diagram-container {
+      background: #0f172a;
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 12px;
+      padding: 24px;
+      margin-bottom: 32px;
+      overflow-x: auto;
+    }
+    .diagram-container svg {
+      width: 100%;
+      min-width: 700px;
+      height: auto;
+      display: block;
+    }
+    .footer {
+      font-size: 11px;
+      color: #475569;
+      text-align: center;
+      padding-top: 16px;
+      border-top: 1px solid rgba(255,255,255,0.04);
+    }
+    /* === foreignObject component classes (dark-professional) === */
+    .layer-card { width: 100%; height: 100%; border-radius: 8px; padding: 10px 16px 14px; box-sizing: border-box; display: flex; flex-direction: column; }
+    .layer-header { margin-bottom: 8px; }
+    .layer-label { font-size: 14px; font-weight: 600; color: #f1f5f9; font-family: 'JetBrains Mono', 'SF Mono', 'Fira Code', monospace; }
+    .layer-description { font-size: 11px; color: #64748b; font-family: 'JetBrains Mono', 'SF Mono', 'Fira Code', monospace; margin-top: 2px; }
+    .modules { display: flex; gap: 20px; justify-content: center; align-items: flex-start; flex-wrap: wrap; flex: 1; }
+    .module { min-width: 100px; min-height: 50px; border-radius: 6px; display: flex; align-items: center; justify-content: center; padding: 10px 16px; box-sizing: border-box; background: #0f172a; }
+    .module-label { font-size: 12px; font-weight: 500; color: white; text-align: center; white-space: nowrap; font-family: 'JetBrains Mono', 'SF Mono', 'Fira Code', monospace; }
+    .tech-badges { display: flex; gap: 4px; justify-content: center; flex-wrap: wrap; margin-top: 6px; }
+    .tech-badge { font-size: 8px; padding: 2px 6px; border-radius: 4px; white-space: nowrap; background: rgba(255,255,255,0.08); border: 0.5px solid rgba(255,255,255,0.15); color: #94a3b8; font-family: 'JetBrains Mono', 'SF Mono', 'Fira Code', monospace; }
+    .module.has-badges { height: 58px; flex-direction: column; gap: 2px; }
+    .module.has-badges .module-label { height: 20px; }
+
+    /* Type-specific colors */
+    .type-process { background: rgba(8, 51, 68, 0.4); border: 1.5px solid #22d3ee; }
+    .type-process .module { background: rgba(6, 78, 59, 0.4); border: 1.5px solid #34d399; }
+    .type-process .tech-badge { border-color: rgba(52, 211, 153, 0.3); color: #34d399; }
+
+    .type-module { background: rgba(6, 78, 59, 0.4); border: 1.5px solid #34d399; }
+    .type-module .module { background: rgba(6, 78, 59, 0.4); border: 1.5px solid #34d399; }
+    .type-module .tech-badge { border-color: rgba(52, 211, 153, 0.3); color: #34d399; }
+
+    .type-data { background: rgba(76, 29, 149, 0.4); border: 1.5px solid #a78bfa; }
+    .type-data .module { background: rgba(76, 29, 149, 0.4); border: 1.5px solid #a78bfa; }
+    .type-data .tech-badge { border-color: rgba(167, 139, 250, 0.3); color: #a78bfa; }
+
+    .type-infra { background: rgba(120, 53, 15, 0.3); border: 1.5px solid #fbbf24; }
+    .type-infra .module { background: rgba(120, 53, 15, 0.3); border: 1.5px solid #fbbf24; }
+    .type-infra .tech-badge { border-color: rgba(251, 191, 36, 0.3); color: #fbbf24; }
+
+    .type-security { background: rgba(136, 19, 55, 0.4); border: 1.5px solid #fb7185; border-style: dashed; }
+    .type-security .module { background: rgba(136, 19, 55, 0.4); border: 1.5px dashed #fb7185; }
+    .type-security .tech-badge { border-color: rgba(251, 113, 133, 0.3); color: #fb7185; }
+
+    .type-channel { background: rgba(251, 146, 60, 0.3); border: 1.5px solid #fb923c; }
+    .type-channel .module { background: rgba(251, 146, 60, 0.3); border: 1.5px solid #fb923c; }
+    .type-channel .tech-badge { border-color: rgba(251, 146, 60, 0.3); color: #fb923c; }
+
+    .type-external { background: rgba(30, 41, 59, 0.5); border: 1.5px solid #94a3b8; }
+    .type-external .module { background: rgba(30, 41, 59, 0.5); border: 1.5px solid #94a3b8; }
+    .type-external .tech-badge { border-color: rgba(148, 163, 184, 0.3); color: #94a3b8; }
+
+    /* Legend */
+    .legend-container { display: flex; gap: 24px; align-items: center; flex-wrap: wrap; }
+    .legend-item { display: flex; align-items: center; gap: 6px; }
+    .legend-swatch { width: 14px; height: 14px; border-radius: 3px; }
+    .legend-text { font-size: 11px; color: #cbd5e1; font-family: 'JetBrains Mono', 'SF Mono', 'Fira Code', monospace; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <div class="pulse-dot"></div>
+      <div>
+        <h1>Enterprise AI Platform</h1>
+        <div class="subtitle">End-to-end architecture from channel integration to model serving</div>
+      </div>
+    </div>
+
+    <div class="diagram-container">
+      <svg viewBox="0 0 1000 820" xmlns="http://www.w3.org/2000/svg">
+        <!-- Defs -->
+        <defs>
+          <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+            <path d="M 40 0 L 0 0 0 40" fill="none" stroke="rgba(51, 65, 85, 0.3)" stroke-width="0.5"/>
+          </pattern>
+          <marker id="arrowhead" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+            <polygon points="0 0, 8 3, 0 6" fill="#64748b"/>
+          </marker>
+          <marker id="arrowhead-rev" markerWidth="8" markerHeight="6" refX="0" refY="3" orient="auto">
+            <polygon points="8 0, 0 3, 8 6" fill="#64748b"/>
+          </marker>
+        </defs>
+
+        <!-- Grid background -->
+        <rect width="1000" height="820" fill="url(#grid)"/>
+
+        <!-- === CONNECTIONS (drawn first, behind layers) === -->
+
+        <!-- Channel Layer &rarr; Application Layer (Request) -->
+        <line x1="500" y1="130" x2="500" y2="200"
+              stroke="#64748b" stroke-width="1.5"
+              marker-end="url(#arrowhead)"/>
+        <rect x="478" y="157" width="44" height="16" rx="3" fill="#020617" opacity="0.9"/>
+        <text x="500" y="169" font-size="10" fill="#94a3b8" font-family="JetBrains Mono, monospace" text-anchor="middle">Request</text>
+
+        <!-- Application Layer &rarr; Orchestration Layer (Task) -->
+        <line x1="500" y1="320" x2="500" y2="390"
+              stroke="#64748b" stroke-width="1.5"
+              marker-end="url(#arrowhead)"/>
+        <rect x="486" y="347" width="28" height="16" rx="3" fill="#020617" opacity="0.9"/>
+        <text x="500" y="359" font-size="10" fill="#94a3b8" font-family="JetBrains Mono, monospace" text-anchor="middle">Task</text>
+
+        <!-- Orchestration Layer &lt;-&gt; Model Layer (Inference) -->
+        <line x1="500" y1="510" x2="500" y2="580"
+              stroke="#64748b" stroke-width="1.5"
+              marker-start="url(#arrowhead-rev)" marker-end="url(#arrowhead)"/>
+        <rect x="472" y="537" width="56" height="16" rx="3" fill="#020617" opacity="0.9"/>
+        <text x="500" y="549" font-size="10" fill="#94a3b8" font-family="JetBrains Mono, monospace" text-anchor="middle">Inference</text>
+
+        <!-- Model Layer &lt;-&gt; Data Layer (Query) -->
+        <line x1="500" y1="700" x2="500" y2="770"
+              stroke="#64748b" stroke-width="1.5"
+              marker-start="url(#arrowhead-rev)" marker-end="url(#arrowhead)"/>
+        <rect x="478" y="727" width="44" height="16" rx="3" fill="#020617" opacity="0.9"/>
+        <text x="500" y="739" font-size="10" fill="#94a3b8" font-family="JetBrains Mono, monospace" text-anchor="middle">Query</text>
+
+        <!-- Orchestration Layer &rarr; Data Layer (Context, dashed) -->
+        <line x1="750" y1="510" x2="750" y2="770"
+              stroke="#64748b" stroke-width="1.5" stroke-dasharray="6,4"
+              marker-end="url(#arrowhead)"/>
+        <rect x="734" y="632" width="48" height="16" rx="3" fill="#020617" opacity="0.9"/>
+        <text x="758" y="644" font-size="10" fill="#94a3b8" font-family="JetBrains Mono, monospace" text-anchor="middle">Context</text>
+
+        <!-- === LAYER 1: Channel Layer (type: external) === -->
+        <g transform="translate(40, 30)">
+          <foreignObject width="920" height="100" xmlns="http://www.w3.org/1999/xhtml">
+            <div class="layer-card type-external">
+              <div class="layer-header">
+                <span class="layer-label">Channel Layer</span>
+              </div>
+              <div class="modules">
+                <div class="module">
+                  <span class="module-label">Web Chat</span>
+                </div>
+                <div class="module has-badges">
+                  <span class="module-label">API Gateway</span>
+                  <span class="tech-badges">
+                    <span class="tech-badge">REST</span>
+                    <span class="tech-badge">WebSocket</span>
+                  </span>
+                </div>
+                <div class="module">
+                  <span class="module-label">Mobile App</span>
+                </div>
+              </div>
+            </div>
+          </foreignObject>
+        </g>
+
+        <!-- === LAYER 2: Application Layer (type: process) === -->
+        <g transform="translate(40, 200)">
+          <foreignObject width="920" height="120" xmlns="http://www.w3.org/1999/xhtml">
+            <div class="layer-card type-process">
+              <div class="layer-header">
+                <span class="layer-label">Application Layer</span>
+              </div>
+              <div class="modules">
+                <div class="module">
+                  <span class="module-label">Session Manager</span>
+                </div>
+                <div class="module">
+                  <span class="module-label">Intent Parser</span>
+                </div>
+                <div class="module">
+                  <span class="module-label">Task Router</span>
+                </div>
+              </div>
+            </div>
+          </foreignObject>
+        </g>
+
+        <!-- === LAYER 3: Orchestration Layer (type: process) === -->
+        <g transform="translate(40, 390)">
+          <foreignObject width="920" height="120" xmlns="http://www.w3.org/1999/xhtml">
+            <div class="layer-card type-process">
+              <div class="layer-header">
+                <span class="layer-label">Orchestration Layer</span>
+              </div>
+              <div class="modules">
+                <div class="module has-badges">
+                  <span class="module-label">Agent Engine</span>
+                  <span class="tech-badges">
+                    <span class="tech-badge">LangChain</span>
+                    <span class="tech-badge">Dify</span>
+                  </span>
+                </div>
+                <div class="module">
+                  <span class="module-label">Workflow Engine</span>
+                </div>
+                <div class="module">
+                  <span class="module-label">Tool Scheduler</span>
+                </div>
+              </div>
+            </div>
+          </foreignObject>
+        </g>
+
+        <!-- === LAYER 4: Model Layer (type: infra) === -->
+        <g transform="translate(40, 580)">
+          <foreignObject width="920" height="120" xmlns="http://www.w3.org/1999/xhtml">
+            <div class="layer-card type-infra">
+              <div class="layer-header">
+                <span class="layer-label">Model Layer</span>
+              </div>
+              <div class="modules">
+                <div class="module has-badges">
+                  <span class="module-label">LLM Service</span>
+                  <span class="tech-badges">
+                    <span class="tech-badge">GPT-4</span>
+                    <span class="tech-badge">Claude</span>
+                  </span>
+                </div>
+                <div class="module">
+                  <span class="module-label">Embedding Service</span>
+                </div>
+                <div class="module">
+                  <span class="module-label">RAG Engine</span>
+                </div>
+              </div>
+            </div>
+          </foreignObject>
+        </g>
+
+        <!-- === LAYER 5: Data Layer (type: data) === -->
+        <g transform="translate(40, 770)">
+          <foreignObject width="920" height="120" xmlns="http://www.w3.org/1999/xhtml">
+            <div class="layer-card type-data">
+              <div class="layer-header">
+                <span class="layer-label">Data Layer</span>
+              </div>
+              <div class="modules">
+                <div class="module has-badges">
+                  <span class="module-label">Vector Database</span>
+                  <span class="tech-badges">
+                    <span class="tech-badge">Pinecone</span>
+                    <span class="tech-badge">Milvus</span>
+                  </span>
+                </div>
+                <div class="module">
+                  <span class="module-label">Knowledge Base</span>
+                </div>
+                <div class="module">
+                  <span class="module-label">Log &amp; Trace Store</span>
+                </div>
+              </div>
+            </div>
+          </foreignObject>
+        </g>
+
+        <!-- === LEGEND === -->
+        <g transform="translate(40, 930)">
+          <text x="0" y="0" font-size="11" font-weight="600" fill="#cbd5e1" font-family="JetBrains Mono, monospace">Legend</text>
+
+          <rect x="0" y="14" width="14" height="14" rx="3" fill="rgba(30, 41, 59, 0.5)" stroke="#94a3b8" stroke-width="1"/>
+          <text x="20" y="25" font-size="11" fill="#cbd5e1" font-family="JetBrains Mono, monospace">Channel</text>
+
+          <rect x="110" y="14" width="14" height="14" rx="3" fill="rgba(8, 51, 68, 0.4)" stroke="#22d3ee" stroke-width="1"/>
+          <text x="130" y="25" font-size="11" fill="#cbd5e1" font-family="JetBrains Mono, monospace">Service</text>
+
+          <rect x="220" y="14" width="14" height="14" rx="3" fill="rgba(120, 53, 15, 0.3)" stroke="#fbbf24" stroke-width="1"/>
+          <text x="240" y="25" font-size="11" fill="#cbd5e1" font-family="JetBrains Mono, monospace">Infrastructure</text>
+
+          <rect x="370" y="14" width="14" height="14" rx="3" fill="rgba(76, 29, 149, 0.4)" stroke="#a78bfa" stroke-width="1"/>
+          <text x="390" y="25" font-size="11" fill="#cbd5e1" font-family="JetBrains Mono, monospace">Data Store</text>
+        </g>
+
+      </svg>
+    </div>
+
+    <div class="footer">
+      Generated by gmdiagram &middot; 2026-04-11
+    </div>
+  </div>
+</body>
+</html>

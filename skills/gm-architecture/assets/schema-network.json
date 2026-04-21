@@ -1,0 +1,98 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "network-diagram-schema",
+  "title": "Network Topology Diagram Schema",
+  "description": "Intermediate representation for network topology diagrams. LLM extracts structure from natural language into this format.",
+  "type": "object",
+  "required": ["title", "diagramType", "style", "nodes"],
+  "additionalProperties": false,
+  "properties": {
+    "title": { "type": "string", "description": "Diagram title" },
+    "subtitle": { "type": "string", "description": "Optional subtitle" },
+    "diagramType": { "type": "string", "const": "network" },
+    "style": {
+      "type": "string",
+      "enum": ["dark-professional", "hand-drawn", "light-corporate", "cyberpunk-neon", "blueprint", "warm-cozy", "minimalist", "terminal-retro", "pastel-dream", "notion", "material", "glassmorphism"],
+      "default": "dark-professional"
+    },
+    "format": { "type": "string", "enum": ["html", "svg", "mermaid"], "default": "html" },
+    "density": { "type": "string", "enum": ["compact", "normal", "spacious"], "default": "normal" },
+    "nodes": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "label", "type"],
+        "additionalProperties": false,
+        "properties": {
+          "id": { "type": "string", "pattern": "^[a-z0-9][a-z0-9-]*$" },
+          "label": { "type": "string" },
+          "type": { "type": "string", "enum": ["server", "router", "switch", "firewall", "load-balancer", "database", "cloud", "client", "iot", "container", "vm", "dns"] },
+          "ip": { "type": "string", "description": "IP address label" },
+          "icon": { "type": "string", "description": "Icon from icons-catalog" },
+          "group": { "type": "string", "description": "Zone/subnet group name" },
+          "x": { "type": "number" },
+          "y": { "type": "number" }
+        }
+      },
+      "minItems": 1
+    },
+    "connections": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "from", "to"],
+        "additionalProperties": false,
+        "properties": {
+          "id": { "type": "string", "pattern": "^[a-z0-9][a-z0-9-]*$" },
+          "from": { "type": "string" },
+          "to": { "type": "string" },
+          "type": { "type": "string", "enum": ["ethernet", "fiber", "wireless", "vpn", "tunnel", "wan", "lan"], "default": "ethernet" },
+          "bandwidth": { "type": "string", "description": "E.g. '1Gbps', '10Gbps'" },
+          "label": { "type": "string" },
+          "redundant": { "type": "boolean", "default": false }
+        }
+      },
+      "default": []
+    },
+    "zones": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "label", "nodes"],
+        "properties": {
+          "id": { "type": "string" },
+          "label": { "type": "string" },
+          "nodes": { "type": "array", "items": { "type": "string" } },
+          "color": { "type": "string", "description": "Optional zone tint color (hex)" }
+        }
+      },
+      "default": []
+    },
+    "font": {
+      "type": "string",
+      "pattern": "^[a-zA-Z0-9][a-zA-Z0-9 ._+\\-]{0,50}$",
+      "description": "Optional font override. Use a Google Fonts name. Alphanumeric, spaces, dots, hyphens, plus, underscores allowed.",
+      "default": null
+    },
+    "colors": {
+      "type": "object",
+      "properties": {
+        "primary": { "type": "string", "pattern": "^#[0-9a-fA-F]{6}$" },
+        "secondary": { "type": "string", "pattern": "^#[0-9a-fA-F]{6}$" },
+        "accent": { "type": "string", "pattern": "^#[0-9a-fA-F]{6}$" },
+        "background": { "type": "string", "pattern": "^#[0-9a-fA-F]{6}$" },
+        "text": { "type": "string", "pattern": "^#[0-9a-fA-F]{6}$" }
+      },
+      "additionalProperties": false
+    },
+    "metadata": {
+      "type": "object",
+      "properties": {
+        "author": { "type": "string" },
+        "date": { "type": "string", "format": "date" },
+        "version": { "type": "string" }
+      },
+      "additionalProperties": false
+    }
+  }
+}

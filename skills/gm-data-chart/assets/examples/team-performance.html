@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Team Performance Q1 2025</title>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      background: #020617;
+      color: #e2e8f0;
+      font-family: 'JetBrains Mono', 'SF Mono', 'Fira Code', monospace;
+      min-height: 100vh;
+      padding: 40px 20px;
+    }
+    .container { max-width: 1100px; margin: 0 auto; }
+    .header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 32px;
+    }
+    .pulse-dot {
+      width: 10px; height: 10px; border-radius: 50%;
+      background: #22d3ee;
+      box-shadow: 0 0 8px rgba(34, 211, 238, 0.6);
+      animation: pulse 2s ease-in-out infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.4; }
+    }
+    h1 { font-size: 22px; font-weight: 700; color: #f1f5f9; }
+    .subtitle { font-size: 13px; color: #64748b; margin-top: 4px; }
+    .diagram-container {
+      background: #0f172a;
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 12px;
+      padding: 24px;
+      margin-bottom: 32px;
+      overflow-x: auto;
+    }
+    .diagram-container svg {
+      width: 100%;
+      min-width: 500px;
+      height: auto;
+      display: block;
+    }
+    .footer {
+      font-size: 11px;
+      color: #475569;
+      text-align: center;
+      padding-top: 16px;
+      border-top: 1px solid rgba(255,255,255,0.04);
+    }
+    /* === Chart classes (dark-professional) === */
+    .axis-line { stroke: #64748b; stroke-width: 1.5; fill: none; }
+    .axis-label { fill: #94a3b8; font-size: 12px; font-family: 'JetBrains Mono', 'SF Mono', 'Fira Code', monospace; }
+    .axis-title { fill: #f1f5f9; font-size: 13px; font-weight: 600; font-family: 'JetBrains Mono', 'SF Mono', 'Fira Code', monospace; }
+    .tick-label { fill: #94a3b8; font-size: 11px; font-family: 'JetBrains Mono', 'SF Mono', 'Fira Code', monospace; }
+    .grid-line { stroke: rgba(255,255,255,0.06); stroke-dasharray: 4,4; stroke-width: 0.5; fill: none; }
+    .bar { rx: 2; }
+    .bar:hover { opacity: 0.85; }
+    .slice { stroke: #0f172a; stroke-width: 2; }
+    .line-path { fill: none; stroke-width: 2.5; }
+    .area-fill { opacity: 0.15; }
+    .data-dot { stroke-width: 2; }
+    /* === Table classes (dark-professional) === */
+    .table-header th {
+      color: #f1f5f9;
+    }
+    .table-cell {
+      color: #e2e8f0;
+      font-family: 'JetBrains Mono', 'SF Mono', 'Fira Code', monospace;
+    }
+    .highlight-max {
+      background: rgba(34,197,94,0.15) !important;
+      font-weight: 700 !important;
+      color: #22c55e !important;
+    }
+    .highlight-min {
+      background: rgba(239,68,68,0.15) !important;
+      font-weight: 700 !important;
+      color: #ef4444 !important;
+    }
+    .row-number {
+      color: #64748b;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <div class="pulse-dot"></div>
+      <div>
+        <h1>Team Performance Q1 2025</h1>
+        <div class="subtitle">Revenue in thousands (USD)</div>
+      </div>
+    </div>
+
+    <div class="diagram-container">
+      <!--
+        Table: 4 columns, 3 rows
+        totalWidth = clamp(500, 4 * 120, 900) = 500
+        totalHeight = 60 + (3 + 1) * 36 = 204
+        highlightMax = "revenue" → maxValue = 140 (Carol)
+      -->
+      <svg viewBox="0 0 500 204" xmlns="http://www.w3.org/2000/svg">
+        <foreignObject x="0" y="0" width="500" height="204">
+          <div xmlns="http://www.w3.org/1999/xhtml" style="padding: 16px;">
+            <table style="width: 100%; border-collapse: collapse; font-size: 13px;">
+              <thead>
+                <tr class="table-header">
+                  <th class="table-cell" style="text-align: left; font-weight: 700; padding: 8px 12px; border-bottom: 2px solid rgba(255,255,255,0.1); color: #f1f5f9;">Name</th>
+                  <th class="table-cell" style="text-align: right; font-weight: 700; padding: 8px 12px; border-bottom: 2px solid rgba(255,255,255,0.1); color: #f1f5f9;">Revenue ($k)</th>
+                  <th class="table-cell" style="text-align: right; font-weight: 700; padding: 8px 12px; border-bottom: 2px solid rgba(255,255,255,0.1); color: #f1f5f9;">Deals</th>
+                  <th class="table-cell" style="text-align: right; font-weight: 700; padding: 8px 12px; border-bottom: 2px solid rgba(255,255,255,0.1); color: #f1f5f9;">Avg Deal Size ($k)</th>
+                </tr>
+              </thead>
+              <tbody>
+                <!-- Row 0: Alice (even index, no stripe) -->
+                <tr class="table-row">
+                  <td class="table-cell" style="text-align: left; padding: 8px 12px; border-bottom: 1px solid rgba(255,255,255,0.04); color: #e2e8f0;">Alice</td>
+                  <td class="table-cell" style="text-align: right; padding: 8px 12px; border-bottom: 1px solid rgba(255,255,255,0.04); color: #e2e8f0;">120</td>
+                  <td class="table-cell" style="text-align: right; padding: 8px 12px; border-bottom: 1px solid rgba(255,255,255,0.04); color: #e2e8f0;">8</td>
+                  <td class="table-cell" style="text-align: right; padding: 8px 12px; border-bottom: 1px solid rgba(255,255,255,0.04); color: #e2e8f0;">15</td>
+                </tr>
+                <!-- Row 1: Bob (odd index, zebra stripe) -->
+                <tr class="table-row" style="background: rgba(255,255,255,0.03);">
+                  <td class="table-cell" style="text-align: left; padding: 8px 12px; border-bottom: 1px solid rgba(255,255,255,0.04); color: #e2e8f0;">Bob</td>
+                  <td class="table-cell" style="text-align: right; padding: 8px 12px; border-bottom: 1px solid rgba(255,255,255,0.04); color: #e2e8f0;">95</td>
+                  <td class="table-cell" style="text-align: right; padding: 8px 12px; border-bottom: 1px solid rgba(255,255,255,0.04); color: #e2e8f0;">6</td>
+                  <td class="table-cell" style="text-align: right; padding: 8px 12px; border-bottom: 1px solid rgba(255,255,255,0.04); color: #e2e8f0;">15.8</td>
+                </tr>
+                <!-- Row 2: Carol (even index, no stripe)
+                     highlightMax=revenue → maxValue=140 at this row -->
+                <tr class="table-row">
+                  <td class="table-cell" style="text-align: left; padding: 8px 12px; border-bottom: 1px solid rgba(255,255,255,0.04); color: #e2e8f0;">Carol</td>
+                  <td class="table-cell highlight-max" style="text-align: right; padding: 8px 12px; border-bottom: 1px solid rgba(255,255,255,0.04); background: rgba(34,197,94,0.15); font-weight: 700; color: #22c55e;">140</td>
+                  <td class="table-cell" style="text-align: right; padding: 8px 12px; border-bottom: 1px solid rgba(255,255,255,0.04); color: #e2e8f0;">10</td>
+                  <td class="table-cell" style="text-align: right; padding: 8px 12px; border-bottom: 1px solid rgba(255,255,255,0.04); color: #e2e8f0;">14</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </foreignObject>
+      </svg>
+    </div>
+
+    <div class="footer">
+      Generated by gmdiagram &middot; 2026-04-14
+    </div>
+  </div>
+</body>
+</html>

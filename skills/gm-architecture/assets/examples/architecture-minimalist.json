@@ -1,0 +1,63 @@
+{
+  "title": "Clean API Architecture",
+  "subtitle": "Minimalist RESTful service with layered separation of concerns",
+  "style": "minimalist",
+  "diagramType": "architecture",
+  "format": "html",
+  "layers": [
+    {
+      "id": "presentation",
+      "label": "Presentation",
+      "type": "module",
+      "children": [
+        { "id": "api-controller", "label": "API Controller", "type": "module" },
+        { "id": "dto-mapper", "label": "DTO Mapper", "type": "module" }
+      ]
+    },
+    {
+      "id": "business-logic",
+      "label": "Business Logic",
+      "type": "process",
+      "children": [
+        { "id": "service-layer", "label": "Service Layer", "type": "module" },
+        { "id": "validator", "label": "Validator", "type": "module" },
+        { "id": "event-bus", "label": "Event Bus", "type": "module" }
+      ]
+    },
+    {
+      "id": "data-access",
+      "label": "Data Access",
+      "type": "data",
+      "children": [
+        { "id": "repository", "label": "Repository", "type": "module" },
+        { "id": "cache-layer", "label": "Cache Layer", "type": "data", "tech": ["Redis"] }
+      ]
+    },
+    {
+      "id": "infrastructure",
+      "label": "Infrastructure",
+      "type": "infra",
+      "children": [
+        { "id": "database", "label": "PostgreSQL", "type": "data" },
+        { "id": "message-queue", "label": "Message Queue", "type": "infra" }
+      ]
+    }
+  ],
+  "connections": [
+    { "from": "presentation", "to": "business-logic", "label": "Request", "direction": "unidirectional" },
+    { "from": "business-logic", "to": "data-access", "label": "Query", "direction": "bidirectional" },
+    { "from": "data-access", "to": "infrastructure", "label": "IO", "direction": "bidirectional" }
+  ],
+  "groups": [],
+  "legend": [
+    { "label": "Presentation", "type": "module" },
+    { "label": "Service", "type": "process" },
+    { "label": "Data", "type": "data" },
+    { "label": "Infra", "type": "infra" }
+  ],
+  "metadata": {
+    "author": "gmdiagram",
+    "date": "2026-04-14",
+    "version": "0.6.0"
+  }
+}

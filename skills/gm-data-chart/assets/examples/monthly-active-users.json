@@ -1,0 +1,30 @@
+{
+  "diagramType": "line",
+  "title": "月度活跃用户",
+  "subtitle": "单位：万人",
+  "style": "dark-professional",
+  "format": "html",
+  "density": "normal",
+  "smooth": false,
+  "series": [
+    {
+      "name": "用户数",
+      "data": [
+        { "label": "1月", "value": 120 },
+        { "label": "2月", "value": 180 },
+        { "label": "3月", "value": 150 },
+        { "label": "4月", "value": 220 }
+      ]
+    }
+  ],
+  "axis": {
+    "x": { "label": "月份", "visible": true },
+    "y": { "label": "万人", "visible": true, "gridLines": true, "ticks": [0, 50, 100, 150, 200, 250] }
+  },
+  "legend": { "visible": true, "position": "top" },
+  "metadata": {
+    "author": "gmdiagram",
+    "date": "2026-04-14",
+    "version": "0.6.0"
+  }
+}

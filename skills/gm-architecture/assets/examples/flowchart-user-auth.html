@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>User Authentication Flow</title>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      background: #020617;
+      color: #e2e8f0;
+      font-family: 'JetBrains Mono', 'SF Mono', 'Fira Code', monospace;
+      min-height: 100vh;
+      padding: 40px 20px;
+    }
+    .container { max-width: 1100px; margin: 0 auto; }
+    .header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 32px;
+    }
+    .pulse-dot {
+      width: 10px; height: 10px; border-radius: 50%;
+      background: #22d3ee;
+      box-shadow: 0 0 8px rgba(34, 211, 238, 0.6);
+      animation: pulse 2s ease-in-out infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.4; }
+    }
+    h1 { font-size: 22px; font-weight: 700; color: #f1f5f9; }
+    .subtitle { font-size: 13px; color: #64748b; margin-top: 4px; }
+    .diagram-container {
+      background: #0f172a;
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 12px;
+      padding: 24px;
+      margin-bottom: 32px;
+      overflow-x: auto;
+    }
+    .diagram-container svg {
+      width: 100%;
+      min-width: 900px;
+      height: auto;
+      display: block;
+    }
+    .footer {
+      font-size: 11px;
+      color: #475569;
+      text-align: center;
+      padding-top: 16px;
+      border-top: 1px solid rgba(255,255,255,0.04);
+    }
+
+    /* ---- Flowchart Node Styles ---- */
+    .flow-node {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      height: 100%;
+      box-sizing: border-box;
+      padding: 4px 8px;
+      font-family: "JetBrains Mono", monospace;
+      color: white;
+      text-align: center;
+    }
+    .flow-node .node-label {
+      font-size: 12px;
+      font-weight: 500;
+      line-height: 1.3;
+      word-wrap: break-word;
+    }
+    .flow-node .node-desc {
+      display: block;
+      font-size: 9px;
+      color: #94a3b8;
+      margin-top: 2px;
+    }
+
+    /* Type-specific styles */
+    .type-start {
+      background: rgba(6, 78, 59, 0.4);
+      border: 1.5px solid #34d399;
+      border-radius: 20px;
+    }
+    .type-start .node-label { font-weight: 600; }
+
+    .type-end {
+      background: rgba(6, 78, 59, 0.4);
+      border: 1.5px solid #34d399;
+      border-radius: 20px;
+    }
+    .type-end .node-label { font-weight: 600; }
+
+    .type-process {
+      background: rgba(6, 78, 59, 0.4);
+      border: 1.5px solid #34d399;
+      border-radius: 4px;
+    }
+
+    .type-subprocess {
+      background: rgba(6, 78, 59, 0.4);
+      border: 1.5px solid #34d399;
+      border-radius: 4px;
+      box-shadow: inset 3px 0 0 0 rgba(52, 211, 153, 0.6),
+                  inset -3px 0 0 0 rgba(52, 211, 153, 0.6);
+    }
+
+    .type-document {
+      background: rgba(76, 29, 149, 0.4);
+      border: 1.5px solid #a78bfa;
+      border-radius: 4px 4px 0 0;
+      border-bottom: none;
+      clip-path: polygon(
+        0% 0%, 100% 0%, 100% 85%,
+        75% 100%, 50% 85%, 25% 100%,
+        0% 85%
+      );
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <div class="pulse-dot"></div>
+      <div>
+        <h1>User Authentication Flow</h1>
+        <div class="subtitle">OAuth 2.0 login with optional two-factor authentication</div>
+      </div>
+    </div>
+
+    <div class="diagram-container">
+      <svg viewBox="0 0 1000 900" xmlns="http://www.w3.org/2000/svg">
+        <!-- Defs -->
+        <defs>
+          <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+            <path d="M 40 0 L 0 0 0 40" fill="none" stroke="rgba(51, 65, 85, 0.3)" stroke-width="0.5"/>
+          </pattern>
+          <marker id="arrowhead" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+            <polygon points="0 0, 8 3, 0 6" fill="#64748b"/>
+          </marker>
+          <marker id="arrowhead-loop" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+            <polygon points="0 0, 8 3, 0 6" fill="#fb923c"/>
+          </marker>
+        </defs>
+
+        <!-- Grid background -->
+        <rect width="1000" height="900" fill="url(#grid)"/>
+
+        <!-- === CONNECTIONS (drawn first, behind nodes) === -->
+
+        <!-- Start -> User Login -->
+        <line x1="500" y1="80" x2="500" y2="110" stroke="#64748b" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+
+        <!-- User Login -> Validate Credentials -->
+        <line x1="500" y1="150" x2="500" y2="180" stroke="#64748b" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+
+        <!-- Validate Credentials -> Valid? -->
+        <line x1="500" y1="220" x2="500" y2="250" stroke="#64748b" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+
+        <!-- Valid? -> Check 2FA (Yes) -->
+        <line x1="500" y1="295" x2="500" y2="330" stroke="#64748b" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+        <rect x="484" y="304" width="32" height="16" rx="3" fill="#0f172a" opacity="0.9"/>
+        <text x="500" y="316" font-size="10" fill="#34d399" font-family="JetBrains Mono, monospace" text-anchor="middle" font-weight="600">Yes</text>
+
+        <!-- Valid? -> Show Error (No) -->
+        <line x1="570" y1="273" x2="680" y2="273" stroke="#64748b" stroke-width="1.5" stroke-dasharray="6,4" marker-end="url(#arrowhead)"/>
+        <rect x="610" y="261" width="28" height="16" rx="3" fill="#0f172a" opacity="0.9"/>
+        <text x="624" y="273" font-size="10" fill="#fb7185" font-family="JetBrains Mono, monospace" text-anchor="middle" font-weight="600">No</text>
+
+        <!-- Show Error -> User Login (Retry) -->
+        <path d="M 750,253 C 850,253 850,130 600,130" fill="none" stroke="#fb923c" stroke-width="1.5" stroke-dasharray="6,4" marker-end="url(#arrowhead-loop)"/>
+        <rect x="780" y="225" width="38" height="16" rx="3" fill="#0f172a" opacity="0.9"/>
+        <text x="799" y="237" font-size="10" fill="#fb923c" font-family="JetBrains Mono, monospace" text-anchor="middle">Retry</text>
+
+        <!-- Check 2FA -> Prompt 2FA Code (Enabled) -->
+        <line x1="500" y1="395" x2="500" y2="430" stroke="#64748b" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+        <rect x="476" y="404" width="48" height="16" rx="3" fill="#0f172a" opacity="0.9"/>
+        <text x="500" y="416" font-size="10" fill="#34d399" font-family="JetBrains Mono, monospace" text-anchor="middle" font-weight="600">Enabled</text>
+
+        <!-- Check 2FA -> Generate Token (Disabled) -->
+        <line x1="570" y1="363" x2="680" y2="363" stroke="#64748b" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+        <rect x="600" y="351" width="50" height="16" rx="3" fill="#0f172a" opacity="0.9"/>
+        <text x="625" y="363" font-size="10" fill="#94a3b8" font-family="JetBrains Mono, monospace" text-anchor="middle">Disabled</text>
+
+        <!-- Prompt 2FA Code -> Verify 2FA Code -->
+        <line x1="500" y1="470" x2="500" y2="500" stroke="#64748b" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+
+        <!-- Verify 2FA Code -> 2FA Valid? -->
+        <line x1="500" y1="540" x2="500" y2="570" stroke="#64748b" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+
+        <!-- 2FA Valid? -> Generate Token (Yes) -->
+        <line x1="500" y1="615" x2="720" y2="615" stroke="#64748b" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+        <rect x="594" y="604" width="32" height="16" rx="3" fill="#0f172a" opacity="0.9"/>
+        <text x="610" y="616" font-size="10" fill="#34d399" font-family="JetBrains Mono, monospace" text-anchor="middle" font-weight="600">Yes</text>
+
+        <!-- 2FA Valid? -> Prompt 2FA Code (No) loop-back -->
+        <path d="M 570,593 C 350,593 350,450 430,450" fill="none" stroke="#fb923c" stroke-width="1.5" stroke-dasharray="6,4" marker-end="url(#arrowhead-loop)"/>
+        <rect x="380" y="515" width="60" height="16" rx="3" fill="#0f172a" opacity="0.9"/>
+        <text x="410" y="527" font-size="10" fill="#fb923c" font-family="JetBrains Mono, monospace" text-anchor="middle">No (retry)</text>
+
+        <!-- Generate Token -> Log Audit Entry -->
+        <line x1="750" y1="383" x2="750" y2="650" stroke="#64748b" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+
+        <!-- Log Audit Entry -> End -->
+        <line x1="750" y1="690" x2="750" y2="820" stroke="#64748b" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+
+        <!-- === NODES === -->
+
+        <!-- Start -->
+        <rect x="450" y="40" width="100" height="40" rx="20" fill="#0f172a"/>
+        <foreignObject x="450" y="40" width="100" height="40">
+          <div xmlns="http://www.w3.org/1999/xhtml" class="flow-node type-start">
+            <span class="node-label">Start</span>
+          </div>
+        </foreignObject>
+
+        <!-- User Login (I/O Parallelogram) -->
+        <polygon points="442,110 582,110 570,150 430,150" fill="#0f172a"/>
+        <polygon points="442,110 582,110 570,150 430,150" fill="rgba(8, 51, 68, 0.4)" stroke="#22d3ee" stroke-width="1.5"/>
+        <text x="506" y="135" font-size="12" font-weight="500" fill="white" font-family="JetBrains Mono, monospace" text-anchor="middle" dominant-baseline="middle">User Login</text>
+
+        <!-- Validate Credentials (Subprocess) -->
+        <rect x="430" y="180" width="140" height="40" rx="4" fill="#0f172a"/>
+        <foreignObject x="430" y="180" width="140" height="40">
+          <div xmlns="http://www.w3.org/1999/xhtml" class="flow-node type-subprocess">
+            <span class="node-label">Validate Credentials</span>
+          </div>
+        </foreignObject>
+
+        <!-- Valid? (Decision Diamond) -->
+        <polygon points="500,250 570,273 500,295 430,273" fill="#0f172a"/>
+        <polygon points="500,250 570,273 500,295 430,273" fill="rgba(120, 53, 15, 0.3)" stroke="#fbbf24" stroke-width="1.5"/>
+        <text x="500" y="269" font-size="11" font-weight="500" fill="white" font-family="JetBrains Mono, monospace" text-anchor="middle">Valid?</text>
+        <text x="500" y="283" font-size="11" font-weight="500" fill="white" font-family="JetBrains Mono, monospace" text-anchor="middle"> </text>
+
+        <!-- Show Error -->
+        <rect x="680" y="253" width="140" height="40" rx="4" fill="#0f172a"/>
+        <foreignObject x="680" y="253" width="140" height="40">
+          <div xmlns="http://www.w3.org/1999/xhtml" class="flow-node type-process">
+            <span class="node-label">Show Error</span>
+          </div>
+        </foreignObject>
+
+        <!-- Check 2FA (Decision Diamond) -->
+        <polygon points="500,330 570,363 500,395 430,363" fill="#0f172a"/>
+        <polygon points="500,330 570,363 500,395 430,363" fill="rgba(120, 53, 15, 0.3)" stroke="#fbbf24" stroke-width="1.5"/>
+        <text x="500" y="359" font-size="11" font-weight="500" fill="white" font-family="JetBrains Mono, monospace" text-anchor="middle">Check</text>
+        <text x="500" y="373" font-size="11" font-weight="500" fill="white" font-family="JetBrains Mono, monospace" text-anchor="middle">2FA</text>
+
+        <!-- Prompt 2FA Code (I/O Parallelogram) -->
+        <polygon points="442,430 582,430 570,470 430,470" fill="#0f172a"/>
+        <polygon points="442,430 582,430 570,470 430,470" fill="rgba(8, 51, 68, 0.4)" stroke="#22d3ee" stroke-width="1.5"/>
+        <text x="506" y="450" font-size="12" font-weight="500" fill="white" font-family="JetBrains Mono, monospace" text-anchor="middle">Prompt 2FA Code</text>
+
+        <!-- Verify 2FA Code (Subprocess) -->
+        <rect x="430" y="500" width="140" height="40" rx="4" fill="#0f172a"/>
+        <foreignObject x="430" y="500" width="140" height="40">
+          <div xmlns="http://www.w3.org/1999/xhtml" class="flow-node type-subprocess">
+            <span class="node-label">Verify 2FA Code</span>
+          </div>
+        </foreignObject>
+
+        <!-- 2FA Valid? (Decision Diamond) -->
+        <polygon points="500,570 570,593 500,615 430,593" fill="#0f172a"/>
+        <polygon points="500,570 570,593 500,615 430,593" fill="rgba(120, 53, 15, 0.3)" stroke="#fbbf24" stroke-width="1.5"/>
+        <text x="500" y="589" font-size="11" font-weight="500" fill="white" font-family="JetBrains Mono, monospace" text-anchor="middle">2FA</text>
+        <text x="500" y="603" font-size="11" font-weight="500" fill="white" font-family="JetBrains Mono, monospace" text-anchor="middle">Valid?</text>
+
+        <!-- Generate Token -->
+        <rect x="680" y="343" width="140" height="40" rx="4" fill="#0f172a"/>
+        <foreignObject x="680" y="343" width="140" height="40">
+          <div xmlns="http://www.w3.org/1999/xhtml" class="flow-node type-process">
+            <span class="node-label">Generate Token</span>
+          </div>
+        </foreignObject>
+
+        <!-- Log Audit Entry (Document) -->
+        <rect x="680" y="650" width="140" height="40" rx="4" fill="#0f172a"/>
+        <foreignObject x="680" y="650" width="140" height="40">
+          <div xmlns="http://www.w3.org/1999/xhtml" class="flow-node type-document">
+            <span class="node-label">Log Audit Entry</span>
+          </div>
+        </foreignObject>
+
+        <!-- End -->
+        <rect x="700" y="820" width="100" height="40" rx="20" fill="#0f172a"/>
+        <foreignObject x="700" y="820" width="100" height="40">
+          <div xmlns="http://www.w3.org/1999/xhtml" class="flow-node type-end">
+            <span class="node-label">End</span>
+          </div>
+        </foreignObject>
+
+        <!-- === LEGEND === -->
+        <g transform="translate(40, 850)">
+          <text x="0" y="0" font-size="11" font-weight="600" fill="#cbd5e1" font-family="JetBrains Mono, monospace">Legend</text>
+
+          <!-- Start/End -->
+          <rect x="0" y="12" width="30" height="14" rx="7" fill="rgba(6, 78, 59, 0.4)" stroke="#34d399" stroke-width="1"/>
+          <text x="36" y="23" font-size="11" fill="#cbd5e1" font-family="JetBrains Mono, monospace">Start / End</text>
+
+          <!-- Process -->
+          <rect x="130" y="12" width="14" height="14" rx="2" fill="rgba(6, 78, 59, 0.4)" stroke="#34d399" stroke-width="1"/>
+          <text x="150" y="23" font-size="11" fill="#cbd5e1" font-family="JetBrains Mono, monospace">Process</text>
+
+          <!-- Decision -->
+          <polygon points="255,12 262,19 255,26 248,19" fill="rgba(120, 53, 15, 0.3)" stroke="#fbbf24" stroke-width="1"/>
+          <text x="270" y="23" font-size="11" fill="#cbd5e1" font-family="JetBrains Mono, monospace">Decision</text>
+
+          <!-- I/O -->
+          <polygon points="360,12 380,12 377,26 357,26" fill="rgba(8, 51, 68, 0.4)" stroke="#22d3ee" stroke-width="1"/>
+          <text x="386" y="23" font-size="11" fill="#cbd5e1" font-family="JetBrains Mono, monospace">I/O</text>
+
+          <!-- Subprocess -->
+          <rect x="420" y="12" width="14" height="14" rx="2" fill="rgba(6, 78, 59, 0.4)" stroke="#34d399" stroke-width="1"/>
+          <rect x="423" y="12" width="8" height="14" rx="1" fill="none" stroke="#34d399" stroke-width="0.5"/>
+          <text x="440" y="23" font-size="11" fill="#cbd5e1" font-family="JetBrains Mono, monospace">Subprocess</text>
+
+          <!-- Document -->
+          <path d="M 510,12 L 530,12 L 530,22 Q 520,28 510,22 Z" fill="rgba(76, 29, 149, 0.4)" stroke="#a78bfa" stroke-width="1"/>
+          <text x="536" y="23" font-size="11" fill="#cbd5e1" font-family="JetBrains Mono, monospace">Document</text>
+        </g>
+
+      </svg>
+    </div>
+
+    <div class="footer">
+      Generated by gmdiagram &middot; 2026-04-11
+    </div>
+  </div>
+</body>
+</html>

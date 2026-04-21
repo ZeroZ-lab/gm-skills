@@ -1,0 +1,76 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "gantt-diagram-schema",
+  "title": "Gantt Chart Schema",
+  "description": "Intermediate representation for Gantt/project timeline diagrams. LLM extracts structure from natural language into this format.",
+  "type": "object",
+  "required": ["title", "diagramType", "style", "tasks"],
+  "additionalProperties": false,
+  "properties": {
+    "title": { "type": "string", "description": "Chart title" },
+    "subtitle": { "type": "string", "description": "Optional subtitle" },
+    "diagramType": { "type": "string", "const": "gantt" },
+    "style": {
+      "type": "string",
+      "enum": ["dark-professional", "hand-drawn", "light-corporate", "cyberpunk-neon", "blueprint", "warm-cozy", "minimalist", "terminal-retro", "pastel-dream", "notion", "material", "glassmorphism"],
+      "default": "dark-professional"
+    },
+    "format": { "type": "string", "enum": ["html", "svg", "mermaid"], "default": "html" },
+    "density": { "type": "string", "enum": ["compact", "normal", "spacious"], "default": "normal" },
+    "timeAxis": {
+      "type": "object",
+      "properties": {
+        "unit": { "type": "string", "enum": ["days", "weeks", "months"], "default": "weeks" },
+        "start": { "type": "string", "description": "Start date or label" },
+        "end": { "type": "string", "description": "End date or label" }
+      }
+    },
+    "tasks": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "label", "start", "duration"],
+        "additionalProperties": false,
+        "properties": {
+          "id": { "type": "string", "pattern": "^[a-z0-9][a-z0-9-]*$" },
+          "label": { "type": "string" },
+          "start": { "type": "string", "description": "Start position (date, day offset like 'day 1', or week 'W1')" },
+          "duration": { "type": "number", "description": "Duration in timeAxis units" },
+          "progress": { "type": "number", "minimum": 0, "maximum": 100, "description": "Completion percentage" },
+          "assignee": { "type": "string" },
+          "dependencies": { "type": "array", "items": { "type": "string" }, "description": "Task IDs this depends on" },
+          "milestone": { "type": "boolean", "default": false, "description": "Render as diamond marker instead of bar" },
+          "group": { "type": "string", "description": "Group name for visual grouping" },
+          "color": { "type": "string", "description": "Optional override color (hex)" }
+        }
+      },
+      "minItems": 1
+    },
+    "font": {
+      "type": "string",
+      "pattern": "^[a-zA-Z0-9][a-zA-Z0-9 ._+\\-]{0,50}$",
+      "description": "Optional font override. Use a Google Fonts name. Alphanumeric, spaces, dots, hyphens, plus, underscores allowed.",
+      "default": null
+    },
+    "colors": {
+      "type": "object",
+      "properties": {
+        "primary": { "type": "string", "pattern": "^#[0-9a-fA-F]{6}$" },
+        "secondary": { "type": "string", "pattern": "^#[0-9a-fA-F]{6}$" },
+        "accent": { "type": "string", "pattern": "^#[0-9a-fA-F]{6}$" },
+        "background": { "type": "string", "pattern": "^#[0-9a-fA-F]{6}$" },
+        "text": { "type": "string", "pattern": "^#[0-9a-fA-F]{6}$" }
+      },
+      "additionalProperties": false
+    },
+    "metadata": {
+      "type": "object",
+      "properties": {
+        "author": { "type": "string" },
+        "date": { "type": "string", "format": "date" },
+        "version": { "type": "string" }
+      },
+      "additionalProperties": false
+    }
+  }
+}

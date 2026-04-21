@@ -1,0 +1,272 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "mindmap-diagram-schema",
+  "title": "Mind Map Diagram Schema",
+  "description": "Intermediate representation for mind map diagrams. LLM extracts hierarchical structure from natural language into this format, then rendering pipeline generates HTML/SVG from it.",
+  "type": "object",
+  "required": [
+    "diagramType",
+    "title",
+    "style",
+    "centralNode"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "diagramType": {
+      "type": "string",
+      "const": "mindmap",
+      "description": "Identifies this JSON as a mind map diagram. Must be 'mindmap'."
+    },
+    "title": {
+      "type": "string",
+      "description": "Diagram title, displayed as h1 at the top of the page.",
+      "examples": [
+        "Product Feature Map",
+        "Learning Roadmap",
+        "Project Brainstorm"
+      ]
+    },
+    "subtitle": {
+      "type": "string",
+      "description": "Optional subtitle shown below the title.",
+      "examples": [
+        "Q2 2026 Feature Planning",
+        "Full-Stack Developer Path"
+      ]
+    },
+    "style": {
+      "type": "string",
+      "enum": [
+        "dark-professional",
+        "hand-drawn",
+        "light-corporate",
+        "cyberpunk-neon",
+        "blueprint",
+        "warm-cozy",
+        "minimalist",
+        "terminal-retro",
+        "pastel-dream",
+        "notion",
+        "material",
+        "glassmorphism"
+      ],
+      "description": "Visual style preset. Each style has its own template and design rules. Options: dark-professional (dark tech), hand-drawn (sketch/whiteboard), light-corporate (business/clean), cyberpunk-neon (neon glow/Catppuccin), blueprint (engineering/Nord), warm-cozy (friendly/Gruvbox), minimalist (ultra-clean monochrome), terminal-retro (CRT green-on-black), pastel-dream (soft pastels, rounded), notion (Notion-like document aesthetic), material (Google Material Design), glassmorphism (frosted glass/translucent).",
+      "default": "dark-professional"
+    },
+    "format": {
+      "type": "string",
+      "enum": [
+        "html",
+        "svg",
+        "mermaid"
+      ],
+      "description": "Output format. HTML is the default (single-file with inline SVG and CSS). SVG outputs standalone SVG. Mermaid outputs Mermaid text syntax.",
+      "default": "html"
+    },
+    "density": {
+      "type": "string",
+      "enum": [
+        "compact",
+        "normal",
+        "spacious"
+      ],
+      "description": "Layout density. compact=tighter spacing for dense diagrams; normal=standard spacing; spacious=generous spacing for presentations.",
+      "default": "normal"
+    },
+    "centralNode": {
+      "$ref": "#/$defs/centralNode",
+      "description": "The root node of the mind map, placed at the center of the diagram."
+    },
+    "legend": {
+      "type": "array",
+      "description": "Legend entries shown below the diagram. Auto-generated from branch colors if not provided.",
+      "items": {
+        "$ref": "#/$defs/legendEntry"
+      },
+      "default": []
+    },
+    "font": {
+      "type": "string",
+      "pattern": "^[a-zA-Z0-9][a-zA-Z0-9 ._+\\-]{0,50}$",
+      "description": "Optional font override. Use a Google Fonts name. Alphanumeric, spaces, dots, hyphens, plus, underscores allowed.",
+      "default": null
+    },
+    "colors": {
+      "type": "object",
+      "description": "Optional color overrides. Each key overrides the corresponding semantic color from the chosen style.",
+      "properties": {
+        "primary": {
+          "type": "string",
+          "pattern": "^#[0-9a-fA-F]{6}$",
+          "description": "Primary accent color (borders, highlights)"
+        },
+        "secondary": {
+          "type": "string",
+          "pattern": "^#[0-9a-fA-F]{6}$",
+          "description": "Secondary color (subtle borders, backgrounds)"
+        },
+        "accent": {
+          "type": "string",
+          "pattern": "^#[0-9a-fA-F]{6}$",
+          "description": "Accent color (highlights, call-to-action elements)"
+        },
+        "background": {
+          "type": "string",
+          "pattern": "^#[0-9a-fA-F]{6}$",
+          "description": "Page background color"
+        },
+        "text": {
+          "type": "string",
+          "pattern": "^#[0-9a-fA-F]{6}$",
+          "description": "Primary text color"
+        }
+      },
+      "additionalProperties": false
+    },
+    "metadata": {
+      "type": "object",
+      "description": "Optional metadata for the generated page.",
+      "properties": {
+        "author": {
+          "type": "string"
+        },
+        "date": {
+          "type": "string",
+          "format": "date"
+        },
+        "version": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "$defs": {
+    "centralNode": {
+      "type": "object",
+      "required": [
+        "id",
+        "label",
+        "children"
+      ],
+      "additionalProperties": false,
+      "description": "The central (root) node of the mind map. Rendered as a prominent circle or rounded rectangle at the center of the SVG.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the central node.",
+          "pattern": "^[a-z0-9][a-z0-9-]*$"
+        },
+        "label": {
+          "type": "string",
+          "description": "Display text for the central node.",
+          "examples": [
+            "gmdiagram",
+            "Product Strategy",
+            "Project Alpha"
+          ]
+        },
+        "color": {
+          "type": "string",
+          "description": "Hex color override for the central node. If omitted, uses the accent color from the chosen style.",
+          "pattern": "^#[0-9a-fA-F]{6}$"
+        },
+        "icon": {
+          "type": "string",
+          "description": "Optional icon identifier from the icons catalog. Rendered next to the central node label.",
+          "examples": [
+            "bulb",
+            "brain",
+            "rocket"
+          ]
+        },
+        "children": {
+          "type": "array",
+          "description": "Top-level branches radiating from the central node. Each branch can recursively contain sub-branches. Practical depth limit: 4 levels.",
+          "items": {
+            "$ref": "#/$defs/branch"
+          },
+          "minItems": 1
+        }
+      }
+    },
+    "branch": {
+      "type": "object",
+      "required": [
+        "id",
+        "label"
+      ],
+      "additionalProperties": false,
+      "description": "A branch (sub-node) in the mind map. Can recursively contain child branches. Practical depth limit: 4 levels total from centralNode.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier across the entire diagram.",
+          "pattern": "^[a-z0-9][a-z0-9-]*$"
+        },
+        "label": {
+          "type": "string",
+          "description": "Display text for this branch.",
+          "examples": [
+            "Frontend",
+            "Authentication",
+            "CI/CD Pipeline"
+          ]
+        },
+        "side": {
+          "type": "string",
+          "enum": [
+            "left",
+            "right",
+            "auto"
+          ],
+          "description": "Which side of the central node this branch is rendered on. 'auto' means balanced distribution (algorithm splits children evenly between left and right). Only meaningful for top-level branches (children of centralNode); deeper branches inherit their parent's side.",
+          "default": "auto"
+        },
+        "color": {
+          "type": "string",
+          "description": "Hex color override for this branch and its descendants. If omitted, auto-assigned from the design palette. Top-level branches get distinct hues; children inherit lighter shades.",
+          "pattern": "^#[0-9a-fA-F]{6}$"
+        },
+        "icon": {
+          "type": "string",
+          "description": "Optional icon identifier from the icons catalog.",
+          "examples": [
+            "code",
+            "palette",
+            "lock"
+          ]
+        },
+        "children": {
+          "type": "array",
+          "description": "Sub-branches of this branch. Recursive structure. Each child inherits side from its parent.",
+          "items": {
+            "$ref": "#/$defs/branch"
+          },
+          "default": []
+        }
+      }
+    },
+    "legendEntry": {
+      "type": "object",
+      "required": [
+        "label"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "label": {
+          "type": "string",
+          "description": "Legend item label.",
+          "examples": [
+            "Diagram Types",
+            "Visual Styles"
+          ]
+        },
+        "color": {
+          "type": "string",
+          "description": "Hex color for the legend swatch. Auto-derived from branch color if omitted."
+        }
+      }
+    }
+  }
+}

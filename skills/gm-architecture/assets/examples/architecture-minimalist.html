@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Clean API Architecture</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      background: #ffffff;
+      color: #111827;
+      font-family: 'Inter', 'Helvetica Neue', system-ui, sans-serif;
+      min-height: 100vh;
+      padding: 60px 20px;
+    }
+    .container { max-width: 1100px; margin: 0 auto; }
+    .header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 32px;
+    }
+    .dot {
+      width: 8px; height: 8px; border-radius: 50%;
+      background: #374151;
+    }
+    h1 { font-size: 22px; font-weight: 700; color: #111827; letter-spacing: -0.02em; }
+    .subtitle { font-size: 13px; color: #6b7280; margin-top: 4px; }
+    .diagram-container {
+      background: #ffffff;
+      border: 0.5px solid #e5e7eb;
+      border-radius: 4px;
+      padding: 32px;
+      margin-bottom: 32px;
+      overflow-x: auto;
+    }
+    .diagram-container svg {
+      width: 100%;
+      min-width: 700px;
+      height: auto;
+      display: block;
+    }
+    .footer {
+      font-size: 11px;
+      color: #9ca3af;
+      text-align: center;
+      padding-top: 16px;
+      border-top: 0.5px solid #e5e7eb;
+    }
+    /* === foreignObject component classes (minimalist) === */
+    .layer-card { width: 100%; height: 100%; border-radius: 2px; padding: 12px 16px; box-sizing: border-box; display: flex; flex-direction: column; }
+    .layer-header { margin-bottom: 8px; }
+    .layer-label { font-size: 14px; font-weight: 600; color: #111827; font-family: 'Inter', 'Helvetica Neue', system-ui, sans-serif; }
+    .layer-description { font-size: 11px; color: #6b7280; font-family: 'Inter', system-ui, sans-serif; margin-top: 2px; }
+    .modules { display: flex; gap: 20px; justify-content: center; align-items: flex-start; flex-wrap: wrap; flex: 1; padding-top: 4px; }
+    .module { min-width: 100px; min-height: 40px; border-radius: 2px; display: flex; align-items: center; justify-content: center; padding: 8px 16px; box-sizing: border-box; }
+    .module-label { font-size: 12px; font-weight: 500; color: #111827; text-align: center; white-space: nowrap; font-family: 'Inter', 'Helvetica Neue', system-ui, sans-serif; }
+    .tech-badges { display: flex; gap: 4px; justify-content: center; flex-wrap: wrap; margin-top: 4px; }
+    .tech-badge { font-size: 8px; padding: 2px 6px; border-radius: 2px; white-space: nowrap; background: rgba(255,255,255,0.5); border: 0.5px solid; font-family: 'Inter', system-ui, sans-serif; }
+    .module.has-badges { min-height: 48px; flex-direction: column; gap: 2px; padding-top: 6px; padding-bottom: 6px; }
+    .module.has-badges .module-label { min-height: 16px; }
+
+    /* Type-specific colors &mdash; ultra-subtle fills, thin gray borders */
+    .type-process { background: #f9fafb; border: 0.5px solid #9ca3af; }
+    .type-process .module { background: #f3f4f6; border: 0.5px solid #d1d5db; }
+    .type-process .tech-badge { border-color: #d1d5db; color: #6b7280; }
+
+    .type-module { background: #fafafa; border: 0.5px solid #d1d5db; }
+    .type-module .module { background: #f9fafb; border: 0.5px solid #e5e7eb; }
+    .type-module .tech-badge { border-color: #e5e7eb; color: #9ca3af; }
+
+    .type-data { background: #f5f3ff; border: 0.5px solid #c4b5fd; }
+    .type-data .module { background: #ede9fe; border: 0.5px solid #ddd6fe; }
+    .type-data .tech-badge { border-color: #ddd6fe; color: #8b5cf6; }
+
+    .type-infra { background: #fffbeb; border: 0.5px solid #fcd34d; }
+    .type-infra .module { background: #fef3c7; border: 0.5px solid #fde68a; }
+    .type-infra .tech-badge { border-color: #fde68a; color: #d97706; }
+
+    .type-security { background: #fff1f2; border: 0.5px solid #fda4af; border-style: dashed; }
+    .type-security .module { background: #ffe4e6; border: 0.5px dashed #fda4af; }
+    .type-security .tech-badge { border-color: #fda4af; color: #e11d48; }
+
+    .type-channel { background: #fff7ed; border: 0.5px solid #fdba74; }
+    .type-channel .module { background: #ffedd5; border: 0.5px solid #fed7aa; }
+    .type-channel .tech-badge { border-color: #fed7aa; color: #ea580c; }
+
+    .type-external { background: #f9fafb; border: 0.5px solid #e5e7eb; }
+    .type-external .module { background: #f3f4f6; border: 0.5px solid #d1d5db; }
+    .type-external .tech-badge { border-color: #d1d5db; color: #6b7280; }
+
+    /* Legend */
+    .legend-container { display: flex; gap: 24px; align-items: center; flex-wrap: wrap; }
+    .legend-item { display: flex; align-items: center; gap: 6px; }
+    .legend-swatch { width: 14px; height: 14px; border-radius: 2px; }
+    .legend-text { font-size: 11px; color: #374151; font-family: 'Inter', system-ui, sans-serif; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <div class="dot"></div>
+      <div>
+        <h1>Clean API Architecture</h1>
+        <div class="subtitle">Minimalist RESTful service with layered separation of concerns</div>
+      </div>
+    </div>
+
+    <div class="diagram-container">
+      <svg viewBox="0 0 1000 700" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <marker id="arrowhead" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+            <polygon points="0 0, 8 3, 0 6" fill="#9ca3af"/>
+          </marker>
+          <marker id="arrowhead-rev" markerWidth="8" markerHeight="6" refX="0" refY="3" orient="auto">
+            <polygon points="8 0, 0 3, 8 6" fill="#9ca3af"/>
+          </marker>
+        </defs>
+
+        <!-- === CONNECTIONS (drawn first, behind layers) === -->
+
+        <!-- Presentation &rarr; Business Logic (Request) -->
+        <line x1="500" y1="140" x2="500" y2="220"
+              stroke="#9ca3af" stroke-width="1"
+              marker-end="url(#arrowhead)"/>
+        <rect x="466" y="172" width="68" height="16" rx="2" fill="#ffffff" stroke="#e5e7eb" stroke-width="0.5"/>
+        <text x="500" y="184" font-size="10" fill="#6b7280" font-family="Inter, sans-serif" text-anchor="middle">Request</text>
+
+        <!-- Business Logic &lt;-&gt; Data Access (Query) -->
+        <line x1="500" y1="380" x2="500" y2="460"
+              stroke="#9ca3af" stroke-width="1"
+              marker-start="url(#arrowhead-rev)" marker-end="url(#arrowhead)"/>
+        <rect x="474" y="412" width="52" height="16" rx="2" fill="#ffffff" stroke="#e5e7eb" stroke-width="0.5"/>
+        <text x="500" y="424" font-size="10" fill="#6b7280" font-family="Inter, sans-serif" text-anchor="middle">Query</text>
+
+        <!-- Data Access &lt;-&gt; Infrastructure (IO) -->
+        <line x1="500" y1="580" x2="500" y2="660"
+              stroke="#9ca3af" stroke-width="1"
+              marker-start="url(#arrowhead-rev)" marker-end="url(#arrowhead)"/>
+        <rect x="486" y="612" width="28" height="16" rx="2" fill="#ffffff" stroke="#e5e7eb" stroke-width="0.5"/>
+        <text x="500" y="624" font-size="10" fill="#6b7280" font-family="Inter, sans-serif" text-anchor="middle">IO</text>
+
+        <!-- === LAYER 1: Presentation (type: module) === -->
+        <g transform="translate(40, 40)">
+          <foreignObject width="920" height="100" xmlns="http://www.w3.org/1999/xhtml">
+            <div class="layer-card type-module">
+              <div class="layer-header">
+                <span class="layer-label">Presentation</span>
+              </div>
+              <div class="modules">
+                <div class="module">
+                  <span class="module-label">API Controller</span>
+                </div>
+                <div class="module">
+                  <span class="module-label">DTO Mapper</span>
+                </div>
+              </div>
+            </div>
+          </foreignObject>
+        </g>
+
+        <!-- === LAYER 2: Business Logic (type: process) === -->
+        <g transform="translate(40, 220)">
+          <foreignObject width="920" height="160" xmlns="http://www.w3.org/1999/xhtml">
+            <div class="layer-card type-process">
+              <div class="layer-header">
+                <span class="layer-label">Business Logic</span>
+              </div>
+              <div class="modules">
+                <div class="module">
+                  <span class="module-label">Service Layer</span>
+                </div>
+                <div class="module">
+                  <span class="module-label">Validator</span>
+                </div>
+                <div class="module">
+                  <span class="module-label">Event Bus</span>
+                </div>
+              </div>
+            </div>
+          </foreignObject>
+        </g>
+
+        <!-- === LAYER 3: Data Access (type: data) === -->
+        <g transform="translate(40, 460)">
+          <foreignObject width="920" height="120" xmlns="http://www.w3.org/1999/xhtml">
+            <div class="layer-card type-data">
+              <div class="layer-header">
+                <span class="layer-label">Data Access</span>
+              </div>
+              <div class="modules">
+                <div class="module">
+                  <span class="module-label">Repository</span>
+                </div>
+                <div class="module has-badges">
+                  <span class="module-label">Cache Layer</span>
+                  <span class="tech-badges">
+                    <span class="tech-badge">Redis</span>
+                  </span>
+                </div>
+              </div>
+            </div>
+          </foreignObject>
+        </g>
+
+        <!-- === LAYER 4: Infrastructure (type: infra) === -->
+        <g transform="translate(40, 660)">
+          <foreignObject width="920" height="90" xmlns="http://www.w3.org/1999/xhtml">
+            <div class="layer-card type-infra">
+              <div class="layer-header">
+                <span class="layer-label">Infrastructure</span>
+              </div>
+              <div class="modules">
+                <div class="module">
+                  <span class="module-label">PostgreSQL</span>
+                </div>
+                <div class="module">
+                  <span class="module-label">Message Queue</span>
+                </div>
+              </div>
+            </div>
+          </foreignObject>
+        </g>
+
+        <!-- === LEGEND === -->
+        <g transform="translate(40, 790)">
+          <text x="0" y="0" font-size="11" font-weight="600" fill="#374151" font-family="Inter, sans-serif">Legend</text>
+
+          <rect x="0" y="14" width="14" height="14" rx="2" fill="#fafafa" stroke="#d1d5db" stroke-width="0.5"/>
+          <text x="20" y="25" font-size="11" fill="#374151" font-family="Inter, sans-serif">Presentation</text>
+
+          <rect x="120" y="14" width="14" height="14" rx="2" fill="#f9fafb" stroke="#9ca3af" stroke-width="0.5"/>
+          <text x="140" y="25" font-size="11" fill="#374151" font-family="Inter, sans-serif">Service</text>
+
+          <rect x="210" y="14" width="14" height="14" rx="2" fill="#f5f3ff" stroke="#c4b5fd" stroke-width="0.5"/>
+          <text x="230" y="25" font-size="11" fill="#374151" font-family="Inter, sans-serif">Data</text>
+
+          <rect x="290" y="14" width="14" height="14" rx="2" fill="#fffbeb" stroke="#fcd34d" stroke-width="0.5"/>
+          <text x="310" y="25" font-size="11" fill="#374151" font-family="Inter, sans-serif">Infra</text>
+        </g>
+
+      </svg>
+    </div>
+
+    <div class="footer">
+      Generated by gmdiagram &middot; Minimalist &middot; 2026-04-13
+    </div>
+  </div>
+</body>
+</html>

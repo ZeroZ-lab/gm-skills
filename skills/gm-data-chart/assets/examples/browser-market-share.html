@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>浏览器市场份额</title>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      background: #020617;
+      color: #e2e8f0;
+      font-family: 'JetBrains Mono', 'SF Mono', 'Fira Code', monospace;
+      min-height: 100vh;
+      padding: 40px 20px;
+    }
+    .container { max-width: 1100px; margin: 0 auto; }
+    .header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 32px;
+    }
+    .pulse-dot {
+      width: 10px; height: 10px; border-radius: 50%;
+      background: #22d3ee;
+      box-shadow: 0 0 8px rgba(34, 211, 238, 0.6);
+      animation: pulse 2s ease-in-out infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.4; }
+    }
+    h1 { font-size: 22px; font-weight: 700; color: #f1f5f9; }
+    .subtitle { font-size: 13px; color: #64748b; margin-top: 4px; }
+    .diagram-container {
+      background: #0f172a;
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 12px;
+      padding: 24px;
+      margin-bottom: 32px;
+      overflow-x: auto;
+    }
+    .diagram-container svg {
+      width: 100%;
+      min-width: 600px;
+      height: auto;
+      display: block;
+    }
+    .footer {
+      font-size: 11px;
+      color: #475569;
+      text-align: center;
+      padding-top: 16px;
+      border-top: 1px solid rgba(255,255,255,0.04);
+    }
+    /* === Chart classes (dark-professional) === */
+    .axis-line { stroke: #64748b; stroke-width: 1.5; fill: none; }
+    .axis-label { fill: #94a3b8; font-size: 12px; font-family: 'JetBrains Mono', 'SF Mono', 'Fira Code', monospace; }
+    .axis-title { fill: #f1f5f9; font-size: 13px; font-weight: 600; font-family: 'JetBrains Mono', 'SF Mono', 'Fira Code', monospace; }
+    .tick-label { fill: #94a3b8; font-size: 11px; font-family: 'JetBrains Mono', 'SF Mono', 'Fira Code', monospace; }
+    .grid-line { stroke: rgba(255,255,255,0.06); stroke-dasharray: 4,4; stroke-width: 0.5; fill: none; }
+    .bar { rx: 2; }
+    .bar:hover { opacity: 0.85; }
+    .slice { stroke: #0f172a; stroke-width: 2; }
+    .line-path { fill: none; stroke-width: 2.5; }
+    .area-fill { opacity: 0.15; }
+    .data-dot { stroke-width: 2; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <div class="pulse-dot"></div>
+      <div>
+        <h1>浏览器市场份额</h1>
+        <div class="subtitle">2025年全球数据</div>
+      </div>
+    </div>
+
+    <div class="diagram-container">
+      <svg viewBox="0 0 600 400" xmlns="http://www.w3.org/2000/svg">
+
+        <!-- === Pie Chart === -->
+        <!-- centerX=252, centerY=200, PIE_RADIUS=160, START_OFFSET=-90 -->
+        <!-- totalValue=100, numItems=5 -->
+        <!-- Palette B (dark-professional): #6366f1, #f472b6, #34d399, #fbbf24, #a78bfa -->
+
+        <!-- Chrome: 65/100 * 360 = 234°, startAngle=0, endAngle=234 -->
+        <!-- x1=252, y1=40, x2=122.6, y2=294, largeArcFlag=1 -->
+        <path d="M 252 200 L 252 40 A 160 160 0 1 1 122.6 294 Z"
+              fill="#6366f1" class="slice" />
+
+        <!-- Safari: 19/100 * 360 = 68.4°, startAngle=234, endAngle=302.4 -->
+        <!-- x1=122.6, y1=294, x2=116.9, y2=114.3, largeArcFlag=0 -->
+        <path d="M 252 200 L 122.6 294 A 160 160 0 0 1 116.9 114.3 Z"
+              fill="#f472b6" class="slice" />
+
+        <!-- Firefox: 10/100 * 360 = 36°, startAngle=302.4, endAngle=338.4 -->
+        <!-- x1=116.9, y1=114.3, x2=193.1, y2=51.2, largeArcFlag=0 -->
+        <path d="M 252 200 L 116.9 114.3 A 160 160 0 0 1 193.1 51.2 Z"
+              fill="#34d399" class="slice" />
+
+        <!-- Edge: 4/100 * 360 = 14.4°, startAngle=338.4, endAngle=352.8 -->
+        <!-- x1=193.1, y1=51.2, x2=231.9, y2=41.3, largeArcFlag=0 -->
+        <path d="M 252 200 L 193.1 51.2 A 160 160 0 0 1 231.9 41.3 Z"
+              fill="#fbbf24" class="slice" />
+
+        <!-- 其他: 2/100 * 360 = 7.2°, startAngle=352.8, endAngle=360 -->
+        <!-- x1=231.9, y1=41.3, x2=252, y2=40, largeArcFlag=0 -->
+        <path d="M 252 200 L 231.9 41.3 A 160 160 0 0 1 252 40 Z"
+              fill="#a78bfa" class="slice" />
+
+        <!-- === Slice Labels === -->
+        <!-- Chrome: 65.0% > 15%, label at center (330.4, 240.0) -->
+        <foreignObject x="300" y="230" width="60" height="20">
+          <div xmlns="http://www.w3.org/1999/xhtml" class="tick-label"
+               style="text-align: center; font-size: 11px; color: #ffffff;">
+            65.0%
+          </div>
+        </foreignObject>
+
+        <!-- Safari: 19.0% > 15%, label at center (164.0, 202.8) -->
+        <foreignObject x="134" y="193" width="60" height="20">
+          <div xmlns="http://www.w3.org/1999/xhtml" class="tick-label"
+               style="text-align: center; font-size: 11px; color: #ffffff;">
+            19.0%
+          </div>
+        </foreignObject>
+
+        <!-- Firefox: 10.0% (5%-15%), label at outer (175.5, 107.5) -->
+        <foreignObject x="146" y="98" width="60" height="20">
+          <div xmlns="http://www.w3.org/1999/xhtml" class="tick-label"
+               style="text-align: center; font-size: 10px; color: #ffffff;">
+            10.0%
+          </div>
+        </foreignObject>
+
+        <!-- Edge: 4.0% < 5%, no slice label -->
+        <!-- 其他: 2.0% < 5%, no slice label -->
+
+        <!-- === Legend (right side) === -->
+        <!-- x = 252 + 160 + 40 = 452, y = 200 - 5*14 = 130 -->
+        <!-- width = 600 - 252 - 160 - 60 = 128, height = 5*28 = 140 -->
+        <foreignObject x="452" y="130" width="128" height="140">
+          <div xmlns="http://www.w3.org/1999/xhtml" style="display: flex; flex-direction: column; gap: 8px;">
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <div style="width: 12px; height: 12px; background: #6366f1; border-radius: 2px; flex-shrink: 0;"></div>
+              <span class="tick-label" style="flex: 1;">Chrome</span>
+              <span class="tick-label">65.0%</span>
+            </div>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <div style="width: 12px; height: 12px; background: #f472b6; border-radius: 2px; flex-shrink: 0;"></div>
+              <span class="tick-label" style="flex: 1;">Safari</span>
+              <span class="tick-label">19.0%</span>
+            </div>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <div style="width: 12px; height: 12px; background: #34d399; border-radius: 2px; flex-shrink: 0;"></div>
+              <span class="tick-label" style="flex: 1;">Firefox</span>
+              <span class="tick-label">10.0%</span>
+            </div>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <div style="width: 12px; height: 12px; background: #fbbf24; border-radius: 2px; flex-shrink: 0;"></div>
+              <span class="tick-label" style="flex: 1;">Edge</span>
+              <span class="tick-label">4.0%</span>
+            </div>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <div style="width: 12px; height: 12px; background: #a78bfa; border-radius: 2px; flex-shrink: 0;"></div>
+              <span class="tick-label" style="flex: 1;">其他</span>
+              <span class="tick-label">2.0%</span>
+            </div>
+          </div>
+        </foreignObject>
+
+      </svg>
+    </div>
+
+    <div class="footer">
+      Generated by gmdiagram &middot; 2026-04-14
+    </div>
+  </div>
+</body>
+</html>

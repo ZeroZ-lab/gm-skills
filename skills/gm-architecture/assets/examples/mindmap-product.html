@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>gmdiagram Product Features</title>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      background: #020617;
+      color: #e2e8f0;
+      font-family: 'JetBrains Mono', 'SF Mono', 'Fira Code', monospace;
+      min-height: 100vh;
+      padding: 40px 20px;
+    }
+    .container { max-width: 1100px; margin: 0 auto; }
+    .header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 32px;
+    }
+    .pulse-dot {
+      width: 10px; height: 10px; border-radius: 50%;
+      background: #22d3ee;
+      box-shadow: 0 0 8px rgba(34, 211, 238, 0.6);
+      animation: pulse 2s ease-in-out infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.4; }
+    }
+    h1 { font-size: 22px; font-weight: 700; color: #f1f5f9; }
+    .subtitle { font-size: 13px; color: #64748b; margin-top: 4px; }
+    .diagram-container {
+      background: #0f172a;
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 12px;
+      padding: 24px;
+      margin-bottom: 32px;
+      overflow-x: auto;
+    }
+    .diagram-container svg {
+      width: 100%;
+      min-width: 1100px;
+      height: auto;
+      display: block;
+    }
+    .footer {
+      font-size: 11px;
+      color: #475569;
+      text-align: center;
+      padding-top: 16px;
+      border-top: 1px solid rgba(255,255,255,0.04);
+    }
+
+    /* ---- Mind Map Node Styles ---- */
+    .mindmap-node {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-sizing: border-box;
+      font-family: JetBrains Mono, monospace;
+      text-align: center;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .node-label {
+      display: inline-block;
+      line-height: 1.2;
+    }
+
+    /* Central node */
+    .type-central {
+      width: 120px;
+      height: 50px;
+      border-radius: 25px;
+      background: rgba(8, 51, 68, 0.6);
+      border: 2.5px solid #22d3ee;
+      font-size: 13px;
+      font-weight: 700;
+      color: white;
+      padding: 0 12px;
+    }
+    .type-central .node-label {
+      font-size: 13px;
+      font-weight: 700;
+      color: white;
+    }
+
+    /* Branch node — Level 1 */
+    .type-branch {
+      height: 32px;
+      min-width: 60px;
+      padding: 0 12px;
+      border-radius: 12px;
+      font-size: 11px;
+      font-weight: 600;
+      color: white;
+    }
+    .type-branch .node-label {
+      font-size: 11px;
+      font-weight: 600;
+      color: white;
+    }
+
+    /* Leaf node — Level 2+ */
+    .type-leaf {
+      height: 28px;
+      min-width: 50px;
+      padding: 0 10px;
+      border-radius: 8px;
+      font-size: 10px;
+      font-weight: 400;
+      color: #cbd5e1;
+    }
+    .type-leaf .node-label {
+      font-size: 10px;
+      font-weight: 400;
+      color: #cbd5e1;
+    }
+
+    /* ---- Branch Color Variants ---- */
+    .color-emerald-l1 {
+      background: rgba(6, 78, 59, 0.5);
+      border: 1.8px solid #34d399;
+    }
+    .color-emerald-l2 {
+      background: rgba(6, 78, 59, 0.3);
+      border: 1.2px solid #6ee7b7;
+    }
+
+    .color-violet-l1 {
+      background: rgba(76, 29, 149, 0.4);
+      border: 1.8px solid #a78bfa;
+    }
+    .color-violet-l2 {
+      background: rgba(76, 29, 149, 0.25);
+      border: 1.2px solid #c4b5fd;
+    }
+
+    .color-amber-l1 {
+      background: rgba(120, 53, 15, 0.4);
+      border: 1.8px solid #fbbf24;
+    }
+    .color-amber-l2 {
+      background: rgba(120, 53, 15, 0.25);
+      border: 1.2px solid #fcd34d;
+    }
+
+    .color-rose-l1 {
+      background: rgba(136, 19, 55, 0.4);
+      border: 1.8px solid #fb7185;
+    }
+    .color-rose-l2 {
+      background: rgba(136, 19, 55, 0.25);
+      border: 1.2px solid #fda4af;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <div class="pulse-dot"></div>
+      <div>
+        <h1>gmdiagram Product Features</h1>
+        <div class="subtitle">Core capabilities and feature breakdown</div>
+      </div>
+    </div>
+
+    <div class="diagram-container">
+      <svg viewBox="0 0 1200 600" xmlns="http://www.w3.org/2000/svg">
+        <!-- Defs -->
+        <defs>
+          <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+            <path d="M 40 0 L 0 0 0 40" fill="none" stroke="rgba(51, 65, 85, 0.3)" stroke-width="0.5"/>
+          </pattern>
+        </defs>
+
+        <!-- Grid background -->
+        <rect width="1200" height="600" fill="url(#grid)"/>
+
+        <!-- === CONNECTIONS (drawn first, behind nodes) === -->
+
+        <!-- Central -> Diagram Types (right) -->
+        <path d="M 660,300 C 700,300 730,100 770,100" fill="none" stroke="#34d399" stroke-width="1.5" opacity="0.7"/>
+
+        <!-- Central -> Visual Styles (right, lower) -->
+        <path d="M 660,300 C 700,300 730,260 770,260" fill="none" stroke="#a78bfa" stroke-width="1.5" opacity="0.7"/>
+
+        <!-- Central -> Output Formats (left) -->
+        <path d="M 540,300 C 500,300 430,100 430,100" fill="none" stroke="#fbbf24" stroke-width="1.5" opacity="0.7"/>
+
+        <!-- Central -> Icon System (left, lower) -->
+        <path d="M 540,300 C 500,300 430,260 430,260" fill="none" stroke="#fb7185" stroke-width="1.5" opacity="0.7"/>
+
+        <!-- Diagram Types -> Architecture -->
+        <path d="M 910,100 C 950,100 970,40 1000,40" fill="none" stroke="#6ee7b7" stroke-width="1.2" opacity="0.6"/>
+
+        <!-- Diagram Types -> Mind Map -->
+        <path d="M 910,100 C 950,100 970,80 1000,80" fill="none" stroke="#6ee7b7" stroke-width="1.2" opacity="0.6"/>
+
+        <!-- Diagram Types -> Flowchart -->
+        <path d="M 910,100 C 950,100 970,120 1000,120" fill="none" stroke="#6ee7b7" stroke-width="1.2" opacity="0.6"/>
+
+        <!-- Diagram Types -> Sequence -->
+        <path d="M 910,100 C 950,100 970,160 1000,160" fill="none" stroke="#6ee7b7" stroke-width="1.2" opacity="0.6"/>
+
+        <!-- Diagram Types -> ER Diagram -->
+        <path d="M 910,100 C 950,100 970,200 1000,200" fill="none" stroke="#6ee7b7" stroke-width="1.2" opacity="0.6"/>
+
+        <!-- Visual Styles -> Dark Professional -->
+        <path d="M 910,260 C 950,260 970,240 1000,240" fill="none" stroke="#c4b5fd" stroke-width="1.2" opacity="0.6"/>
+
+        <!-- Visual Styles -> Hand-Drawn -->
+        <path d="M 910,260 C 950,260 970,280 1000,280" fill="none" stroke="#c4b5fd" stroke-width="1.2" opacity="0.6"/>
+
+        <!-- Visual Styles -> Light Corporate -->
+        <path d="M 910,260 C 950,260 970,320 1000,320" fill="none" stroke="#c4b5fd" stroke-width="1.2" opacity="0.6"/>
+
+        <!-- Visual Styles -> Cyberpunk Neon -->
+        <path d="M 910,260 C 950,260 970,360 1000,360" fill="none" stroke="#c4b5fd" stroke-width="1.2" opacity="0.6"/>
+
+        <!-- Visual Styles -> Blueprint -->
+        <path d="M 910,260 C 950,260 970,400 1000,400" fill="none" stroke="#c4b5fd" stroke-width="1.2" opacity="0.6"/>
+
+        <!-- Visual Styles -> Warm Cozy -->
+        <path d="M 910,260 C 950,260 970,440 1000,440" fill="none" stroke="#c4b5fd" stroke-width="1.2" opacity="0.6"/>
+
+        <!-- Output Formats -> HTML -->
+        <path d="M 330,100 C 290,100 270,40 240,40" fill="none" stroke="#fcd34d" stroke-width="1.2" opacity="0.6"/>
+
+        <!-- Output Formats -> SVG -->
+        <path d="M 330,100 C 290,100 270,80 240,80" fill="none" stroke="#fcd34d" stroke-width="1.2" opacity="0.6"/>
+
+        <!-- Output Formats -> PNG -->
+        <path d="M 330,100 C 290,100 270,120 240,120" fill="none" stroke="#fcd34d" stroke-width="1.2" opacity="0.6"/>
+
+        <!-- Output Formats -> PDF -->
+        <path d="M 330,100 C 290,100 270,160 240,160" fill="none" stroke="#fcd34d" stroke-width="1.2" opacity="0.6"/>
+
+        <!-- Icon System -> DevIcons -->
+        <path d="M 330,260 C 290,260 270,240 240,240" fill="none" stroke="#fda4af" stroke-width="1.2" opacity="0.6"/>
+
+        <!-- Icon System -> Simple Icons -->
+        <path d="M 330,260 C 290,260 270,280 240,280" fill="none" stroke="#fda4af" stroke-width="1.2" opacity="0.6"/>
+
+        <!-- Icon System -> Custom SVG -->
+        <path d="M 330,260 C 290,260 270,320 240,320" fill="none" stroke="#fda4af" stroke-width="1.2" opacity="0.6"/>
+
+        <!-- === NODES === -->
+
+        <!-- Central Node: gmdiagram -->
+        <g transform="translate(540, 275)">
+          <foreignObject width="120" height="50">
+            <div xmlns="http://www.w3.org/1999/xhtml" class="mindmap-node type-central">
+              <span class="node-label">gmdiagram</span>
+            </div>
+          </foreignObject>
+        </g>
+
+        <!-- Level 1 Branch: Diagram Types (right) -->
+        <g transform="translate(770, 84)">
+          <foreignObject width="140" height="32">
+            <div xmlns="http://www.w3.org/1999/xhtml" class="mindmap-node type-branch color-emerald-l1">
+              <span class="node-label">Diagram Types</span>
+            </div>
+          </foreignObject>
+        </g>
+
+        <!-- Level 2: Architecture -->
+        <g transform="translate(1000, 24)">
+          <foreignObject width="100" height="28">
+            <div xmlns="http://www.w3.org/1999/xhtml" class="mindmap-node type-leaf color-emerald-l2">
+              <span class="node-label">Architecture</span>
+            </div>
+          </foreignObject>
+        </g>
+
+        <!-- Level 2: Mind Map -->
+        <g transform="translate(1000, 64)">
+          <foreignObject width="80" height="28">
+            <div xmlns="http://www.w3.org/1999/xhtml" class="mindmap-node type-leaf color-emerald-l2">
+              <span class="node-label">Mind Map</span>
+            </div>
+          </foreignObject>
+        </g>
+
+        <!-- Level 2: Flowchart -->
+        <g transform="translate(1000, 104)">
+          <foreignObject width="90" height="28">
+            <div xmlns="http://www.w3.org/1999/xhtml" class="mindmap-node type-leaf color-emerald-l2">
+              <span class="node-label">Flowchart</span>
+            </div>
+          </foreignObject>
+        </g>
+
+        <!-- Level 2: Sequence -->
+        <g transform="translate(1000, 144)">
+          <foreignObject width="80" height="28">
+            <div xmlns="http://www.w3.org/1999/xhtml" class="mindmap-node type-leaf color-emerald-l2">
+              <span class="node-label">Sequence</span>
+            </div>
+          </foreignObject>
+        </g>
+
+        <!-- Level 2: ER Diagram -->
+        <g transform="translate(1000, 184)">
+          <foreignObject width="90" height="28">
+            <div xmlns="http://www.w3.org/1999/xhtml" class="mindmap-node type-leaf color-emerald-l2">
+              <span class="node-label">ER Diagram</span>
+            </div>
+          </foreignObject>
+        </g>
+
+        <!-- Level 1 Branch: Visual Styles (right, lower) -->
+        <g transform="translate(770, 244)">
+          <foreignObject width="140" height="32">
+            <div xmlns="http://www.w3.org/1999/xhtml" class="mindmap-node type-branch color-violet-l1">
+              <span class="node-label">Visual Styles</span>
+            </div>
+          </foreignObject>
+        </g>
+
+        <!-- Level 2: Dark Professional -->
+        <g transform="translate(1000, 224)">
+          <foreignObject width="130" height="28">
+            <div xmlns="http://www.w3.org/1999/xhtml" class="mindmap-node type-leaf color-violet-l2">
+              <span class="node-label">Dark Professional</span>
+            </div>
+          </foreignObject>
+        </g>
+
+        <!-- Level 2: Hand-Drawn -->
+        <g transform="translate(1000, 264)">
+          <foreignObject width="100" height="28">
+            <div xmlns="http://www.w3.org/1999/xhtml" class="mindmap-node type-leaf color-violet-l2">
+              <span class="node-label">Hand-Drawn</span>
+            </div>
+          </foreignObject>
+        </g>
+
+        <!-- Level 2: Light Corporate -->
+        <g transform="translate(1000, 304)">
+          <foreignObject width="120" height="28">
+            <div xmlns="http://www.w3.org/1999/xhtml" class="mindmap-node type-leaf color-violet-l2">
+              <span class="node-label">Light Corporate</span>
+            </div>
+          </foreignObject>
+        </g>
+
+        <!-- Level 2: Cyberpunk Neon -->
+        <g transform="translate(1000, 344)">
+          <foreignObject width="120" height="28">
+            <div xmlns="http://www.w3.org/1999/xhtml" class="mindmap-node type-leaf color-violet-l2">
+              <span class="node-label">Cyberpunk Neon</span>
+            </div>
+          </foreignObject>
+        </g>
+
+        <!-- Level 2: Blueprint -->
+        <g transform="translate(1000, 384)">
+          <foreignObject width="80" height="28">
+            <div xmlns="http://www.w3.org/1999/xhtml" class="mindmap-node type-leaf color-violet-l2">
+              <span class="node-label">Blueprint</span>
+            </div>
+          </foreignObject>
+        </g>
+
+        <!-- Level 2: Warm Cozy -->
+        <g transform="translate(1000, 424)">
+          <foreignObject width="90" height="28">
+            <div xmlns="http://www.w3.org/1999/xhtml" class="mindmap-node type-leaf color-violet-l2">
+              <span class="node-label">Warm Cozy</span>
+            </div>
+          </foreignObject>
+        </g>
+
+        <!-- Level 1 Branch: Output Formats (left) -->
+        <g transform="translate(330, 84)">
+          <foreignObject width="140" height="32">
+            <div xmlns="http://www.w3.org/1999/xhtml" class="mindmap-node type-branch color-amber-l1">
+              <span class="node-label">Output Formats</span>
+            </div>
+          </foreignObject>
+        </g>
+
+        <!-- Level 2: HTML -->
+        <g transform="translate(200, 24)">
+          <foreignObject width="60" height="28">
+            <div xmlns="http://www.w3.org/1999/xhtml" class="mindmap-node type-leaf color-amber-l2">
+              <span class="node-label">HTML</span>
+            </div>
+          </foreignObject>
+        </g>
+
+        <!-- Level 2: SVG -->
+        <g transform="translate(200, 64)">
+          <foreignObject width="60" height="28">
+            <div xmlns="http://www.w3.org/1999/xhtml" class="mindmap-node type-leaf color-amber-l2">
+              <span class="node-label">SVG</span>
+            </div>
+          </foreignObject>
+        </g>
+
+        <!-- Level 2: PNG -->
+        <g transform="translate(200, 104)">
+          <foreignObject width="60" height="28">
+            <div xmlns="http://www.w3.org/1999/xhtml" class="mindmap-node type-leaf color-amber-l2">
+              <span class="node-label">PNG</span>
+            </div>
+          </foreignObject>
+        </g>
+
+        <!-- Level 2: PDF -->
+        <g transform="translate(200, 144)">
+          <foreignObject width="60" height="28">
+            <div xmlns="http://www.w3.org/1999/xhtml" class="mindmap-node type-leaf color-amber-l2">
+              <span class="node-label">PDF</span>
+            </div>
+          </foreignObject>
+        </g>
+
+        <!-- Level 1 Branch: Icon System (left, lower) -->
+        <g transform="translate(330, 244)">
+          <foreignObject width="140" height="32">
+            <div xmlns="http://www.w3.org/1999/xhtml" class="mindmap-node type-branch color-rose-l1">
+              <span class="node-label">Icon System</span>
+            </div>
+          </foreignObject>
+        </g>
+
+        <!-- Level 2: DevIcons -->
+        <g transform="translate(190, 224)">
+          <foreignObject width="80" height="28">
+            <div xmlns="http://www.w3.org/1999/xhtml" class="mindmap-node type-leaf color-rose-l2">
+              <span class="node-label">DevIcons</span>
+            </div>
+          </foreignObject>
+        </g>
+
+        <!-- Level 2: Simple Icons -->
+        <g transform="translate(190, 264)">
+          <foreignObject width="100" height="28">
+            <div xmlns="http://www.w3.org/1999/xhtml" class="mindmap-node type-leaf color-rose-l2">
+              <span class="node-label">Simple Icons</span>
+            </div>
+          </foreignObject>
+        </g>
+
+        <!-- Level 2: Custom SVG -->
+        <g transform="translate(190, 304)">
+          <foreignObject width="90" height="28">
+            <div xmlns="http://www.w3.org/1999/xhtml" class="mindmap-node type-leaf color-rose-l2">
+              <span class="node-label">Custom SVG</span>
+            </div>
+          </foreignObject>
+        </g>
+
+        <!-- === LEGEND === -->
+        <g transform="translate(40, 540)">
+          <foreignObject width="600" height="40">
+            <div xmlns="http://www.w3.org/1999/xhtml" style="display:flex;align-items:center;gap:20px;font-family:JetBrains Mono,monospace;">
+              <span style="font-size:11px;font-weight:600;color:#cbd5e1;">Legend</span>
+              <div style="display:flex;align-items:center;gap:6px;">
+                <span style="display:inline-block;width:14px;height:14px;border-radius:3px;background:rgba(6,78,59,0.5);border:1px solid #34d399;"></span>
+                <span style="font-size:11px;color:#cbd5e1;">Diagram Types</span>
+              </div>
+              <div style="display:flex;align-items:center;gap:6px;">
+                <span style="display:inline-block;width:14px;height:14px;border-radius:3px;background:rgba(76,29,149,0.4);border:1px solid #a78bfa;"></span>
+                <span style="font-size:11px;color:#cbd5e1;">Visual Styles</span>
+              </div>
+              <div style="display:flex;align-items:center;gap:6px;">
+                <span style="display:inline-block;width:14px;height:14px;border-radius:3px;background:rgba(120,53,15,0.4);border:1px solid #fbbf24;"></span>
+                <span style="font-size:11px;color:#cbd5e1;">Output Formats</span>
+              </div>
+              <div style="display:flex;align-items:center;gap:6px;">
+                <span style="display:inline-block;width:14px;height:14px;border-radius:3px;background:rgba(136,19,55,0.4);border:1px solid #fb7185;"></span>
+                <span style="font-size:11px;color:#cbd5e1;">Icon System</span>
+              </div>
+            </div>
+          </foreignObject>
+        </g>
+
+      </svg>
+    </div>
+
+    <div class="footer">
+      Generated by gmdiagram &middot; 2026-04-11
+    </div>
+  </div>
+</body>
+</html>

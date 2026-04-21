@@ -1,0 +1,21 @@
+{
+  "diagramType": "pie",
+  "title": "浏览器市场份额",
+  "subtitle": "2025年全球数据",
+  "style": "dark-professional",
+  "format": "html",
+  "variant": "pie",
+  "data": [
+    { "label": "Chrome", "value": 65 },
+    { "label": "Safari", "value": 19 },
+    { "label": "Firefox", "value": 10 },
+    { "label": "Edge", "value": 4 },
+    { "label": "其他", "value": 2 }
+  ],
+  "legend": { "visible": true, "position": "right" },
+  "metadata": {
+    "author": "gmdiagram",
+    "date": "2026-04-14",
+    "version": "0.6.0"
+  }
+}

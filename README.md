@@ -18,6 +18,8 @@ npx skills add ZeroZ-lab/gm-skills --skill gm-x-hook-writer
 npx skills add ZeroZ-lab/gm-skills --skill gm-agent-docs
 npx skills add ZeroZ-lab/gm-skills --skill pngimg-download
 npx skills add ZeroZ-lab/gm-skills --skill auto-skill-fit
+npx skills add ZeroZ-lab/gm-skills --skill gm-architecture
+npx skills add ZeroZ-lab/gm-skills --skill gm-data-chart
 ```
 
 Install to specific agents:
@@ -44,6 +46,8 @@ npx skills add ZeroZ-lab/gm-skills --list
 | `gm-agent-docs` | 分析项目结构，生成 CLAUDE.md 和 AGENTS.md |
 | `pngimg-download` | Search and download free transparent PNG images from pngimg.com |
 | `auto-skill-fit` | 扫描项目技术栈，推荐并安装匹配的 agent skills 套装 |
+| `gm-architecture` | 自然语言生成架构图、流程图、思维导图、ER 图、时序图（9 种图表 + 12 种视觉风格） |
+| `gm-data-chart` | 自然语言生成数据图表（柱状图、饼图、折线图等 9 种图表类型 + 12 种视觉风格） |
 
 ### auto-skill-fit
 
@@ -63,6 +67,8 @@ gm-skills/
 │   ├── auto-skill-fit/
 │   ├── cc-design/          # submodule → ZeroZ-lab/cc-design
 │   ├── gm-agent-docs/
+│   ├── gm-architecture/
+│   ├── gm-data-chart/
 │   ├── gm-de-ai-article/
 │   ├── gm-topic-engine/
 │   ├── gm-x-hook-writer/
@@ -75,6 +81,7 @@ gm-skills/
 其他值得安装的高质量 skills：
 
 ```bash
+npx skills add ZeroZ-lab/gmdiagram          # 自然语言生成架构图、流程图、数据图表（9 种图表类型 + 12 种视觉风格）
 npx skills add garrytan/gstack              # Garry Tan 的全栈开发 skill（QA 测试、代码审查、设计检查）
 npx skills add remotion-dev/skills           # 用 React 编程式生成视频
 ```

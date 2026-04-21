@@ -1,0 +1,409 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "architecture-diagram-schema",
+  "title": "Architecture Diagram Schema",
+  "description": "Intermediate representation for system architecture diagrams. LLM extracts structure from natural language into this format, then rendering pipeline generates HTML/SVG from it.",
+  "type": "object",
+  "required": [
+    "title",
+    "diagramType",
+    "style",
+    "layers"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "title": {
+      "type": "string",
+      "description": "Diagram title, displayed as h1 at the top",
+      "examples": [
+        "Chrome Multi-Process Architecture",
+        "Enterprise AI Platform"
+      ]
+    },
+    "subtitle": {
+      "type": "string",
+      "description": "Optional subtitle shown below the title",
+      "examples": [
+        "Browser Process coordinates multiple subprocesses via IPC"
+      ]
+    },
+    "diagramType": {
+      "type": "string",
+      "const": "architecture",
+      "description": "Must be 'architecture' for architecture diagrams"
+    },
+    "style": {
+      "type": "string",
+      "enum": [
+        "dark-professional",
+        "hand-drawn",
+        "light-corporate",
+        "cyberpunk-neon",
+        "blueprint",
+        "warm-cozy",
+        "minimalist",
+        "terminal-retro",
+        "pastel-dream",
+        "notion",
+        "material",
+        "glassmorphism"
+      ],
+      "description": "Visual style preset. Each style has its own template and design rules. Options: dark-professional (dark tech), hand-drawn (sketch/whiteboard), light-corporate (business/clean), cyberpunk-neon (neon glow/Catppuccin), blueprint (engineering/Nord), warm-cozy (friendly/Gruvbox), minimalist (ultra-clean monochrome), terminal-retro (CRT green-on-black), pastel-dream (soft pastels, rounded), notion (Notion-like document aesthetic), material (Google Material Design), glassmorphism (frosted glass/translucent).",
+      "default": "dark-professional"
+    },
+    "format": {
+      "type": "string",
+      "enum": [
+        "html",
+        "svg",
+        "mermaid"
+      ],
+      "description": "Output format. HTML is the default (single-file with inline SVG and CSS). SVG outputs standalone SVG. Mermaid outputs Mermaid text syntax.",
+      "default": "html"
+    },
+    "density": {
+      "type": "string",
+      "enum": [
+        "compact",
+        "normal",
+        "spacious"
+      ],
+      "description": "Layout density. compact=tighter spacing for dense diagrams; normal=standard spacing; spacious=generous spacing for presentations.",
+      "default": "normal"
+    },
+    "direction": {
+      "type": "string",
+      "enum": [
+        "TB",
+        "LR"
+      ],
+      "description": "Layout direction. TB=top-to-bottom (default, layers stack vertically). LR=left-to-right (layers arranged as columns horizontally).",
+      "default": "TB"
+    },
+    "layers": {
+      "type": "array",
+      "description": "Top-level architectural layers, rendered top-to-bottom. Each layer is a horizontal band containing modules.",
+      "items": {
+        "$ref": "#/$defs/layer"
+      },
+      "minItems": 1
+    },
+    "connections": {
+      "type": "array",
+      "description": "Connections between layers or modules. Rendered as arrows/lines between components.",
+      "items": {
+        "$ref": "#/$defs/connection"
+      },
+      "default": []
+    },
+    "groups": {
+      "type": "array",
+      "description": "Boundary groups (VPC, security zone, region) that visually wrap multiple layers or modules.",
+      "items": {
+        "$ref": "#/$defs/group"
+      },
+      "default": []
+    },
+    "legend": {
+      "type": "array",
+      "description": "Legend entries shown below the diagram. Auto-generated from component types if not provided.",
+      "items": {
+        "$ref": "#/$defs/legendEntry"
+      },
+      "default": []
+    },
+    "font": {
+      "type": "string",
+      "pattern": "^[a-zA-Z0-9][a-zA-Z0-9 ._+\\-]{0,50}$",
+      "description": "Optional font override. Use a Google Fonts name (e.g., 'Inter', 'Fira Code', 'Source Sans 3'). Alphanumeric, spaces, dots, hyphens, plus, underscores allowed.",
+      "default": null
+    },
+    "colors": {
+      "type": "object",
+      "description": "Optional color overrides. Each key overrides the corresponding semantic color from the chosen style.",
+      "properties": {
+        "primary": {
+          "type": "string",
+          "pattern": "^#[0-9a-fA-F]{6}$",
+          "description": "Primary accent color (borders, highlights)"
+        },
+        "secondary": {
+          "type": "string",
+          "pattern": "^#[0-9a-fA-F]{6}$",
+          "description": "Secondary color (subtle borders, backgrounds)"
+        },
+        "accent": {
+          "type": "string",
+          "pattern": "^#[0-9a-fA-F]{6}$",
+          "description": "Accent color (highlights, call-to-action elements)"
+        },
+        "background": {
+          "type": "string",
+          "pattern": "^#[0-9a-fA-F]{6}$",
+          "description": "Page background color"
+        },
+        "text": {
+          "type": "string",
+          "pattern": "^#[0-9a-fA-F]{6}$",
+          "description": "Primary text color"
+        }
+      },
+      "additionalProperties": false
+    },
+    "metadata": {
+      "type": "object",
+      "description": "Optional metadata for the generated HTML page.",
+      "properties": {
+        "author": {
+          "type": "string"
+        },
+        "date": {
+          "type": "string",
+          "format": "date"
+        },
+        "version": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "$defs": {
+    "componentType": {
+      "type": "string",
+      "enum": [
+        "process",
+        "module",
+        "data",
+        "infra",
+        "security",
+        "channel",
+        "external"
+      ],
+      "description": "Semantic type that determines visual style (color, border, shape)."
+    },
+    "layer": {
+      "type": "object",
+      "required": [
+        "id",
+        "label",
+        "type"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier. Used as connection target and layout reference.",
+          "pattern": "^[a-z0-9][a-z0-9-]*$"
+        },
+        "label": {
+          "type": "string",
+          "description": "Display name shown on the layer header.",
+          "examples": [
+            "Browser Process",
+            "Application Layer"
+          ]
+        },
+        "type": {
+          "$ref": "#/$defs/componentType"
+        },
+        "count": {
+          "type": "string",
+          "enum": [
+            "single",
+            "multiple"
+          ],
+          "description": "Whether this layer represents a single instance or multiple instances (shown with stacked cards effect).",
+          "default": "single"
+        },
+        "description": {
+          "type": "string",
+          "description": "Optional short description rendered inside the layer card."
+        },
+        "children": {
+          "type": "array",
+          "description": "Sub-modules inside this layer, rendered horizontally within the layer band.",
+          "items": {
+            "$ref": "#/$defs/module"
+          },
+          "default": []
+        }
+      }
+    },
+    "module": {
+      "type": "object",
+      "required": [
+        "id",
+        "label",
+        "type"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier within the entire diagram.",
+          "pattern": "^[a-z0-9][a-z0-9-]*$"
+        },
+        "label": {
+          "type": "string",
+          "description": "Display name.",
+          "examples": [
+            "V8 Engine",
+            "Redis Cache",
+            "API Gateway"
+          ]
+        },
+        "type": {
+          "$ref": "#/$defs/componentType"
+        },
+        "description": {
+          "type": "string",
+          "description": "Optional annotation shown below the module name in smaller text."
+        },
+        "tech": {
+          "type": "array",
+          "description": "Technology tags displayed as small badges.",
+          "items": {
+            "type": "string"
+          },
+          "examples": [
+            [
+              "React",
+              "TypeScript"
+            ],
+            [
+              "Python",
+              "FastAPI"
+            ]
+          ]
+        },
+        "icon": {
+          "type": "string",
+          "description": "Optional icon identifier from the icons catalog. Rendered inside the module box.",
+          "examples": [
+            "server",
+            "database",
+            "shield-check",
+            "cloud"
+          ]
+        }
+      }
+    },
+    "connection": {
+      "type": "object",
+      "required": [
+        "from",
+        "to"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "from": {
+          "type": "string",
+          "description": "Source component id (layer or module). Must reference an existing id."
+        },
+        "to": {
+          "type": "string",
+          "description": "Target component id (layer or module). Must reference an existing id."
+        },
+        "label": {
+          "type": "string",
+          "description": "Label displayed on the connection line.",
+          "examples": [
+            "IPC",
+            "REST API",
+            "gRPC",
+            "WebSocket"
+          ]
+        },
+        "direction": {
+          "type": "string",
+          "enum": [
+            "unidirectional",
+            "bidirectional"
+          ],
+          "description": "Arrow direction. Bidirectional shows arrows on both ends.",
+          "default": "unidirectional"
+        },
+        "style": {
+          "type": "string",
+          "enum": [
+            "solid",
+            "dashed",
+            "dotted"
+          ],
+          "description": "Line style. Dashed typically used for async/optional connections.",
+          "default": "solid"
+        }
+      }
+    },
+    "group": {
+      "type": "object",
+      "required": [
+        "id",
+        "label",
+        "children"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the group.",
+          "pattern": "^[a-z0-9][a-z0-9-]*$"
+        },
+        "label": {
+          "type": "string",
+          "description": "Group label displayed on the boundary border.",
+          "examples": [
+            "AWS Region: us-east-1",
+            "VPC: Production",
+            "Security Zone"
+          ]
+        },
+        "type": {
+          "type": "string",
+          "enum": [
+            "region",
+            "vpc",
+            "security-group",
+            "cluster"
+          ],
+          "description": "Group type determines border style (dashed, colored, etc.)."
+        },
+        "children": {
+          "type": "array",
+          "description": "Ids of layers or modules contained within this group.",
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1
+        }
+      }
+    },
+    "legendEntry": {
+      "type": "object",
+      "required": [
+        "label"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "label": {
+          "type": "string",
+          "description": "Legend item label.",
+          "examples": [
+            "Process",
+            "Module",
+            "IPC Channel"
+          ]
+        },
+        "color": {
+          "type": "string",
+          "description": "Hex color for the legend swatch. Auto-derived from component type if omitted."
+        },
+        "type": {
+          "$ref": "#/$defs/componentType",
+          "description": "If provided, uses the predefined color for this component type."
+        }
+      }
+    }
+  }
+}

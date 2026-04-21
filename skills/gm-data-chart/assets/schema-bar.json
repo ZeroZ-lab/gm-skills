@@ -1,0 +1,122 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "bar-chart-schema",
+  "title": "Bar Chart Schema",
+  "description": "Intermediate representation for bar chart diagrams. LLM extracts data from natural language into this format, then rendering pipeline generates HTML/SVG from it.",
+  "type": "object",
+  "required": ["diagramType", "title", "series"],
+  "additionalProperties": false,
+  "properties": {
+    "diagramType": {
+      "type": "string",
+      "const": "bar",
+      "description": "Identifies this JSON as a bar chart. Must always be 'bar'."
+    },
+    "title": {
+      "type": "string",
+      "maxLength": 200,
+      "description": "Chart title, displayed at the top of the rendered page.",
+      "examples": ["2025年各季度营收", "Monthly Active Users Comparison"]
+    },
+    "subtitle": {
+      "type": "string",
+      "maxLength": 300,
+      "description": "Optional subtitle shown below the title, typically describing the unit or scope.",
+      "examples": ["单位：万元", "Comparison across product lines"]
+    },
+    "style": {
+      "$ref": "schema-shared.json#/$defs/styleEnum",
+      "description": "Visual style preset. Each style has its own template and design rules.",
+      "default": "dark-professional"
+    },
+    "format": {
+      "$ref": "schema-shared.json#/$defs/formatEnum",
+      "description": "Output format. HTML is the default (single-file with inline SVG and CSS). SVG outputs standalone SVG. Mermaid uses xychart-beta syntax (experimental).",
+      "default": "html"
+    },
+    "density": {
+      "type": "string",
+      "enum": ["compact", "normal", "spacious"],
+      "description": "Layout density. compact=tighter spacing; normal=standard; spacious=generous spacing.",
+      "default": "normal"
+    },
+    "direction": {
+      "type": "string",
+      "enum": ["vertical", "horizontal"],
+      "description": "Bar orientation. vertical=bars grow upward (default). horizontal=bars grow rightward.",
+      "default": "vertical"
+    },
+    "variant": {
+      "type": "string",
+      "enum": ["grouped", "stacked"],
+      "description": "Multi-series arrangement. grouped=bars side by side (default). stacked=bars on top of each other.",
+      "default": "grouped"
+    },
+    "series": {
+      "type": "array",
+      "description": "Data series. Each series contains data points with labels and values. Multiple series are displayed as grouped or stacked bars.",
+      "items": {
+        "$ref": "#/$defs/seriesItem"
+      },
+      "minItems": 1,
+      "maxItems": 8
+    },
+    "axis": {
+      "type": "object",
+      "description": "Axis configuration for both X and Y axes.",
+      "additionalProperties": false,
+      "properties": {
+        "x": {
+          "$ref": "schema-shared.json#/$defs/axisConfig",
+          "description": "X-axis configuration (category axis)."
+        },
+        "y": {
+          "$ref": "schema-shared.json#/$defs/axisConfig",
+          "description": "Y-axis configuration (value axis)."
+        }
+      }
+    },
+    "legend": {
+      "$ref": "schema-shared.json#/$defs/legendConfig",
+      "description": "Legend configuration. Auto-generated from series names if not provided."
+    },
+    "colors": {
+      "$ref": "schema-shared.json#/$defs/colorsOverride",
+      "description": "Optional color overrides for the style's environment colors (background, text, etc.). Does NOT affect data bar colors — use series[].color for that."
+    },
+    "metadata": {
+      "$ref": "schema-shared.json#/$defs/metadata",
+      "description": "Optional metadata. author field is for internal tracking only and MUST NOT be rendered into the output."
+    }
+  },
+  "$defs": {
+    "seriesItem": {
+      "type": "object",
+      "required": ["name", "data"],
+      "additionalProperties": false,
+      "description": "A data series containing named data points.",
+      "properties": {
+        "name": {
+          "$ref": "schema-shared.json#/$defs/sanitizedString",
+          "maxLength": 100,
+          "description": "Series name displayed in the legend.",
+          "examples": ["营收", "Users", "Revenue"]
+        },
+        "color": {
+          "type": "string",
+          "pattern": "^#[0-9a-fA-F]{6}$",
+          "description": "Optional color override for all bars in this series. Must be 6-digit hex (#RRGGBB). If omitted, uses the chart palette."
+        },
+        "data": {
+          "type": "array",
+          "description": "Data points in this series. Each has a label and numeric value.",
+          "items": {
+            "$ref": "schema-shared.json#/$defs/dataPoint"
+          },
+          "minItems": 2,
+          "maxItems": 30
+        }
+      }
+    }
+  }
+}

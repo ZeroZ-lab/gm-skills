@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Microservices Architecture</title>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    body { background: #2e3440; color: #eceff4; font-family: 'JetBrains Mono', monospace; min-height: 100vh; padding: 40px 20px; }
+    .container { max-width: 1000px; margin: 0 auto; }
+    .header { display: flex; align-items: center; gap: 12px; margin-bottom: 32px; }
+    .blueprint-dot { width: 10px; height: 10px; border-radius: 50%; background: #88c0d0; border: 1px solid #88c0d0; }
+    h1 { font-size: 22px; font-weight: 700; color: #eceff4; letter-spacing: 0.5px; }
+    .subtitle { font-size: 13px; color: #d8dee9; margin-top: 4px; }
+    .diagram-container { background: #3b4252; border: 1px solid #4c566a; border-radius: 2px; padding: 24px; margin-bottom: 32px; overflow-x: auto; }
+    .diagram-container svg { width: 100%; min-width: 700px; height: auto; display: block; }
+    .footer { font-size: 11px; color: #4c566a; text-align: center; padding-top: 16px; border-top: 1px solid #434c5e; }
+
+    /* === foreignObject component classes (blueprint) === */
+    .layer-card { width: 100%; border-radius: 2px; padding: 8px 0 12px; box-sizing: border-box; }
+    .layer-label { font-size: 14px; font-weight: 600; color: #88c0d0; padding: 0 16px; font-family: 'JetBrains Mono', monospace; }
+    .modules { display: flex; gap: 20px; justify-content: center; padding: 8px 16px 0; flex-wrap: wrap; }
+    .module { min-width: 100px; height: 50px; border-radius: 2px; display: flex; align-items: center; justify-content: center; padding: 0 16px; box-sizing: border-box; }
+    .module-label { font-size: 12px; font-weight: 500; color: #eceff4; text-align: center; white-space: nowrap; font-family: 'JetBrains Mono', monospace; }
+    .tech-badges { display: flex; gap: 4px; justify-content: center; padding-top: 4px; }
+    .tech-badge { font-size: 8px; padding: 2px 6px; border-radius: 2px; white-space: nowrap; background: rgba(255,255,255,0.05); border: 0.5px solid rgba(255,255,255,0.1); color: #d8dee9; font-family: 'JetBrains Mono', monospace; }
+    .module.has-badges { height: 58px; flex-direction: column; gap: 2px; }
+    .module.has-badges .module-label { height: 20px; }
+
+    /* Type-specific colors (Nord) */
+    .type-process { background: rgba(136,192,208,0.1); border: 0.8px solid #88c0d0; }
+    .type-module { background: rgba(163,190,140,0.1); border: 0.8px solid #a3be8c; }
+    .type-data { background: rgba(180,142,173,0.1); border: 0.8px solid #b48ead; }
+    .type-infra { background: rgba(235,203,139,0.1); border: 0.8px solid #ebcb8b; }
+    .type-security { background: rgba(191,97,106,0.1); border: 0.8px dashed #bf616a; }
+    .type-channel { background: rgba(208,135,112,0.1); border: 0.8px solid #d08770; }
+    .type-external { background: rgba(76,86,106,0.1); border: 0.8px solid #4c566a; }
+
+    .legend-container { display: flex; gap: 100px; align-items: center; }
+    .legend-item { display: flex; align-items: center; gap: 6px; }
+    .legend-swatch { width: 14px; height: 14px; border-radius: 2px; }
+    .legend-text { font-size: 11px; color: #d8dee9; font-family: 'JetBrains Mono', monospace; }
+
+    /* === Chart classes (blueprint) === */
+    .axis-line { stroke: #81a1c1; stroke-width: 1.5; fill: none; }
+    .axis-label { fill: #d8dee9; font-size: 12px; font-family: 'JetBrains Mono', monospace; }
+    .axis-title { fill: #eceff4; font-size: 13px; font-weight: 600; font-family: 'JetBrains Mono', monospace; }
+    .tick-label { fill: #d8dee9; font-size: 11px; font-family: 'JetBrains Mono', monospace; }
+    .grid-line { stroke: rgba(76,86,106,0.3); stroke-dasharray: 4,4; stroke-width: 0.5; fill: none; }
+    .bar { rx: 2; }
+    .bar:hover { opacity: 0.85; }
+    .slice { stroke: #3b4252; stroke-width: 2; }
+    .line-path { fill: none; stroke-width: 2.5; }
+    .area-fill { opacity: 0.15; }
+    .data-dot { stroke-width: 2; }
+    .scatter-point { stroke-width: 1.5; }
+    .bubble-point { stroke-width: 1.5; }
+    .radar-grid { stroke: rgba(255,255,255,0.08); fill: none; stroke-width: 0.5; }
+    .radar-axis { stroke: rgba(255,255,255,0.1); stroke-width: 0.5; }
+    .radar-data { stroke-width: 2; stroke-linejoin: round; }
+    .funnel-stage { stroke: #0f172a; stroke-width: 1; }
+    .funnel-label { fill: #f1f5f9; font-size: 13px; font-weight: 600; font-family: 'JetBrains Mono', monospace; }
+    .table-header { font-weight: 600; text-align: left; padding: 8px 12px; border-bottom: 2px solid #334155; }
+    .table-row { border-bottom: 1px solid rgba(255,255,255,0.06); }
+    .table-cell { padding: 8px 12px; font-size: 13px; }
+    .highlight-max { font-weight: 600; }
+    .highlight-min { font-weight: 600; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <div class="blueprint-dot"></div>
+      <div>
+        <h1>Microservices Architecture</h1>
+        <div class="subtitle">Gateway-routed service mesh with async event bus</div>
+      </div>
+    </div>
+
+    <div class="diagram-container">
+      <svg viewBox="0 0 960 580" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <pattern id="bp-grid" width="20" height="20" patternUnits="userSpaceOnUse">
+            <path d="M 20 0 L 0 0 0 20" fill="none" stroke="#4c566a" stroke-width="0.3"/>
+          </pattern>
+          <marker id="bp-arrow" markerWidth="7" markerHeight="5" refX="7" refY="2.5" orient="auto">
+            <polygon points="0 0, 7 2.5, 0 5" fill="#81a1c1"/>
+          </marker>
+          <marker id="bp-arrow-rev" markerWidth="7" markerHeight="5" refX="0" refY="2.5" orient="auto">
+            <polygon points="7 0, 0 2.5, 7 5" fill="#81a1c1"/>
+          </marker>
+        </defs>
+        <rect width="960" height="580" fill="url(#bp-grid)"/>
+
+        <!-- CONNECTIONS (behind components) -->
+        <!-- Gateway → User Service -->
+        <line x1="280" y1="115" x2="180" y2="230" stroke="#81a1c1" stroke-width="1" marker-end="url(#bp-arrow)"/>
+        <rect x="195" y="158" width="40" height="14" rx="1" fill="#2e3440" opacity="0.9"/>
+        <text x="215" y="169" font-size="8" fill="#81a1c1" font-family="JetBrains Mono, monospace" text-anchor="middle">REST</text>
+
+        <!-- Gateway → Order Service -->
+        <line x1="480" y1="115" x2="480" y2="230" stroke="#81a1c1" stroke-width="1" marker-end="url(#bp-arrow)"/>
+        <rect x="464" y="162" width="32" height="14" rx="1" fill="#2e3440" opacity="0.9"/>
+        <text x="480" y="173" font-size="8" fill="#81a1c1" font-family="JetBrains Mono, monospace" text-anchor="middle">gRPC</text>
+
+        <!-- Gateway → Payment Service -->
+        <line x1="680" y1="115" x2="780" y2="230" stroke="#81a1c1" stroke-width="1" marker-end="url(#bp-arrow)"/>
+        <rect x="710" y="158" width="40" height="14" rx="1" fill="#2e3440" opacity="0.9"/>
+        <text x="730" y="169" font-size="8" fill="#81a1c1" font-family="JetBrains Mono, monospace" text-anchor="middle">REST</text>
+
+        <!-- Services → Event Bus (dashed) -->
+        <line x1="180" y1="290" x2="340" y2="385" stroke="#d08770" stroke-width="1" stroke-dasharray="4,3" marker-end="url(#bp-arrow)"/>
+        <line x1="480" y1="290" x2="480" y2="370" stroke="#d08770" stroke-width="1" stroke-dasharray="4,3" marker-end="url(#bp-arrow)"/>
+        <line x1="780" y1="290" x2="620" y2="385" stroke="#d08770" stroke-width="1" stroke-dasharray="4,3" marker-end="url(#bp-arrow)"/>
+        <rect x="440" y="318" width="42" height="14" rx="1" fill="#2e3440" opacity="0.9"/>
+        <text x="461" y="329" font-size="8" fill="#d08770" font-family="JetBrains Mono, monospace" text-anchor="middle">async</text>
+
+        <!-- Event Bus → DB -->
+        <line x1="480" y1="425" x2="480" y2="475" stroke="#b48ead" stroke-width="1" marker-end="url(#bp-arrow)"/>
+        <rect x="462" y="440" width="36" height="14" rx="1" fill="#2e3440" opacity="0.9"/>
+        <text x="480" y="451" font-size="8" fill="#b48ead" font-family="JetBrains Mono, monospace" text-anchor="middle">write</text>
+
+        <!-- LAYER 1: API Gateway -->
+        <g>
+          <rect x="40" y="20" width="880" height="95" rx="2" fill="#3b4252" stroke="#88c0d0" stroke-width="0.8"/>
+          <text x="60" y="42" font-size="13" font-weight="600" fill="#88c0d0" font-family="JetBrains Mono, monospace">API Gateway Layer</text>
+          <!-- API Gateway module -->
+          <rect x="240" y="52" width="480" height="52" rx="2" fill="rgba(136,192,208,0.1)" stroke="#88c0d0" stroke-width="1"/>
+          <text x="480" y="80" font-size="12" font-weight="500" fill="#eceff4" font-family="JetBrains Mono, monospace" text-anchor="middle">API Gateway</text>
+          <rect x="420" y="86" width="56" height="12" rx="1" fill="rgba(136,192,208,0.15)" stroke="#88c0d0" stroke-width="0.5"/>
+          <text x="448" y="95" font-size="7" fill="#88c0d0" font-family="JetBrains Mono, monospace" text-anchor="middle">Kong</text>
+          <rect x="484" y="86" width="56" height="12" rx="1" fill="rgba(136,192,208,0.15)" stroke="#88c0d0" stroke-width="0.5"/>
+          <text x="512" y="95" font-size="7" fill="#88c0d0" font-family="JetBrains Mono, monospace" text-anchor="middle">nginx</text>
+        </g>
+
+        <!-- LAYER 2: Services -->
+        <g>
+          <rect x="40" y="230" width="880" height="60" rx="2" fill="#3b4252" stroke="#a3be8c" stroke-width="0.8"/>
+          <text x="60" y="252" font-size="13" font-weight="600" fill="#a3be8c" font-family="JetBrains Mono, monospace">Service Layer</text>
+
+          <!-- User Service -->
+          <rect x="80" y="260" width="180" height="30" rx="2" fill="rgba(163,190,140,0.1)" stroke="#a3be8c" stroke-width="0.8"/>
+          <text x="170" y="280" font-size="11" font-weight="500" fill="#eceff4" font-family="JetBrains Mono, monospace" text-anchor="middle">User Service</text>
+
+          <!-- Order Service -->
+          <rect x="380" y="260" width="200" height="30" rx="2" fill="rgba(163,190,140,0.1)" stroke="#a3be8c" stroke-width="0.8"/>
+          <text x="480" y="280" font-size="11" font-weight="500" fill="#eceff4" font-family="JetBrains Mono, monospace" text-anchor="middle">Order Service</text>
+
+          <!-- Payment Service -->
+          <rect x="680" y="260" width="200" height="30" rx="2" fill="rgba(163,190,140,0.1)" stroke="#a3be8c" stroke-width="0.8"/>
+          <text x="780" y="280" font-size="11" font-weight="500" fill="#eceff4" font-family="JetBrains Mono, monospace" text-anchor="middle">Payment Service</text>
+        </g>
+
+        <!-- LAYER 3: Event Bus -->
+        <g>
+          <rect x="240" y="370" width="480" height="55" rx="2" fill="#3b4252" stroke="#d08770" stroke-width="0.8"/>
+          <text x="260" y="392" font-size="13" font-weight="600" fill="#d08770" font-family="JetBrains Mono, monospace">Event Bus</text>
+          <rect x="360" y="398" width="240" height="22" rx="2" fill="rgba(208,135,112,0.1)" stroke="#d08770" stroke-width="0.8"/>
+          <text x="480" y="414" font-size="11" font-weight="500" fill="#eceff4" font-family="JetBrains Mono, monospace" text-anchor="middle">Kafka / RabbitMQ</text>
+        </g>
+
+        <!-- LAYER 4: Database -->
+        <g>
+          <rect x="280" y="475" width="400" height="50" rx="2" fill="#3b4252" stroke="#b48ead" stroke-width="0.8"/>
+          <text x="300" y="497" font-size="13" font-weight="600" fill="#b48ead" font-family="JetBrains Mono, monospace">Database Cluster</text>
+          <rect x="460" y="487" width="180" height="26" rx="2" fill="rgba(180,142,173,0.1)" stroke="#b48ead" stroke-width="0.8"/>
+          <text x="550" y="505" font-size="11" font-weight="500" fill="#eceff4" font-family="JetBrains Mono, monospace" text-anchor="middle">PostgreSQL</text>
+        </g>
+
+        <!-- Technical watermark -->
+        <text x="480" y="560" font-size="9" fill="#434c5e" font-family="JetBrains Mono, monospace" text-anchor="middle" letter-spacing="2">TECHNICAL DIAGRAM — NOT TO SCALE</text>
+      </svg>
+    </div>
+
+    <div class="footer">
+      Generated by gmdiagram &middot; Blueprint &middot; 2026-04-11
+    </div>
+  </div>
+</body>
+</html>

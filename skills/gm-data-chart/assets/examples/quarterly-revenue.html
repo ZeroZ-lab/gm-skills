@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>2025年各季度营收</title>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      background: #020617;
+      color: #e2e8f0;
+      font-family: 'JetBrains Mono', 'SF Mono', 'Fira Code', monospace;
+      min-height: 100vh;
+      padding: 40px 20px;
+    }
+    .container { max-width: 1100px; margin: 0 auto; }
+    .header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 32px;
+    }
+    .pulse-dot {
+      width: 10px; height: 10px; border-radius: 50%;
+      background: #22d3ee;
+      box-shadow: 0 0 8px rgba(34, 211, 238, 0.6);
+      animation: pulse 2s ease-in-out infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.4; }
+    }
+    h1 { font-size: 22px; font-weight: 700; color: #f1f5f9; }
+    .subtitle { font-size: 13px; color: #64748b; margin-top: 4px; }
+    .diagram-container {
+      background: #0f172a;
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 12px;
+      padding: 24px;
+      margin-bottom: 32px;
+      overflow-x: auto;
+    }
+    .diagram-container svg {
+      width: 100%;
+      min-width: 500px;
+      height: auto;
+      display: block;
+    }
+    .footer {
+      font-size: 11px;
+      color: #475569;
+      text-align: center;
+      padding-top: 16px;
+      border-top: 1px solid rgba(255,255,255,0.04);
+    }
+    /* === Chart classes (dark-professional) === */
+    .axis-line { stroke: #64748b; stroke-width: 1.5; fill: none; }
+    .axis-label { fill: #94a3b8; font-size: 12px; font-family: 'JetBrains Mono', 'SF Mono', 'Fira Code', monospace; }
+    .axis-title { fill: #f1f5f9; font-size: 13px; font-weight: 600; font-family: 'JetBrains Mono', 'SF Mono', 'Fira Code', monospace; }
+    .tick-label { fill: #94a3b8; font-size: 11px; font-family: 'JetBrains Mono', 'SF Mono', 'Fira Code', monospace; }
+    .grid-line { stroke: rgba(255,255,255,0.06); stroke-dasharray: 4,4; stroke-width: 0.5; fill: none; }
+    .bar { rx: 2; }
+    .bar:hover { opacity: 0.85; }
+    .slice { stroke: #0f172a; stroke-width: 2; }
+    .line-path { fill: none; stroke-width: 2.5; }
+    .area-fill { opacity: 0.15; }
+    .data-dot { stroke-width: 2; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <div class="pulse-dot"></div>
+      <div>
+        <h1>2025年各季度营收</h1>
+        <div class="subtitle">单位：万元</div>
+      </div>
+    </div>
+
+    <div class="diagram-container">
+      <svg viewBox="0 0 500 300" xmlns="http://www.w3.org/2000/svg">
+
+        <!-- === Grid Lines === -->
+        <!-- tick=50, y=195 -->
+        <line x1="70" y1="195" x2="460" y2="195" class="grid-line" />
+        <!-- tick=100, y=150 -->
+        <line x1="70" y1="150" x2="460" y2="150" class="grid-line" />
+        <!-- tick=150, y=105 -->
+        <line x1="70" y1="105" x2="460" y2="105" class="grid-line" />
+        <!-- tick=200, y=60 -->
+        <line x1="70" y1="60" x2="460" y2="60" class="grid-line" />
+
+        <!-- === Axes === -->
+        <!-- Y axis -->
+        <line x1="70" y1="60" x2="70" y2="240" class="axis-line" />
+        <!-- X axis -->
+        <line x1="70" y1="240" x2="460" y2="240" class="axis-line" />
+
+        <!-- === Bars === -->
+        <!-- Plot area: x=70..460 (390px), y=60..240 (180px) -->
+        <!-- groupWidth=97.5, groupGap=48.75, barWidth=48.75, barGap=14.625, actualBarWidth=34 -->
+        <!-- Palette B (dark-professional): palette[0]=#6366f1 -->
+
+        <!-- Q1: value=120, barY=132, barH=108 -->
+        <rect x="102" y="132" width="34" height="108" rx="2" fill="#6366f1" class="bar" />
+
+        <!-- Q2: value=150, barY=105, barH=135 -->
+        <rect x="199" y="105" width="34" height="135" rx="2" fill="#6366f1" class="bar" />
+
+        <!-- Q3: value=180, barY=78, barH=162 -->
+        <rect x="297" y="78" width="34" height="162" rx="2" fill="#6366f1" class="bar" />
+
+        <!-- Q4: value=200, barY=60, barH=180 -->
+        <rect x="394" y="60" width="34" height="180" rx="2" fill="#6366f1" class="bar" />
+
+        <!-- === Y Axis Tick Labels === -->
+        <foreignObject x="0" y="230" width="60" height="20">
+          <div xmlns="http://www.w3.org/1999/xhtml" class="tick-label" style="text-align: right;">0</div>
+        </foreignObject>
+        <foreignObject x="0" y="185" width="60" height="20">
+          <div xmlns="http://www.w3.org/1999/xhtml" class="tick-label" style="text-align: right;">50</div>
+        </foreignObject>
+        <foreignObject x="0" y="140" width="60" height="20">
+          <div xmlns="http://www.w3.org/1999/xhtml" class="tick-label" style="text-align: right;">100</div>
+        </foreignObject>
+        <foreignObject x="0" y="95" width="60" height="20">
+          <div xmlns="http://www.w3.org/1999/xhtml" class="tick-label" style="text-align: right;">150</div>
+        </foreignObject>
+        <foreignObject x="0" y="50" width="60" height="20">
+          <div xmlns="http://www.w3.org/1999/xhtml" class="tick-label" style="text-align: right;">200</div>
+        </foreignObject>
+
+        <!-- === X Axis Group Labels === -->
+        <foreignObject x="70" y="248" width="97" height="20">
+          <div xmlns="http://www.w3.org/1999/xhtml" class="tick-label" style="text-align: center;">Q1</div>
+        </foreignObject>
+        <foreignObject x="167" y="248" width="98" height="20">
+          <div xmlns="http://www.w3.org/1999/xhtml" class="tick-label" style="text-align: center;">Q2</div>
+        </foreignObject>
+        <foreignObject x="265" y="248" width="98" height="20">
+          <div xmlns="http://www.w3.org/1999/xhtml" class="tick-label" style="text-align: center;">Q3</div>
+        </foreignObject>
+        <foreignObject x="363" y="248" width="97" height="20">
+          <div xmlns="http://www.w3.org/1999/xhtml" class="tick-label" style="text-align: center;">Q4</div>
+        </foreignObject>
+
+        <!-- === Y Axis Title === -->
+        <foreignObject x="0" y="60" width="20" height="180">
+          <div xmlns="http://www.w3.org/1999/xhtml" class="axis-title"
+               style="transform: rotate(-90deg); transform-origin: center; display: flex; align-items: center; justify-content: center; height: 100%;">
+            万元
+          </div>
+        </foreignObject>
+
+        <!-- === X Axis Title === -->
+        <foreignObject x="70" y="270" width="390" height="20">
+          <div xmlns="http://www.w3.org/1999/xhtml" class="axis-title" style="text-align: center;">
+            季度
+          </div>
+        </foreignObject>
+
+        <!-- === Legend === -->
+        <foreignObject x="70" y="30" width="390" height="25">
+          <div xmlns="http://www.w3.org/1999/xhtml" style="display: flex; align-items: center; justify-content: center; gap: 16px;">
+            <div style="display: flex; align-items: center; gap: 6px;">
+              <div style="width: 12px; height: 12px; background: #6366f1; border-radius: 2px;"></div>
+              <span class="tick-label">营收</span>
+            </div>
+          </div>
+        </foreignObject>
+
+      </svg>
+    </div>
+
+    <div class="footer">
+      Generated by gmdiagram &middot; 2026-04-13
+    </div>
+  </div>
+</body>
+</html>

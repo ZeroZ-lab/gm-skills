@@ -1,0 +1,21 @@
+{
+  "diagramType": "card",
+  "cardType": "info",
+  "title": "React Server Components",
+  "subtitle": "服务端渲染的新范式",
+  "size": "twitter",
+  "style": "dark-professional",
+  "format": "html",
+  "icon": "⚡",
+  "points": [
+    { "label": "零打包体积", "description": "服务端组件不会被打包到客户端" },
+    { "label": "直接数据访问", "description": "无需 API 层，直接读写数据库" },
+    { "label": "流式渲染", "description": "支持 Suspense + Streaming" },
+    { "label": "自动代码分割", "description": "客户端组件自动按需加载" }
+  ],
+  "tags": ["React", "Server Components", "SSR"],
+  "footer": {
+    "author": "@zhengjianqiao",
+    "brand": "GM Diagram"
+  }
+}

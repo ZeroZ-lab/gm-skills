@@ -1,0 +1,142 @@
+{
+  "diagramType": "mindmap",
+  "title": "gmdiagram Product Features",
+  "subtitle": "Core capabilities and feature breakdown",
+  "style": "dark-professional",
+  "format": "html",
+  "centralNode": {
+    "id": "gmdiagram",
+    "label": "gmdiagram",
+    "children": [
+      {
+        "id": "diagram-types",
+        "label": "Diagram Types",
+        "side": "right",
+        "children": [
+          {
+            "id": "architecture",
+            "label": "Architecture",
+            "children": []
+          },
+          {
+            "id": "mindmap",
+            "label": "Mind Map",
+            "children": []
+          },
+          {
+            "id": "flowchart",
+            "label": "Flowchart",
+            "children": []
+          },
+          {
+            "id": "sequence",
+            "label": "Sequence",
+            "children": []
+          },
+          {
+            "id": "er-diagram",
+            "label": "ER Diagram",
+            "children": []
+          }
+        ]
+      },
+      {
+        "id": "visual-styles",
+        "label": "Visual Styles",
+        "side": "right",
+        "children": [
+          {
+            "id": "dark-pro",
+            "label": "Dark Professional",
+            "children": []
+          },
+          {
+            "id": "hand-drawn",
+            "label": "Hand-Drawn",
+            "children": []
+          },
+          {
+            "id": "light-corp",
+            "label": "Light Corporate",
+            "children": []
+          },
+          {
+            "id": "cyberpunk",
+            "label": "Cyberpunk Neon",
+            "children": []
+          },
+          {
+            "id": "blueprint",
+            "label": "Blueprint",
+            "children": []
+          },
+          {
+            "id": "warm-cozy",
+            "label": "Warm Cozy",
+            "children": []
+          }
+        ]
+      },
+      {
+        "id": "output-formats",
+        "label": "Output Formats",
+        "side": "left",
+        "children": [
+          {
+            "id": "html-out",
+            "label": "HTML",
+            "children": []
+          },
+          {
+            "id": "svg-out",
+            "label": "SVG",
+            "children": []
+          },
+          {
+            "id": "png-out",
+            "label": "PNG",
+            "children": []
+          },
+          {
+            "id": "pdf-out",
+            "label": "PDF",
+            "children": []
+          }
+        ]
+      },
+      {
+        "id": "icon-system",
+        "label": "Icon System",
+        "side": "left",
+        "children": [
+          {
+            "id": "devicons",
+            "label": "DevIcons",
+            "children": []
+          },
+          {
+            "id": "simple-icons",
+            "label": "Simple Icons",
+            "children": []
+          },
+          {
+            "id": "custom-svg",
+            "label": "Custom SVG",
+            "children": []
+          }
+        ]
+      }
+    ]
+  },
+  "legend": [
+    { "label": "Diagram Types", "color": "#34d399" },
+    { "label": "Visual Styles", "color": "#a78bfa" },
+    { "label": "Output Formats", "color": "#fbbf24" },
+    { "label": "Icon System", "color": "#fb7185" }
+  ],
+  "metadata": {
+    "author": "gmdiagram",
+    "date": "2026-04-14",
+    "version": "0.6.0"
+  }
+}

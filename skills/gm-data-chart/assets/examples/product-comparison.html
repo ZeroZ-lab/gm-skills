@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Product Competitiveness Analysis</title>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      background: #020617;
+      color: #e2e8f0;
+      font-family: 'JetBrains Mono', 'SF Mono', 'Fira Code', monospace;
+      min-height: 100vh;
+      padding: 40px 20px;
+    }
+    .container { max-width: 1100px; margin: 0 auto; }
+    .header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 32px;
+    }
+    .pulse-dot {
+      width: 10px; height: 10px; border-radius: 50%;
+      background: #22d3ee;
+      box-shadow: 0 0 8px rgba(34, 211, 238, 0.6);
+      animation: pulse 2s ease-in-out infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.4; }
+    }
+    h1 { font-size: 22px; font-weight: 700; color: #f1f5f9; }
+    .subtitle { font-size: 13px; color: #64748b; margin-top: 4px; }
+    .diagram-container {
+      background: #0f172a;
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 12px;
+      padding: 24px;
+      margin-bottom: 32px;
+      overflow-x: auto;
+    }
+    .diagram-container svg {
+      width: 100%;
+      min-width: 500px;
+      height: auto;
+      display: block;
+    }
+    .footer {
+      font-size: 11px;
+      color: #475569;
+      text-align: center;
+      padding-top: 16px;
+      border-top: 1px solid rgba(255,255,255,0.04);
+    }
+    /* === Chart classes (dark-professional) === */
+    .axis-line { stroke: #64748b; stroke-width: 1.5; fill: none; }
+    .axis-label { fill: #94a3b8; font-size: 12px; font-family: 'JetBrains Mono', 'SF Mono', 'Fira Code', monospace; }
+    .axis-title { fill: #f1f5f9; font-size: 13px; font-weight: 600; font-family: 'JetBrains Mono', 'SF Mono', 'Fira Code', monospace; }
+    .tick-label { fill: #94a3b8; font-size: 11px; font-family: 'JetBrains Mono', 'SF Mono', 'Fira Code', monospace; }
+    .grid-line { stroke: rgba(255,255,255,0.06); stroke-dasharray: 4,4; stroke-width: 0.5; fill: none; }
+    .bubble-point { fill-opacity: 0.5; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <div class="pulse-dot"></div>
+      <div>
+        <h1>Product Competitiveness Analysis</h1>
+        <div class="subtitle">Bubble size = market share (%)</div>
+      </div>
+    </div>
+
+    <div class="diagram-container">
+      <svg viewBox="0 0 500 500" xmlns="http://www.w3.org/2000/svg">
+
+        <!-- === Grid Lines (Y axis - horizontal) === -->
+        <!-- tick=60, y=364 -->
+        <line x1="70" y1="364" x2="460" y2="364" class="grid-line" />
+        <!-- tick=70, y=288 -->
+        <line x1="70" y1="288" x2="460" y2="288" class="grid-line" />
+        <!-- tick=80, y=212 -->
+        <line x1="70" y1="212" x2="460" y2="212" class="grid-line" />
+        <!-- tick=90, y=136 -->
+        <line x1="70" y1="136" x2="460" y2="136" class="grid-line" />
+        <!-- tick=100, y=60 -->
+        <line x1="70" y1="60" x2="460" y2="60" class="grid-line" />
+
+        <!-- === Grid Lines (X axis - vertical) === -->
+        <!-- tick=20, x=148 -->
+        <line x1="148" y1="60" x2="148" y2="440" class="grid-line" />
+        <!-- tick=40, x=226 -->
+        <line x1="226" y1="60" x2="226" y2="440" class="grid-line" />
+        <!-- tick=60, x=304 -->
+        <line x1="304" y1="60" x2="304" y2="440" class="grid-line" />
+        <!-- tick=80, x=382 -->
+        <line x1="382" y1="60" x2="382" y2="440" class="grid-line" />
+        <!-- tick=100, x=460 -->
+        <line x1="460" y1="60" x2="460" y2="440" class="grid-line" />
+
+        <!-- === Axes === -->
+        <!-- Y axis -->
+        <line x1="70" y1="60" x2="70" y2="440" class="axis-line" />
+        <!-- X axis -->
+        <line x1="70" y1="440" x2="460" y2="440" class="axis-line" />
+
+        <!-- === Bubbles (rendered ASCENDING by size) === -->
+        <!-- Plot area: x=70..460 (390px), y=60..440 (380px) -->
+        <!-- Size-to-radius via AREA mapping: minR=5, maxR=35, minR²=25, maxR²=1225 -->
+        <!-- minSize=10, maxSize=45 -->
+        <!-- Palette B (dark-professional): palette[0]=#6366f1 -->
+
+        <!-- Product D: x=65, y=65, size=10, r=5.0 -->
+        <!-- cx=valueToX(65)=70+(65/100)*390=323.5, cy=valueToY(65)=60+380-((65-50)/50)*380=326 -->
+        <circle cx="323.5" cy="326" r="5"
+                fill="#6366f1" stroke="#6366f1" stroke-width="1.5" stroke-opacity="0.8"
+                class="bubble-point" />
+
+        <!-- Product B: x=80, y=70, size=15, r=14.0 -->
+        <!-- cx=valueToX(80)=70+(80/100)*390=382, cy=valueToY(70)=60+380-((70-50)/50)*380=288 -->
+        <circle cx="382" cy="288" r="14"
+                fill="#6366f1" stroke="#6366f1" stroke-width="1.5" stroke-opacity="0.8"
+                class="bubble-point" />
+
+        <!-- Product A: x=50, y=85, size=30, r=26.7 -->
+        <!-- cx=valueToX(50)=70+(50/100)*390=265, cy=valueToY(85)=60+380-((85-50)/50)*380=174 -->
+        <circle cx="265" cy="174" r="26.7"
+                fill="#6366f1" stroke="#6366f1" stroke-width="1.5" stroke-opacity="0.8"
+                class="bubble-point" />
+
+        <!-- Product C: x=30, y=92, size=45, r=35.0 -->
+        <!-- cx=valueToX(30)=70+(30/100)*390=187, cy=valueToY(92)=60+380-((92-50)/50)*380=120.8 -->
+        <circle cx="187" cy="120.8" r="35"
+                fill="#6366f1" stroke="#6366f1" stroke-width="1.5" stroke-opacity="0.8"
+                class="bubble-point" />
+
+        <!-- === Bubble Labels === -->
+        <!-- Product D (r=5, small bubble → label above) -->
+        <foreignObject x="293.5" y="303" width="60" height="16">
+          <div xmlns="http://www.w3.org/1999/xhtml" class="tick-label" style="text-align: center; font-size: 10px;">
+            Product D
+          </div>
+        </foreignObject>
+
+        <!-- Product B (r=14, small bubble → label above) -->
+        <foreignObject x="352" y="270" width="60" height="16">
+          <div xmlns="http://www.w3.org/1999/xhtml" class="tick-label" style="text-align: center; font-size: 10px;">
+            Product B
+          </div>
+        </foreignObject>
+
+        <!-- Product A (r=26.7, large bubble → label centered) -->
+        <foreignObject x="235" y="164" width="60" height="20">
+          <div xmlns="http://www.w3.org/1999/xhtml" class="tick-label" style="text-align: center; font-size: 10px;">
+            Product A
+          </div>
+        </foreignObject>
+
+        <!-- Product C (r=35, large bubble → label centered) -->
+        <foreignObject x="157" y="111" width="60" height="20">
+          <div xmlns="http://www.w3.org/1999/xhtml" class="tick-label" style="text-align: center; font-size: 10px;">
+            Product C
+          </div>
+        </foreignObject>
+
+        <!-- === Y Axis Tick Labels === -->
+        <foreignObject x="0" y="430" width="60" height="20">
+          <div xmlns="http://www.w3.org/1999/xhtml" class="tick-label" style="text-align: right;">50</div>
+        </foreignObject>
+        <foreignObject x="0" y="354" width="60" height="20">
+          <div xmlns="http://www.w3.org/1999/xhtml" class="tick-label" style="text-align: right;">60</div>
+        </foreignObject>
+        <foreignObject x="0" y="278" width="60" height="20">
+          <div xmlns="http://www.w3.org/1999/xhtml" class="tick-label" style="text-align: right;">70</div>
+        </foreignObject>
+        <foreignObject x="0" y="202" width="60" height="20">
+          <div xmlns="http://www.w3.org/1999/xhtml" class="tick-label" style="text-align: right;">80</div>
+        </foreignObject>
+        <foreignObject x="0" y="126" width="60" height="20">
+          <div xmlns="http://www.w3.org/1999/xhtml" class="tick-label" style="text-align: right;">90</div>
+        </foreignObject>
+        <foreignObject x="0" y="50" width="60" height="20">
+          <div xmlns="http://www.w3.org/1999/xhtml" class="tick-label" style="text-align: right;">100</div>
+        </foreignObject>
+
+        <!-- === X Axis Tick Labels === -->
+        <foreignObject x="40" y="448" width="60" height="20">
+          <div xmlns="http://www.w3.org/1999/xhtml" class="tick-label" style="text-align: center;">0</div>
+        </foreignObject>
+        <foreignObject x="118" y="448" width="60" height="20">
+          <div xmlns="http://www.w3.org/1999/xhtml" class="tick-label" style="text-align: center;">20</div>
+        </foreignObject>
+        <foreignObject x="196" y="448" width="60" height="20">
+          <div xmlns="http://www.w3.org/1999/xhtml" class="tick-label" style="text-align: center;">40</div>
+        </foreignObject>
+        <foreignObject x="274" y="448" width="60" height="20">
+          <div xmlns="http://www.w3.org/1999/xhtml" class="tick-label" style="text-align: center;">60</div>
+        </foreignObject>
+        <foreignObject x="352" y="448" width="60" height="20">
+          <div xmlns="http://www.w3.org/1999/xhtml" class="tick-label" style="text-align: center;">80</div>
+        </foreignObject>
+        <foreignObject x="430" y="448" width="60" height="20">
+          <div xmlns="http://www.w3.org/1999/xhtml" class="tick-label" style="text-align: center;">100</div>
+        </foreignObject>
+
+        <!-- === Y Axis Title === -->
+        <foreignObject x="0" y="60" width="20" height="380">
+          <div xmlns="http://www.w3.org/1999/xhtml" class="axis-title"
+               style="transform: rotate(-90deg); transform-origin: center; display: flex; align-items: center; justify-content: center; height: 100%;">
+            Satisfaction Score
+          </div>
+        </foreignObject>
+
+        <!-- === X Axis Title === -->
+        <foreignObject x="70" y="468" width="390" height="20">
+          <div xmlns="http://www.w3.org/1999/xhtml" class="axis-title" style="text-align: center;">
+            Price ($)
+          </div>
+        </foreignObject>
+
+        <!-- === Legend === -->
+        <foreignObject x="70" y="25" width="390" height="30">
+          <div xmlns="http://www.w3.org/1999/xhtml" style="display: flex; align-items: center; justify-content: center; gap: 16px;">
+            <div style="display: flex; align-items: center; gap: 6px;">
+              <div style="width: 12px; height: 12px; background: #6366f1; border-radius: 50%; opacity: 0.5;"></div>
+              <span class="tick-label">Products</span>
+            </div>
+          </div>
+        </foreignObject>
+
+        <!-- === Size Legend Indicator === -->
+        <!-- Scaled-down representation: min=3px, mid=8px, max=14px -->
+        <foreignObject x="330" y="472" width="130" height="18">
+          <div xmlns="http://www.w3.org/1999/xhtml" style="display: flex; align-items: flex-end; gap: 4px; justify-content: flex-end;">
+            <span class="tick-label" style="font-size: 10px; margin-right: 4px;">Size:</span>
+            <svg width="70" height="18" xmlns="http://www.w3.org/2000/svg">
+              <circle cx="8" cy="14" r="3" fill="#64748b" fill-opacity="0.3" stroke="#64748b" stroke-width="0.8" />
+              <circle cx="28" cy="11" r="7" fill="#64748b" fill-opacity="0.3" stroke="#64748b" stroke-width="0.8" />
+              <circle cx="52" cy="8" r="12" fill="#64748b" fill-opacity="0.15" stroke="#64748b" stroke-width="0.8" />
+            </svg>
+          </div>
+        </foreignObject>
+
+      </svg>
+    </div>
+
+    <div class="footer">
+      Generated by gmdiagram &middot; 2026-04-14
+    </div>
+  </div>
+</body>
+</html>

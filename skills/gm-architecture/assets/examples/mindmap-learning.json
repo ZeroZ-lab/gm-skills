@@ -1,0 +1,122 @@
+{
+  "diagramType": "mindmap",
+  "title": "Full-Stack Developer Roadmap",
+  "subtitle": "Learning path for modern full-stack development",
+  "style": "warm-cozy",
+  "format": "html",
+  "centralNode": {
+    "id": "fullstack-dev",
+    "label": "Full-Stack Developer",
+    "children": [
+      {
+        "id": "frontend",
+        "label": "Frontend",
+        "side": "right",
+        "children": [
+          {
+            "id": "html-css",
+            "label": "HTML & CSS",
+            "children": []
+          },
+          {
+            "id": "javascript",
+            "label": "JavaScript",
+            "children": []
+          },
+          {
+            "id": "react",
+            "label": "React / Vue",
+            "children": []
+          },
+          {
+            "id": "typescript",
+            "label": "TypeScript",
+            "children": []
+          }
+        ]
+      },
+      {
+        "id": "backend",
+        "label": "Backend",
+        "side": "right",
+        "children": [
+          {
+            "id": "nodejs",
+            "label": "Node.js",
+            "children": []
+          },
+          {
+            "id": "python",
+            "label": "Python",
+            "children": []
+          },
+          {
+            "id": "rest-api",
+            "label": "REST & GraphQL",
+            "children": []
+          },
+          {
+            "id": "auth",
+            "label": "Authentication",
+            "children": []
+          }
+        ]
+      },
+      {
+        "id": "devops",
+        "label": "DevOps",
+        "side": "left",
+        "children": [
+          {
+            "id": "git",
+            "label": "Git & GitHub",
+            "children": []
+          },
+          {
+            "id": "docker",
+            "label": "Docker",
+            "children": []
+          },
+          {
+            "id": "ci-cd",
+            "label": "CI/CD Pipelines",
+            "children": []
+          }
+        ]
+      },
+      {
+        "id": "database",
+        "label": "Database",
+        "side": "left",
+        "children": [
+          {
+            "id": "sql",
+            "label": "SQL (PostgreSQL)",
+            "children": []
+          },
+          {
+            "id": "nosql",
+            "label": "NoSQL (MongoDB)",
+            "children": []
+          },
+          {
+            "id": "redis",
+            "label": "Redis & Caching",
+            "children": []
+          }
+        ]
+      }
+    ]
+  },
+  "legend": [
+    { "label": "Frontend", "color": "#fb923c" },
+    { "label": "Backend", "color": "#2dd4bf" },
+    { "label": "DevOps", "color": "#f472b6" },
+    { "label": "Database", "color": "#a78bfa" }
+  ],
+  "metadata": {
+    "author": "gmdiagram",
+    "date": "2026-04-14",
+    "version": "0.6.0"
+  }
+}

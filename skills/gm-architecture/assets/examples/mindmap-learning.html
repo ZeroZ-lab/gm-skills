@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Full-Stack Developer Roadmap</title>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      background: #020617;
+      color: #e2e8f0;
+      font-family: 'JetBrains Mono', 'SF Mono', 'Fira Code', monospace;
+      min-height: 100vh;
+      padding: 40px 20px;
+    }
+    .container { max-width: 1100px; margin: 0 auto; }
+    .header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 32px;
+    }
+    .pulse-dot {
+      width: 10px; height: 10px; border-radius: 50%;
+      background: #22d3ee;
+      box-shadow: 0 0 8px rgba(34, 211, 238, 0.6);
+      animation: pulse 2s ease-in-out infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.4; }
+    }
+    h1 { font-size: 22px; font-weight: 700; color: #f1f5f9; }
+    .subtitle { font-size: 13px; color: #64748b; margin-top: 4px; }
+    .diagram-container {
+      background: #0f172a;
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 12px;
+      padding: 24px;
+      margin-bottom: 32px;
+      overflow-x: auto;
+    }
+    .diagram-container svg {
+      width: 100%;
+      min-width: 1100px;
+      height: auto;
+      display: block;
+    }
+    .footer {
+      font-size: 11px;
+      color: #475569;
+      text-align: center;
+      padding-top: 16px;
+      border-top: 1px solid rgba(255,255,255,0.04);
+    }
+
+    /* ---- Mind Map Node Styles ---- */
+    .mindmap-node {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-sizing: border-box;
+      font-family: JetBrains Mono, monospace;
+      text-align: center;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .node-label {
+      display: inline-block;
+      line-height: 1.2;
+    }
+
+    /* Central node */
+    .type-central {
+      width: 140px;
+      height: 50px;
+      border-radius: 25px;
+      background: rgba(8, 51, 68, 0.6);
+      border: 2.5px solid #22d3ee;
+      font-size: 13px;
+      font-weight: 700;
+      color: white;
+      padding: 0 12px;
+    }
+    .type-central .node-label {
+      font-size: 12px;
+      font-weight: 700;
+      color: white;
+    }
+
+    /* Branch node — Level 1 */
+    .type-branch {
+      height: 32px;
+      min-width: 60px;
+      padding: 0 12px;
+      border-radius: 12px;
+      font-size: 11px;
+      font-weight: 600;
+      color: white;
+    }
+    .type-branch .node-label {
+      font-size: 11px;
+      font-weight: 600;
+      color: white;
+    }
+
+    /* Leaf node — Level 2+ */
+    .type-leaf {
+      height: 28px;
+      min-width: 50px;
+      padding: 0 10px;
+      border-radius: 8px;
+      font-size: 10px;
+      font-weight: 400;
+      color: #cbd5e1;
+    }
+    .type-leaf .node-label {
+      font-size: 10px;
+      font-weight: 400;
+      color: #cbd5e1;
+    }
+
+    /* ---- Branch Color Variants ---- */
+    .color-orange-l1 {
+      background: rgba(124, 45, 18, 0.4);
+      border: 1.8px solid #fb923c;
+    }
+    .color-orange-l2 {
+      background: rgba(124, 45, 18, 0.25);
+      border: 1.2px solid #fdba74;
+    }
+
+    .color-teal-l1 {
+      background: rgba(17, 94, 89, 0.4);
+      border: 1.8px solid #2dd4bf;
+    }
+    .color-teal-l2 {
+      background: rgba(17, 94, 89, 0.25);
+      border: 1.2px solid #5eead4;
+    }
+
+    .color-pink-l1 {
+      background: rgba(131, 24, 67, 0.4);
+      border: 1.8px solid #f472b6;
+    }
+    .color-pink-l2 {
+      background: rgba(131, 24, 67, 0.25);
+      border: 1.2px solid #f9a8d4;
+    }
+
+    .color-violet-l1 {
+      background: rgba(76, 29, 149, 0.4);
+      border: 1.8px solid #a78bfa;
+    }
+    .color-violet-l2 {
+      background: rgba(76, 29, 149, 0.25);
+      border: 1.2px solid #c4b5fd;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <div class="pulse-dot"></div>
+      <div>
+        <h1>Full-Stack Developer Roadmap</h1>
+        <div class="subtitle">Learning path for modern full-stack development</div>
+      </div>
+    </div>
+
+    <div class="diagram-container">
+      <svg viewBox="0 0 1200 550" xmlns="http://www.w3.org/2000/svg">
+        <!-- Defs -->
+        <defs>
+          <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+            <path d="M 40 0 L 0 0 0 40" fill="none" stroke="rgba(51, 65, 85, 0.3)" stroke-width="0.5"/>
+          </pattern>
+        </defs>
+
+        <!-- Grid background -->
+        <rect width="1200" height="550" fill="url(#grid)"/>
+
+        <!-- === CONNECTIONS (drawn first, behind nodes) === -->
+
+        <!-- Central -> Frontend (right) -->
+        <path d="M 670,275 C 710,275 740,80 780,80" fill="none" stroke="#fb923c" stroke-width="1.5" opacity="0.7"/>
+
+        <!-- Central -> Backend (right, lower) -->
+        <path d="M 670,275 C 710,275 740,220 780,220" fill="none" stroke="#2dd4bf" stroke-width="1.5" opacity="0.7"/>
+
+        <!-- Central -> DevOps (left) -->
+        <path d="M 530,275 C 490,275 430,80 430,80" fill="none" stroke="#f472b6" stroke-width="1.5" opacity="0.7"/>
+
+        <!-- Central -> Database (left, lower) -->
+        <path d="M 530,275 C 490,275 430,220 430,220" fill="none" stroke="#a78bfa" stroke-width="1.5" opacity="0.7"/>
+
+        <!-- Frontend -> HTML & CSS -->
+        <path d="M 920,80 C 960,80 980,20 1010,20" fill="none" stroke="#fdba74" stroke-width="1.2" opacity="0.6"/>
+
+        <!-- Frontend -> JavaScript -->
+        <path d="M 920,80 C 960,80 980,60 1010,60" fill="none" stroke="#fdba74" stroke-width="1.2" opacity="0.6"/>
+
+        <!-- Frontend -> React/Vue -->
+        <path d="M 920,80 C 960,80 980,100 1010,100" fill="none" stroke="#fdba74" stroke-width="1.2" opacity="0.6"/>
+
+        <!-- Frontend -> TypeScript -->
+        <path d="M 920,80 C 960,80 980,140 1010,140" fill="none" stroke="#fdba74" stroke-width="1.2" opacity="0.6"/>
+
+        <!-- Backend -> Node.js -->
+        <path d="M 920,220 C 960,220 980,200 1010,200" fill="none" stroke="#5eead4" stroke-width="1.2" opacity="0.6"/>
+
+        <!-- Backend -> Python -->
+        <path d="M 920,220 C 960,220 980,240 1010,240" fill="none" stroke="#5eead4" stroke-width="1.2" opacity="0.6"/>
+
+        <!-- Backend -> REST & GraphQL -->
+        <path d="M 920,220 C 960,220 980,280 1010,280" fill="none" stroke="#5eead4" stroke-width="1.2" opacity="0.6"/>
+
+        <!-- Backend -> Authentication -->
+        <path d="M 920,220 C 960,220 980,320 1010,320" fill="none" stroke="#5eead4" stroke-width="1.2" opacity="0.6"/>
+
+        <!-- DevOps -> Git & GitHub -->
+        <path d="M 280,80 C 240,80 220,40 190,40" fill="none" stroke="#f9a8d4" stroke-width="1.2" opacity="0.6"/>
+
+        <!-- DevOps -> Docker -->
+        <path d="M 280,80 C 240,80 220,80 190,80" fill="none" stroke="#f9a8d4" stroke-width="1.2" opacity="0.6"/>
+
+        <!-- DevOps -> CI/CD Pipelines -->
+        <path d="M 280,80 C 240,80 220,120 190,120" fill="none" stroke="#f9a8d4" stroke-width="1.2" opacity="0.6"/>
+
+        <!-- Database -> SQL (PostgreSQL) -->
+        <path d="M 280,220 C 240,220 220,200 190,200" fill="none" stroke="#c4b5fd" stroke-width="1.2" opacity="0.6"/>
+
+        <!-- Database -> NoSQL (MongoDB) -->
+        <path d="M 280,220 C 240,220 220,240 190,240" fill="none" stroke="#c4b5fd" stroke-width="1.2" opacity="0.6"/>
+
+        <!-- Database -> Redis & Caching -->
+        <path d="M 280,220 C 240,220 220,280 190,280" fill="none" stroke="#c4b5fd" stroke-width="1.2" opacity="0.6"/>
+
+        <!-- === NODES === -->
+
+        <!-- Central Node: Full-Stack Developer -->
+        <g transform="translate(530, 250)">
+          <foreignObject width="140" height="50">
+            <div xmlns="http://www.w3.org/1999/xhtml" class="mindmap-node type-central">
+              <span class="node-label">Full-Stack Developer</span>
+            </div>
+          </foreignObject>
+        </g>
+
+        <!-- Level 1 Branch: Frontend (right) -->
+        <g transform="translate(780, 64)">
+          <foreignObject width="140" height="32">
+            <div xmlns="http://www.w3.org/1999/xhtml" class="mindmap-node type-branch color-orange-l1">
+              <span class="node-label">Frontend</span>
+            </div>
+          </foreignObject>
+        </g>
+
+        <!-- Level 2: HTML & CSS -->
+        <g transform="translate(1010, 4)">
+          <foreignObject width="110" height="28">
+            <div xmlns="http://www.w3.org/1999/xhtml" class="mindmap-node type-leaf color-orange-l2">
+              <span class="node-label">HTML & CSS</span>
+            </div>
+          </foreignObject>
+        </g>
+
+        <!-- Level 2: JavaScript -->
+        <g transform="translate(1010, 44)">
+          <foreignObject width="90" height="28">
+            <div xmlns="http://www.w3.org/1999/xhtml" class="mindmap-node type-leaf color-orange-l2">
+              <span class="node-label">JavaScript</span>
+            </div>
+          </foreignObject>
+        </g>
+
+        <!-- Level 2: React / Vue -->
+        <g transform="translate(1010, 84)">
+          <foreignObject width="100" height="28">
+            <div xmlns="http://www.w3.org/1999/xhtml" class="mindmap-node type-leaf color-orange-l2">
+              <span class="node-label">React / Vue</span>
+            </div>
+          </foreignObject>
+        </g>
+
+        <!-- Level 2: TypeScript -->
+        <g transform="translate(1010, 124)">
+          <foreignObject width="90" height="28">
+            <div xmlns="http://www.w3.org/1999/xhtml" class="mindmap-node type-leaf color-orange-l2">
+              <span class="node-label">TypeScript</span>
+            </div>
+          </foreignObject>
+        </g>
+
+        <!-- Level 1 Branch: Backend (right, lower) -->
+        <g transform="translate(780, 204)">
+          <foreignObject width="140" height="32">
+            <div xmlns="http://www.w3.org/1999/xhtml" class="mindmap-node type-branch color-teal-l1">
+              <span class="node-label">Backend</span>
+            </div>
+          </foreignObject>
+        </g>
+
+        <!-- Level 2: Node.js -->
+        <g transform="translate(1010, 184)">
+          <foreignObject width="80" height="28">
+            <div xmlns="http://www.w3.org/1999/xhtml" class="mindmap-node type-leaf color-teal-l2">
+              <span class="node-label">Node.js</span>
+            </div>
+          </foreignObject>
+        </g>
+
+        <!-- Level 2: Python -->
+        <g transform="translate(1010, 224)">
+          <foreignObject width="70" height="28">
+            <div xmlns="http://www.w3.org/1999/xhtml" class="mindmap-node type-leaf color-teal-l2">
+              <span class="node-label">Python</span>
+            </div>
+          </foreignObject>
+        </g>
+
+        <!-- Level 2: REST & GraphQL -->
+        <g transform="translate(1010, 264)">
+          <foreignObject width="120" height="28">
+            <div xmlns="http://www.w3.org/1999/xhtml" class="mindmap-node type-leaf color-teal-l2">
+              <span class="node-label">REST & GraphQL</span>
+            </div>
+          </foreignObject>
+        </g>
+
+        <!-- Level 2: Authentication -->
+        <g transform="translate(1010, 304)">
+          <foreignObject width="100" height="28">
+            <div xmlns="http://www.w3.org/1999/xhtml" class="mindmap-node type-leaf color-teal-l2">
+              <span class="node-label">Authentication</span>
+            </div>
+          </foreignObject>
+        </g>
+
+        <!-- Level 1 Branch: DevOps (left) -->
+        <g transform="translate(280, 64)">
+          <foreignObject width="140" height="32">
+            <div xmlns="http://www.w3.org/1999/xhtml" class="mindmap-node type-branch color-pink-l1">
+              <span class="node-label">DevOps</span>
+            </div>
+          </foreignObject>
+        </g>
+
+        <!-- Level 2: Git & GitHub -->
+        <g transform="translate(120, 24)">
+          <foreignObject width="100" height="28">
+            <div xmlns="http://www.w3.org/1999/xhtml" class="mindmap-node type-leaf color-pink-l2">
+              <span class="node-label">Git & GitHub</span>
+            </div>
+          </foreignObject>
+        </g>
+
+        <!-- Level 2: Docker -->
+        <g transform="translate(120, 64)">
+          <foreignObject width="70" height="28">
+            <div xmlns="http://www.w3.org/1999/xhtml" class="mindmap-node type-leaf color-pink-l2">
+              <span class="node-label">Docker</span>
+            </div>
+          </foreignObject>
+        </g>
+
+        <!-- Level 2: CI/CD Pipelines -->
+        <g transform="translate(120, 104)">
+          <foreignObject width="110" height="28">
+            <div xmlns="http://www.w3.org/1999/xhtml" class="mindmap-node type-leaf color-pink-l2">
+              <span class="node-label">CI/CD Pipelines</span>
+            </div>
+          </foreignObject>
+        </g>
+
+        <!-- Level 1 Branch: Database (left, lower) -->
+        <g transform="translate(280, 204)">
+          <foreignObject width="140" height="32">
+            <div xmlns="http://www.w3.org/1999/xhtml" class="mindmap-node type-branch color-violet-l1">
+              <span class="node-label">Database</span>
+            </div>
+          </foreignObject>
+        </g>
+
+        <!-- Level 2: SQL (PostgreSQL) -->
+        <g transform="translate(110, 184)">
+          <foreignObject width="120" height="28">
+            <div xmlns="http://www.w3.org/1999/xhtml" class="mindmap-node type-leaf color-violet-l2">
+              <span class="node-label">SQL (PostgreSQL)</span>
+            </div>
+          </foreignObject>
+        </g>
+
+        <!-- Level 2: NoSQL (MongoDB) -->
+        <g transform="translate(110, 224)">
+          <foreignObject width="120" height="28">
+            <div xmlns="http://www.w3.org/1999/xhtml" class="mindmap-node type-leaf color-violet-l2">
+              <span class="node-label">NoSQL (MongoDB)</span>
+            </div>
+          </foreignObject>
+        </g>
+
+        <!-- Level 2: Redis & Caching -->
+        <g transform="translate(110, 264)">
+          <foreignObject width="120" height="28">
+            <div xmlns="http://www.w3.org/1999/xhtml" class="mindmap-node type-leaf color-violet-l2">
+              <span class="node-label">Redis & Caching</span>
+            </div>
+          </foreignObject>
+        </g>
+
+        <!-- === LEGEND === -->
+        <g transform="translate(40, 490)">
+          <foreignObject width="600" height="40">
+            <div xmlns="http://www.w3.org/1999/xhtml" style="display:flex;align-items:center;gap:20px;font-family:JetBrains Mono,monospace;">
+              <span style="font-size:11px;font-weight:600;color:#cbd5e1;">Legend</span>
+              <div style="display:flex;align-items:center;gap:6px;">
+                <span style="display:inline-block;width:14px;height:14px;border-radius:3px;background:rgba(124,45,18,0.4);border:1px solid #fb923c;"></span>
+                <span style="font-size:11px;color:#cbd5e1;">Frontend</span>
+              </div>
+              <div style="display:flex;align-items:center;gap:6px;">
+                <span style="display:inline-block;width:14px;height:14px;border-radius:3px;background:rgba(17,94,89,0.4);border:1px solid #2dd4bf;"></span>
+                <span style="font-size:11px;color:#cbd5e1;">Backend</span>
+              </div>
+              <div style="display:flex;align-items:center;gap:6px;">
+                <span style="display:inline-block;width:14px;height:14px;border-radius:3px;background:rgba(131,24,67,0.4);border:1px solid #f472b6;"></span>
+                <span style="font-size:11px;color:#cbd5e1;">DevOps</span>
+              </div>
+              <div style="display:flex;align-items:center;gap:6px;">
+                <span style="display:inline-block;width:14px;height:14px;border-radius:3px;background:rgba(76,29,149,0.4);border:1px solid #a78bfa;"></span>
+                <span style="font-size:11px;color:#cbd5e1;">Database</span>
+              </div>
+            </div>
+          </foreignObject>
+        </g>
+
+      </svg>
+    </div>
+
+    <div class="footer">
+      Generated by gmdiagram &middot; 2026-04-11
+    </div>
+  </div>
+</body>
+</html>

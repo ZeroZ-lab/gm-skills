@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Retro Terminal System</title>
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    body { background: #0a0a0a; color: #00ff41; font-family: 'Courier New', 'IBM Plex Mono', monospace; min-height: 100vh; padding: 40px 20px; }
+    .container { max-width: 1100px; margin: 0 auto; }
+    .header { display: flex; align-items: center; gap: 12px; margin-bottom: 32px; }
+    .pulse-dot { width: 10px; height: 10px; border-radius: 50%; background: #00ff41; box-shadow: 0 0 8px rgba(0,255,65,0.8); animation: blink 1s step-end infinite; }
+    @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
+    h1 { font-size: 22px; font-weight: 700; color: #00ff41; text-shadow: 0 0 8px rgba(0,255,65,0.4); }
+    .subtitle { font-size: 13px; color: #00aa2a; margin-top: 4px; }
+    .diagram-container { background: #0a0a0a; border: 1px solid #00ff41; border-radius: 0; padding: 24px; margin-bottom: 32px; position: relative; overflow-x: auto; }
+    .diagram-container::before { content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,255,65,0.03) 2px, rgba(0,255,65,0.03) 4px); pointer-events: none; z-index: 1; }
+    .diagram-container svg { width: 100%; min-width: 700px; height: auto; display: block; }
+    .footer { font-size: 11px; color: #005a18; text-align: center; padding-top: 16px; border-top: 1px solid #002a0c; }
+    .layer-card { width: 100%; border-radius: 0; padding: 8px 0 12px; box-sizing: border-box; }
+    .layer-label { font-size: 14px; font-weight: 700; color: #00ff41; padding: 0 16px; font-family: 'Courier New', monospace; }
+    .modules { display: flex; gap: 20px; justify-content: center; padding: 8px 16px 0; flex-wrap: wrap; }
+    .module { min-width: 100px; height: 40px; border-radius: 0; display: flex; align-items: center; justify-content: center; padding: 0 16px; box-sizing: border-box; }
+    .module-label { font-size: 12px; font-weight: 500; color: #00ff41; text-align: center; white-space: nowrap; font-family: 'Courier New', monospace; }
+    .tech-badges { display: flex; gap: 4px; justify-content: center; padding-top: 4px; }
+    .tech-badge { font-size: 8px; padding: 2px 6px; border-radius: 0; white-space: nowrap; background: rgba(0,255,65,0.08); border: 1px solid #003a12; color: #00aa2a; font-family: 'Courier New', monospace; }
+    .module.has-badges { height: 48px; flex-direction: column; gap: 2px; }
+    .module.has-badges .module-label { height: 18px; }
+    .type-process { background: rgba(0,255,65,0.06); border: 1px solid #00ff41; }
+    .type-module { background: rgba(0,255,65,0.04); border: 1px solid #00aa2a; }
+    .type-data { background: rgba(0,255,65,0.03); border: 1px dashed #00ff41; }
+    .type-infra { background: rgba(0,255,65,0.05); border: 1px solid #00aa2a; }
+    .type-security { background: rgba(0,255,65,0.06); border: 1px dashed #ff0040; }
+    .type-channel { background: rgba(0,255,65,0.04); border: 1px solid #00ff41; }
+    .type-external { background: rgba(0,255,65,0.02); border: 1px solid #005a18; }
+    .legend-container { display: flex; gap: 80px; align-items: center; }
+    .legend-item { display: flex; align-items: center; gap: 6px; }
+    .legend-swatch { width: 14px; height: 14px; border-radius: 0; }
+    .legend-text { font-size: 11px; color: #00aa2a; font-family: 'Courier New', monospace; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <div class="pulse-dot"></div>
+      <div>
+        <h1>> Retro Terminal System</h1>
+        <div class="subtitle">Classic command-line infrastructure with phosphor-green aesthetics</div>
+      </div>
+    </div>
+    <div class="diagram-container">
+      <svg viewBox="0 0 1000 620" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <marker id="arrowhead" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#00aa2a"/></marker>
+          <marker id="arrowhead-bright" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#00ff41"/></marker>
+        </defs>
+        <!-- CONNECTIONS -->
+        <line x1="500" y1="141" x2="500" y2="191" stroke="#00aa2a" stroke-width="1" marker-end="url(#arrowhead)"/>
+        <text x="518" y="170" font-size="10" fill="#00ff41" font-family="Courier New, monospace">Commands</text>
+        <line x1="500" y1="292" x2="500" y2="342" stroke="#00ff41" stroke-width="1" marker-start="url(#arrowhead-bright)" marker-end="url(#arrowhead-bright)"/>
+        <text x="518" y="322" font-size="10" fill="#00ff41" font-family="Courier New, monospace">Syscalls</text>
+        <line x1="500" y1="443" x2="500" y2="493" stroke="#00ff41" stroke-width="1" marker-start="url(#arrowhead-bright)" marker-end="url(#arrowhead-bright)"/>
+        <text x="518" y="472" font-size="10" fill="#00ff41" font-family="Courier New, monospace">Driver I/O</text>
+        <!-- LAYER 1: Terminal Interface -->
+        <g transform="translate(40, 40)">
+          <rect width="920" height="101" rx="0" fill="#0f0f0f"/>
+          <foreignObject width="920" height="101">
+            <div xmlns="http://www.w3.org/1999/xhtml" class="layer-card type-module">
+              <div class="layer-label">&gt; Terminal Interface</div>
+              <div class="modules">
+                <div class="module type-module"><span class="module-label">Bash Shell</span></div>
+                <div class="module type-module"><span class="module-label">TUI Framework</span></div>
+                <div class="module type-module"><span class="module-label">CLI Parser</span></div>
+              </div>
+            </div>
+          </foreignObject>
+        </g>
+        <!-- LAYER 2: Session Manager -->
+        <g transform="translate(40, 191)">
+          <rect width="920" height="101" rx="0" fill="#0f0f0f"/>
+          <foreignObject width="920" height="101">
+            <div xmlns="http://www.w3.org/1999/xhtml" class="layer-card type-process">
+              <div class="layer-label">&gt; Session Manager</div>
+              <div class="modules">
+                <div class="module type-security"><span class="module-label">Auth Daemon</span></div>
+                <div class="module type-module"><span class="module-label">Session Keeper</span></div>
+              </div>
+            </div>
+          </foreignObject>
+        </g>
+        <!-- LAYER 3: Kernel Services -->
+        <g transform="translate(40, 342)">
+          <rect width="920" height="101" rx="0" fill="#0f0f0f"/>
+          <foreignObject width="920" height="101">
+            <div xmlns="http://www.w3.org/1999/xhtml" class="layer-card type-infra">
+              <div class="layer-label">&gt; Kernel Services</div>
+              <div class="modules">
+                <div class="module type-module"><span class="module-label">Process Manager</span></div>
+                <div class="module type-data"><span class="module-label">File System</span></div>
+                <div class="module type-channel"><span class="module-label">Network Stack</span></div>
+              </div>
+            </div>
+          </foreignObject>
+        </g>
+        <!-- LAYER 4: Hardware -->
+        <g transform="translate(40, 493)">
+          <rect width="920" height="101" rx="0" fill="#0f0f0f"/>
+          <foreignObject width="920" height="101">
+            <div xmlns="http://www.w3.org/1999/xhtml" class="layer-card type-external">
+              <div class="layer-label">&gt; Hardware</div>
+              <div class="modules">
+                <div class="module type-infra"><span class="module-label">CPU</span></div>
+                <div class="module type-data"><span class="module-label">Memory</span></div>
+                <div class="module type-data"><span class="module-label">Disk</span></div>
+              </div>
+            </div>
+          </foreignObject>
+        </g>
+        <!-- LEGEND -->
+        <g transform="translate(40, 610)">
+          <foreignObject width="920" height="30">
+            <div xmlns="http://www.w3.org/1999/xhtml" class="legend-container">
+              <div class="legend-item"><div class="legend-swatch" style="background:rgba(0,255,65,0.04);border:1px solid #00aa2a;"></div><span class="legend-text">Interface</span></div>
+              <div class="legend-item"><div class="legend-swatch" style="background:rgba(0,255,65,0.06);border:1px solid #00ff41;"></div><span class="legend-text">Process</span></div>
+              <div class="legend-item"><div class="legend-swatch" style="background:rgba(0,255,65,0.05);border:1px solid #00aa2a;"></div><span class="legend-text">Kernel</span></div>
+              <div class="legend-item"><div class="legend-swatch" style="background:rgba(0,255,65,0.02);border:1px solid #005a18;"></div><span class="legend-text">Hardware</span></div>
+            </div>
+          </foreignObject>
+        </g>
+      </svg>
+    </div>
+    <div class="footer">Generated by gmdiagram &middot; 2026-04-13</div>
+  </div>
+</body>
+</html>

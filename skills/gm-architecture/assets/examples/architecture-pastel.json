@@ -1,0 +1,78 @@
+{
+  "title": "Cloud Native Ecosystem",
+  "subtitle": "Modern cloud-native application architecture with containers and orchestration",
+  "style": "pastel-dream",
+  "diagramType": "architecture",
+  "format": "html",
+  "layers": [
+    {
+      "id": "ingress-layer",
+      "label": "Ingress & Routing",
+      "type": "channel",
+      "children": [
+        { "id": "load-balancer", "label": "Load Balancer", "type": "module", "tech": ["Nginx"] },
+        { "id": "api-gateway", "label": "API Gateway", "type": "module" }
+      ]
+    },
+    {
+      "id": "services-layer",
+      "label": "Microservices",
+      "type": "process",
+      "children": [
+        { "id": "user-svc", "label": "User Service", "type": "module" },
+        { "id": "order-svc", "label": "Order Service", "type": "module" },
+        { "id": "payment-svc", "label": "Payment Service", "type": "module" },
+        { "id": "notification-svc", "label": "Notification Service", "type": "module" }
+      ]
+    },
+    {
+      "id": "platform-layer",
+      "label": "Platform Services",
+      "type": "infra",
+      "children": [
+        { "id": "service-mesh", "label": "Service Mesh", "type": "module", "tech": ["Istio"] },
+        { "id": "config-center", "label": "Config Center", "type": "module" },
+        { "id": "service-discovery", "label": "Service Discovery", "type": "module" }
+      ]
+    },
+    {
+      "id": "data-layer",
+      "label": "Data & Storage",
+      "type": "data",
+      "children": [
+        { "id": "primary-db", "label": "PostgreSQL", "type": "data" },
+        { "id": "cache", "label": "Redis Cache", "type": "data" },
+        { "id": "message-broker", "label": "Message Broker", "type": "channel", "tech": ["Kafka"] }
+      ]
+    },
+    {
+      "id": "observability-layer",
+      "label": "Observability",
+      "type": "external",
+      "children": [
+        { "id": "metrics", "label": "Metrics", "type": "module", "tech": ["Prometheus"] },
+        { "id": "logging", "label": "Logging", "type": "module" },
+        { "id": "tracing", "label": "Tracing", "type": "module" }
+      ]
+    }
+  ],
+  "connections": [
+    { "from": "ingress-layer", "to": "services-layer", "label": "Route", "direction": "unidirectional" },
+    { "from": "services-layer", "to": "platform-layer", "label": "Connect", "direction": "bidirectional" },
+    { "from": "services-layer", "to": "data-layer", "label": "Read/Write", "direction": "bidirectional" },
+    { "from": "observability-layer", "to": "services-layer", "label": "Monitor", "direction": "unidirectional", "style": "dashed" }
+  ],
+  "groups": [],
+  "legend": [
+    { "label": "Ingress", "type": "channel" },
+    { "label": "Service", "type": "process" },
+    { "label": "Platform", "type": "infra" },
+    { "label": "Data", "type": "data" },
+    { "label": "Observe", "type": "external" }
+  ],
+  "metadata": {
+    "author": "gmdiagram",
+    "date": "2026-04-14",
+    "version": "0.6.0"
+  }
+}

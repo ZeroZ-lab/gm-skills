@@ -1,0 +1,65 @@
+{
+  "title": "Hacker Toolkit",
+  "subtitle": "Security testing infrastructure for authorized penetration testing",
+  "style": "cyberpunk-neon",
+  "diagramType": "architecture",
+  "format": "html",
+  "layers": [
+    {
+      "id": "recon-layer",
+      "label": "Reconnaissance",
+      "type": "channel",
+      "children": [
+        { "id": "port-scanner", "label": "Port Scanner", "type": "module", "tech": ["Nmap"] },
+        { "id": "web-crawler", "label": "Web Crawler", "type": "module" },
+        { "id": "dns-enum", "label": "DNS Enumerator", "type": "module" }
+      ]
+    },
+    {
+      "id": "exploit-layer",
+      "label": "Exploitation Engine",
+      "type": "process",
+      "children": [
+        { "id": "vuln-db", "label": "Vulnerability DB", "type": "data", "tech": ["CVE"] },
+        { "id": "payload-gen", "label": "Payload Generator", "type": "module" },
+        { "id": "exploit-runner", "label": "Exploit Runner", "type": "module" }
+      ]
+    },
+    {
+      "id": "post-exploit-layer",
+      "label": "Post-Exploitation",
+      "type": "security",
+      "children": [
+        { "id": "priv-esc", "label": "Privilege Escalation", "type": "module" },
+        { "id": "lateral-move", "label": "Lateral Movement", "type": "module" },
+        { "id": "data-exfil", "label": "Data Collection", "type": "data" }
+      ]
+    },
+    {
+      "id": "report-layer",
+      "label": "Reporting",
+      "type": "infra",
+      "children": [
+        { "id": "log-collector", "label": "Log Collector", "type": "module" },
+        { "id": "report-gen", "label": "Report Generator", "type": "module" }
+      ]
+    }
+  ],
+  "connections": [
+    { "from": "recon-layer", "to": "exploit-layer", "label": "Findings", "direction": "unidirectional" },
+    { "from": "exploit-layer", "to": "post-exploit-layer", "label": "Access", "direction": "unidirectional" },
+    { "from": "post-exploit-layer", "to": "report-layer", "label": "Evidence", "direction": "unidirectional" }
+  ],
+  "groups": [],
+  "legend": [
+    { "label": "Recon", "type": "channel" },
+    { "label": "Engine", "type": "process" },
+    { "label": "Post-Exploit", "type": "security" },
+    { "label": "Report", "type": "infra" }
+  ],
+  "metadata": {
+    "author": "gmdiagram",
+    "date": "2026-04-14",
+    "version": "0.6.0"
+  }
+}

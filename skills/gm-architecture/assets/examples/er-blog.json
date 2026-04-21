@@ -1,0 +1,69 @@
+{
+  "title": "Blog System",
+  "subtitle": "Content management database schema",
+  "diagramType": "er",
+  "style": "dark-professional",
+  "entities": [
+    {
+      "id": "user",
+      "label": "User",
+      "attributes": [
+        { "name": "id", "type": "int", "pk": true },
+        { "name": "username", "type": "string", "nullable": false },
+        { "name": "email", "type": "string", "nullable": false },
+        { "name": "role", "type": "string" }
+      ]
+    },
+    {
+      "id": "post",
+      "label": "Post",
+      "attributes": [
+        { "name": "id", "type": "int", "pk": true },
+        { "name": "title", "type": "string", "nullable": false },
+        { "name": "body", "type": "text" },
+        { "name": "author_id", "type": "int", "fk": true },
+        { "name": "published_at", "type": "timestamp" }
+      ]
+    },
+    {
+      "id": "comment",
+      "label": "Comment",
+      "attributes": [
+        { "name": "id", "type": "int", "pk": true },
+        { "name": "post_id", "type": "int", "fk": true },
+        { "name": "author_id", "type": "int", "fk": true },
+        { "name": "content", "type": "text" },
+        { "name": "created_at", "type": "timestamp" }
+      ]
+    },
+    {
+      "id": "tag",
+      "label": "Tag",
+      "attributes": [
+        { "name": "id", "type": "int", "pk": true },
+        { "name": "name", "type": "string", "nullable": false }
+      ]
+    },
+    {
+      "id": "post-tag",
+      "label": "PostTag",
+      "attributes": [
+        { "name": "id", "type": "int", "pk": true },
+        { "name": "post_id", "type": "int", "fk": true, "nullable": false },
+        { "name": "tag_id", "type": "int", "fk": true, "nullable": false }
+      ]
+    }
+  ],
+  "relationships": [
+    { "from": "user", "to": "post", "fromCard": "1", "toCard": "N", "label": "authors" },
+    { "from": "user", "to": "comment", "fromCard": "1", "toCard": "N", "label": "writes" },
+    { "from": "post", "to": "comment", "fromCard": "1", "toCard": "N", "label": "has" },
+    { "from": "post", "to": "post-tag", "fromCard": "1", "toCard": "N" },
+    { "from": "tag", "to": "post-tag", "fromCard": "1", "toCard": "N" }
+  ],
+  "metadata": {
+    "author": "gmdiagram",
+    "date": "2026-04-14",
+    "version": "0.6.0"
+  }
+}

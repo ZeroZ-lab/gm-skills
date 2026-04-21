@@ -1,0 +1,88 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "funnel-chart-schema",
+  "title": "Funnel Chart Schema",
+  "description": "Intermediate representation for funnel chart diagrams.",
+  "type": "object",
+  "required": ["diagramType", "title", "data"],
+  "additionalProperties": false,
+  "properties": {
+    "diagramType": {
+      "type": "string",
+      "const": "funnel",
+      "description": "Identifies this JSON as a funnel chart."
+    },
+    "title": {
+      "type": "string",
+      "maxLength": 200,
+      "description": "Chart title."
+    },
+    "subtitle": {
+      "type": "string",
+      "maxLength": 300,
+      "description": "Optional subtitle."
+    },
+    "style": {
+      "$ref": "schema-shared.json#/$defs/styleEnum",
+      "default": "dark-professional"
+    },
+    "format": {
+      "$ref": "schema-shared.json#/$defs/formatEnum",
+      "default": "html"
+    },
+    "density": {
+      "type": "string",
+      "enum": ["compact", "normal", "spacious"],
+      "default": "normal",
+      "description": "Layout density. Controls stage height."
+    },
+    "data": {
+      "type": "array",
+      "description": "Funnel stages. Values should be in descending order; if not, rendering will auto-sort.",
+      "items": {
+        "type": "object",
+        "required": ["label", "value"],
+        "additionalProperties": false,
+        "properties": {
+          "label": {
+            "$ref": "schema-shared.json#/$defs/sanitizedString",
+            "maxLength": 100,
+            "description": "Stage name."
+          },
+          "value": {
+            "type": "number",
+            "exclusiveMinimum": 0,
+            "description": "Stage value. Must be positive."
+          },
+          "color": {
+            "type": "string",
+            "pattern": "^#[0-9a-fA-F]{6}$",
+            "description": "Optional color override."
+          }
+        }
+      },
+      "minItems": 2,
+      "maxItems": 8
+    },
+    "showConversionRate": {
+      "type": "boolean",
+      "default": true,
+      "description": "Show conversion rate percentages between stages."
+    },
+    "variant": {
+      "type": "string",
+      "enum": ["trapezoid", "rounded"],
+      "default": "trapezoid",
+      "description": "Visual variant. trapezoid=straight edges, rounded=curved edges."
+    },
+    "legend": {
+      "$ref": "schema-shared.json#/$defs/legendConfig"
+    },
+    "colors": {
+      "$ref": "schema-shared.json#/$defs/colorsOverride"
+    },
+    "metadata": {
+      "$ref": "schema-shared.json#/$defs/metadata"
+    }
+  }
+}

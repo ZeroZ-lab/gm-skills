@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{TITLE}}</title>
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      background: #faf9f6;
+      color: #1a1a2e;
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      min-height: 100vh;
+      padding: 40px 20px;
+    }
+    .container { max-width: 1000px; margin: 0 auto; }
+    .header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 28px;
+    }
+    .sketch-dot {
+      width: 12px; height: 12px; border-radius: 50%;
+      background: #e74c3c;
+      border: 2px solid #2c3e50;
+    }
+    h1 { font-size: 24px; font-weight: 700; color: #2c3e50; letter-spacing: -0.5px; }
+    .subtitle { font-size: 14px; color: #7f8c8d; margin-top: 2px; }
+    .diagram-container {
+      background: white;
+      border: 2.5px solid #2c3e50;
+      border-radius: 8px;
+      padding: 24px;
+      margin-bottom: 28px;
+      box-shadow: 3px 3px 0px rgba(0,0,0,0.1);
+      overflow-x: auto;
+    }
+    .diagram-container svg {
+      width: 100%;
+      min-width: 800px;
+      height: auto;
+      display: block;
+    }
+    .footer {
+      font-size: 11px;
+      color: #bdc3c7;
+      text-align: center;
+      padding-top: 14px;
+      border-top: 2px dashed #ecf0f1;
+    }
+
+    /* === foreignObject component classes (hand-drawn sketch) === */
+    /* CRITICAL: Layer heights for hand-drawn style (larger than dark-professional due to bold borders) */
+    /* - LAYER_H_SIMPLE: 110px (modules without badges) */
+    /* - LAYER_H_BADGE:  130px (modules with badges) */
+    /* - LAYER_H_EMPTY:  70px  (label only, no modules) */
+
+    .layer-card {
+      width: 100%;
+      height: 100%;
+      border-radius: 8px;
+      padding: 10px 16px 14px;
+      box-sizing: border-box;
+      display: flex;
+      flex-direction: column;
+    }
+    .layer-header { margin-bottom: 8px; }
+    .layer-label {
+      font-size: 15px;
+      font-weight: 700;
+      color: #2c3e50;
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      display: block;
+    }
+    .layer-description {
+      font-size: 11px;
+      color: #7f8c8d;
+      font-family: 'Segoe UI', sans-serif;
+      display: block;
+      margin-top: 2px;
+    }
+    .modules {
+      display: flex;
+      gap: 20px;
+      justify-content: center;
+      align-items: flex-start;
+      flex-wrap: wrap;
+      flex: 1;
+    }
+    .module {
+      min-width: 100px;
+      min-height: 50px;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 10px 16px;
+      box-sizing: border-box;
+      background: white;
+    }
+    .module-label {
+      font-size: 13px;
+      font-weight: 600;
+      color: #2c3e50;
+      text-align: center;
+      white-space: nowrap;
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      line-height: 1.2;
+    }
+    .tech-badges {
+      display: flex;
+      gap: 4px;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin-top: 6px;
+    }
+    .tech-badge {
+      font-size: 9px;
+      padding: 3px 8px;
+      border-radius: 4px;
+      white-space: nowrap;
+      background: rgba(255,255,255,0.9);
+      border: 1px solid;
+      font-family: 'Segoe UI', sans-serif;
+      line-height: 1.2;
+    }
+
+    /* Type-specific colors (hand-drawn palette: bold, pastel) */
+    /* Process - Green */
+    .type-process { background: #eafaf1 !important; border: 2.5px solid #27ae60; }
+    .type-process .module { border: 2px solid #27ae60; }
+    .type-process .tech-badge { border-color: rgba(39,174,96,0.4); color: #27ae60; }
+
+    /* Module - Blue */
+    .type-module { background: #ebf5fb !important; border: 2.5px solid #3498db; }
+    .type-module .module { border: 2px solid #3498db; }
+    .type-module .tech-badge { border-color: rgba(52,152,219,0.4); color: #3498db; }
+
+    /* Data - Purple */
+    .type-data { background: #f5eef8 !important; border: 2.5px solid #8e44ad; }
+    .type-data .module { border: 2px solid #8e44ad; }
+    .type-data .tech-badge { border-color: rgba(142,68,173,0.4); color: #8e44ad; }
+
+    /* Infra - Orange/Yellow */
+    .type-infra { background: #fef9e7 !important; border: 2.5px solid #f39c12; }
+    .type-infra .module { border: 2px solid #f39c12; }
+    .type-infra .tech-badge { border-color: rgba(243,156,18,0.4); color: #d68910; }
+
+    /* Security - Red (dashed) */
+    .type-security { background: #fdedec !important; border: 2.5px solid #e74c3c; }
+    .type-security .module { border: 2px dashed #e74c3c; background: rgba(231,76,60,0.05); }
+    .type-security .tech-badge { border-color: rgba(231,76,60,0.4); color: #e74c3c; }
+
+    /* Channel - Orange */
+    .type-channel { background: #fdf2e9 !important; border: 2.5px solid #e67e22; }
+    .type-channel .module { border: 2px solid #e67e22; }
+    .type-channel .tech-badge { border-color: rgba(230,126,34,0.4); color: #e67e22; }
+
+    /* External - Gray */
+    .type-external { background: #f2f3f4 !important; border: 2.5px solid #95a5a6; }
+    .type-external .module { border: 2px solid #95a5a6; }
+    .type-external .tech-badge { border-color: rgba(149,165,166,0.4); color: #7f8c8d; }
+
+    /* Legend styles */
+    .legend-container { display: flex; gap: 24px; align-items: center; flex-wrap: wrap; }
+    .legend-item { display: flex; align-items: center; gap: 6px; }
+    .legend-swatch { width: 16px; height: 16px; border-radius: 3px; }
+    .legend-text { font-size: 11px; color: #555; font-family: 'Segoe UI', sans-serif; }
+
+    /* === Chart classes (hand-drawn) === */
+    .axis-line { stroke: #2c3e50; stroke-width: 1.5; fill: none; }
+    .axis-label { fill: #7f8c8d; font-size: 12px; font-family: 'Segoe UI', sans-serif; }
+    .axis-title { fill: #2c3e50; font-size: 13px; font-weight: 600; font-family: 'Segoe UI', sans-serif; }
+    .tick-label { fill: #7f8c8d; font-size: 11px; font-family: 'Segoe UI', sans-serif; }
+    .grid-line { stroke: rgba(0,0,0,0.1); stroke-dasharray: 4,4; stroke-width: 0.5; fill: none; }
+    .bar { rx: 2; }
+    .bar:hover { opacity: 0.85; }
+    .slice { stroke: white; stroke-width: 2; }
+    .line-path { fill: none; stroke-width: 2.5; }
+    .area-fill { opacity: 0.15; }
+    .data-dot { stroke-width: 2; }
+    .scatter-point { stroke-width: 1.5; }
+    .bubble-point { stroke-width: 1.5; }
+    .radar-grid { stroke: rgba(0,0,0,0.08); fill: none; stroke-width: 0.5; }
+    .radar-axis { stroke: rgba(0,0,0,0.1); stroke-width: 0.5; }
+    .radar-data { stroke-width: 2; stroke-linejoin: round; }
+    .funnel-stage { stroke: white; stroke-width: 1; }
+    .funnel-label { fill: #2c3e50; font-size: 13px; font-weight: 600; font-family: 'Segoe UI', system-ui, sans-serif; }
+    .table-header { font-weight: 600; text-align: left; padding: 8px 12px; border-bottom: 2px solid #bdc3c7; }
+    .table-row { border-bottom: 1px solid rgba(0,0,0,0.06); }
+    .table-cell { padding: 8px 12px; font-size: 13px; }
+    .highlight-max { font-weight: 600; }
+    .highlight-min { font-weight: 600; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <div class="sketch-dot"></div>
+      <div>
+        <h1>{{TITLE}}</h1>
+        <div class="subtitle">{{SUBTITLE}}</div>
+      </div>
+    </div>
+
+    <div class="diagram-container">
+      <svg viewBox="0 0 1000 {{VIEWBOX_H}}" xmlns="http://www.w3.org/1999/svg">
+        <defs>
+          <marker id="arrowhead-sketch" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto">
+            <polygon points="0 0, 10 3.5, 0 7" fill="#2c3e50" stroke="none"/>
+          </marker>
+          <marker id="arrowhead-sketch-rev" markerWidth="10" markerHeight="7" refX="0" refY="3.5" orient="auto">
+            <polygon points="10 0, 0 3.5, 10 7" fill="#2c3e50" stroke="none"/>
+          </marker>
+        </defs>
+
+        <!-- === CONNECTIONS === -->
+        <!-- Connections go here (draw first, behind layers) -->
+
+        <!-- === LAYERS === -->
+        <!-- Use foreignObject with CSS classes for modules -->
+        <!--
+        Pattern:
+        <g transform="translate(40, Y_POSITION)">
+          <foreignObject width="920" height="LAYER_H">
+            <div xmlns="http://www.w3.org/1999/xhtml" class="layer-card type-[LAYER_TYPE]">
+              <div class="layer-header">
+                <span class="layer-label">Layer Name</span>
+                <span class="layer-description">Optional description</span>
+              </div>
+              <div class="modules">
+                <div class="module type-[MODULE_TYPE]">
+                  <span class="module-label">Module Name</span>
+                  <span class="tech-badges">
+                    <span class="tech-badge">Badge1</span>
+                    <span class="tech-badge">Badge2</span>
+                  </span>
+                </div>
+              </div>
+            </div>
+          </foreignObject>
+        </g>
+        -->
+
+        <!-- === LEGEND === -->
+        <!-- Legend goes here -->
+
+      </svg>
+    </div>
+
+    <div class="footer">
+      Generated by gmdiagram &middot; Hand-Drawn Sketch Style &middot; {{DATE}}
+    </div>
+  </div>
+</body>
+</html>

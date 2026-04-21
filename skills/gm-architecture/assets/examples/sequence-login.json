@@ -1,0 +1,42 @@
+{
+  "title": "User Login Flow",
+  "subtitle": "Authentication sequence with credential validation and token generation",
+  "diagramType": "sequence",
+  "style": "dark-professional",
+  "actors": [
+    { "id": "user", "label": "User", "type": "actor" },
+    { "id": "client", "label": "Client App", "type": "participant" },
+    { "id": "auth", "label": "Auth Server", "type": "boundary" },
+    { "id": "db", "label": "Database", "type": "entity" }
+  ],
+  "messages": [
+    { "from": "user", "to": "client", "label": "Enter credentials", "type": "sync", "order": 1 },
+    { "from": "client", "to": "auth", "label": "POST /api/login", "type": "sync", "order": 2 },
+    { "from": "auth", "to": "db", "label": "SELECT user WHERE email=?", "type": "sync", "order": 3 },
+    { "from": "db", "to": "auth", "label": "User record", "type": "return", "order": 4 },
+    { "from": "auth", "to": "auth", "label": "Verify password (bcrypt)", "type": "sync", "order": 5 },
+    { "from": "auth", "to": "client", "label": "200 OK + JWT token", "type": "return", "order": 6 },
+    { "from": "client", "to": "user", "label": "Redirect to dashboard", "type": "sync", "order": 7 },
+    { "from": "auth", "to": "client", "label": "401 Unauthorized", "type": "return", "order": 7 },
+    { "from": "client", "to": "user", "label": "Show error message", "type": "sync", "order": 8 },
+    { "from": "user", "to": "client", "label": "Retry login", "type": "sync", "order": 9 }
+  ],
+  "fragments": [
+    {
+      "id": "auth-result",
+      "type": "alt",
+      "label": "alt",
+      "condition": "[credentials valid]",
+      "children": [6, 7],
+      "else": {
+        "condition": "[credentials invalid]",
+        "children": [7, 8, 9]
+      }
+    }
+  ],
+  "metadata": {
+    "author": "gmdiagram",
+    "date": "2026-04-14",
+    "version": "0.6.0"
+  }
+}

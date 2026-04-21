@@ -1,0 +1,45 @@
+{
+  "diagramType": "area",
+  "title": "网站流量趋势",
+  "subtitle": "单位：万次访问",
+  "style": "dark-professional",
+  "format": "html",
+  "density": "normal",
+  "smooth": false,
+  "variant": "overlaid",
+  "opacity": 0.3,
+  "series": [
+    {
+      "name": "直接访问",
+      "data": [
+        { "label": "1月", "value": 200 },
+        { "label": "2月", "value": 220 },
+        { "label": "3月", "value": 250 },
+        { "label": "4月", "value": 230 },
+        { "label": "5月", "value": 260 },
+        { "label": "6月", "value": 280 }
+      ]
+    },
+    {
+      "name": "社交媒体",
+      "data": [
+        { "label": "1月", "value": 80 },
+        { "label": "2月", "value": 100 },
+        { "label": "3月", "value": 120 },
+        { "label": "4月", "value": 110 },
+        { "label": "5月", "value": 130 },
+        { "label": "6月", "value": 150 }
+      ]
+    }
+  ],
+  "axis": {
+    "x": { "label": "月份", "visible": true },
+    "y": { "label": "万次", "visible": true, "gridLines": true, "ticks": [0, 50, 100, 150, 200, 250, 300] }
+  },
+  "legend": { "visible": true, "position": "top" },
+  "metadata": {
+    "author": "gmdiagram",
+    "date": "2026-04-14",
+    "version": "0.6.0"
+  }
+}

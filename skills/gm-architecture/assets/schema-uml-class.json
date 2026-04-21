@@ -1,0 +1,105 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "uml-class-diagram-schema",
+  "title": "UML Class Diagram Schema",
+  "description": "Intermediate representation for UML class diagrams. LLM extracts structure from natural language into this format.",
+  "type": "object",
+  "required": ["title", "diagramType", "style", "classes"],
+  "additionalProperties": false,
+  "properties": {
+    "title": { "type": "string", "description": "Diagram title" },
+    "subtitle": { "type": "string", "description": "Optional subtitle" },
+    "diagramType": { "type": "string", "const": "uml-class" },
+    "style": {
+      "type": "string",
+      "enum": ["dark-professional", "hand-drawn", "light-corporate", "cyberpunk-neon", "blueprint", "warm-cozy", "minimalist", "terminal-retro", "pastel-dream", "notion", "material", "glassmorphism"],
+      "default": "dark-professional"
+    },
+    "format": { "type": "string", "enum": ["html", "svg", "mermaid"], "default": "html" },
+    "density": { "type": "string", "enum": ["compact", "normal", "spacious"], "default": "normal" },
+    "classes": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "name"],
+        "additionalProperties": false,
+        "properties": {
+          "id": { "type": "string", "pattern": "^[a-z0-9][a-z0-9-]*$" },
+          "name": { "type": "string", "description": "Class name" },
+          "stereotype": { "type": "string", "description": "UML stereotype: interface, abstract, enum, utility, etc." },
+          "attributes": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["name", "type"],
+              "properties": {
+                "visibility": { "type": "string", "enum": ["+", "-", "#", "~"], "default": "-" },
+                "name": { "type": "string" },
+                "type": { "type": "string" }
+              }
+            }
+          },
+          "methods": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["name"],
+              "properties": {
+                "visibility": { "type": "string", "enum": ["+", "-", "#", "~"], "default": "+" },
+                "name": { "type": "string" },
+                "params": { "type": "string", "description": "Parameter list string" },
+                "returnType": { "type": "string" }
+              }
+            }
+          },
+          "x": { "type": "number", "description": "Suggested x position" },
+          "y": { "type": "number", "description": "Suggested y position" }
+        }
+      },
+      "minItems": 1
+    },
+    "relationships": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "from", "to", "type"],
+        "additionalProperties": false,
+        "properties": {
+          "id": { "type": "string", "pattern": "^[a-z0-9][a-z0-9-]*$" },
+          "from": { "type": "string", "description": "Source class ID" },
+          "to": { "type": "string", "description": "Target class ID" },
+          "type": { "type": "string", "enum": ["inheritance", "implementation", "composition", "aggregation", "association", "dependency"] },
+          "label": { "type": "string" },
+          "multiplicity": { "type": "string", "description": "E.g. '1..*', '0..1'" }
+        }
+      },
+      "default": []
+    },
+    "font": {
+      "type": "string",
+      "pattern": "^[a-zA-Z0-9][a-zA-Z0-9 ._+\\-]{0,50}$",
+      "description": "Optional font override. Use a Google Fonts name. Alphanumeric, spaces, dots, hyphens, plus, underscores allowed.",
+      "default": null
+    },
+    "colors": {
+      "type": "object",
+      "properties": {
+        "primary": { "type": "string", "pattern": "^#[0-9a-fA-F]{6}$" },
+        "secondary": { "type": "string", "pattern": "^#[0-9a-fA-F]{6}$" },
+        "accent": { "type": "string", "pattern": "^#[0-9a-fA-F]{6}$" },
+        "background": { "type": "string", "pattern": "^#[0-9a-fA-F]{6}$" },
+        "text": { "type": "string", "pattern": "^#[0-9a-fA-F]{6}$" }
+      },
+      "additionalProperties": false
+    },
+    "metadata": {
+      "type": "object",
+      "properties": {
+        "author": { "type": "string" },
+        "date": { "type": "string", "format": "date" },
+        "version": { "type": "string" }
+      },
+      "additionalProperties": false
+    }
+  }
+}

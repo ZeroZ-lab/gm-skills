@@ -1,0 +1,9 @@
+{
+  "name": "gmdiagram-export",
+  "version": "1.0.0",
+  "description": "PNG/PDF export helper for gmdiagram",
+  "private": true,
+  "dependencies": {
+    "@resvg/resvg-js": "^2.6.2"
+  }
+}

@@ -1,0 +1,133 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "table-chart-schema",
+  "title": "Table Chart Schema",
+  "description": "Intermediate representation for table (data grid) diagrams. LLM extracts data from natural language into this format, then rendering pipeline generates HTML/SVG from it. Unlike other chart types, Table uses pure foreignObject + HTML table with NO SVG graphic elements.",
+  "type": "object",
+  "required": ["diagramType", "title", "columns", "rows"],
+  "additionalProperties": false,
+  "properties": {
+    "diagramType": {
+      "type": "string",
+      "const": "table",
+      "description": "Identifies this JSON as a table chart. Must always be 'table'."
+    },
+    "title": {
+      "$ref": "schema-shared.json#/$defs/sanitizedString",
+      "maxLength": 200,
+      "description": "Table title, displayed at the top of the rendered page.",
+      "examples": ["Team Performance Q1 2025", "2025年团队绩效"]
+    },
+    "subtitle": {
+      "$ref": "schema-shared.json#/$defs/sanitizedString",
+      "maxLength": 300,
+      "description": "Optional subtitle shown below the title.",
+      "examples": ["Revenue in thousands (USD)", "单位：千元"]
+    },
+    "style": {
+      "$ref": "schema-shared.json#/$defs/styleEnum",
+      "description": "Visual style preset. Each style has its own template and design rules.",
+      "default": "dark-professional"
+    },
+    "format": {
+      "$ref": "schema-shared.json#/$defs/formatEnum",
+      "description": "Output format. HTML is the default. Note: Mermaid is NOT supported for tables.",
+      "default": "html"
+    },
+    "columns": {
+      "type": "array",
+      "description": "Column definitions. Each column has a key, display label, alignment, and optional width.",
+      "items": {
+        "$ref": "#/$defs/columnDef"
+      },
+      "minItems": 2,
+      "maxItems": 12
+    },
+    "rows": {
+      "type": "array",
+      "description": "Data rows. Each row is an object where keys match column keys and values are strings or numbers.",
+      "items": {
+        "$ref": "#/$defs/rowItem"
+      },
+      "minItems": 1,
+      "maxItems": 50
+    },
+    "showRowNumbers": {
+      "type": "boolean",
+      "description": "Whether to show a row number column on the left side.",
+      "default": false
+    },
+    "stripeRows": {
+      "type": "boolean",
+      "description": "Whether to apply alternating background colors to rows (zebra striping).",
+      "default": true
+    },
+    "highlightMax": {
+      "$ref": "schema-shared.json#/$defs/sanitizedString",
+      "maxLength": 50,
+      "description": "Column key to highlight the maximum numeric value in. The cell with the largest numeric value in this column gets a green highlight background.",
+      "examples": ["revenue"]
+    },
+    "highlightMin": {
+      "$ref": "schema-shared.json#/$defs/sanitizedString",
+      "maxLength": 50,
+      "description": "Column key to highlight the minimum numeric value in. The cell with the smallest numeric value in this column gets a red highlight background.",
+      "examples": ["deals"]
+    },
+    "legend": {
+      "$ref": "schema-shared.json#/$defs/legendConfig",
+      "description": "Legend configuration. Tables typically do not show a legend."
+    },
+    "colors": {
+      "$ref": "schema-shared.json#/$defs/colorsOverride",
+      "description": "Optional color overrides for style environment colors."
+    },
+    "metadata": {
+      "$ref": "schema-shared.json#/$defs/metadata",
+      "description": "Optional metadata. author field is for internal tracking only and MUST NOT be rendered into the output."
+    }
+  },
+  "$defs": {
+    "columnDef": {
+      "type": "object",
+      "required": ["key", "label"],
+      "additionalProperties": false,
+      "description": "A single column definition.",
+      "properties": {
+        "key": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9]*(-[a-z0-9]+)*$",
+          "maxLength": 50,
+          "description": "Column identifier in kebab-case. Used as the key in row objects. Must start with a lowercase letter.",
+          "examples": ["name", "revenue", "avg-deal-size"]
+        },
+        "label": {
+          "$ref": "schema-shared.json#/$defs/sanitizedString",
+          "maxLength": 100,
+          "description": "Display label shown in the table header.",
+          "examples": ["Name", "Revenue ($k)", "Avg Deal Size"]
+        },
+        "align": {
+          "type": "string",
+          "enum": ["left", "center", "right"],
+          "description": "Text alignment within the column. Default is 'left'. For columns containing primarily numeric data, 'right' is recommended.",
+          "default": "left"
+        },
+        "width": {
+          "type": "string",
+          "pattern": "^(\\d{1,4}px|auto)$",
+          "description": "Column width. Must be a pixel value (e.g. '120px') or 'auto'. If omitted, columns share available space equally.",
+          "examples": ["120px", "auto"]
+        }
+      }
+    },
+    "rowItem": {
+      "type": "object",
+      "description": "A single data row. Keys must match column keys defined in the columns array. Values are plain text strings or numbers.",
+      "additionalProperties": {
+        "type": ["string", "number"]
+      },
+      "properties": {}
+    }
+  }
+}

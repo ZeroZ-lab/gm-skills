@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Diagram Title</title>
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      background: #ffffff;
+      color: #37352f;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans SC', sans-serif;
+      min-height: 100vh;
+      padding: 40px 20px;
+    }
+    .container { max-width: 1100px; margin: 0 auto; }
+    .header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 28px;
+    }
+    .header-dot {
+      width: 8px; height: 8px; border-radius: 2px;
+      background: #e8e8e5;
+    }
+    h1 { font-size: 20px; font-weight: 600; color: #37352f; }
+    .subtitle { font-size: 13px; color: #9b9a97; margin-top: 2px; }
+    .diagram-container {
+      background: #ffffff;
+      border: 1px solid #e8e8e5;
+      border-radius: 6px;
+      padding: 24px;
+      margin-bottom: 28px;
+      overflow-x: auto;
+    }
+    .diagram-container svg {
+      width: 100%;
+      min-width: 700px;
+      height: auto;
+      display: block;
+    }
+    .footer {
+      font-size: 11px;
+      color: #9b9a97;
+      text-align: center;
+      padding-top: 14px;
+      border-top: 1px solid #e8e8e5;
+    }
+
+    /* === foreignObject component classes (notion) === */
+    .layer-card { width: 100%; border-radius: 4px; padding: 8px 0 12px; box-sizing: border-box; }
+    .layer-label { font-size: 13px; font-weight: 600; color: #37352f; padding: 0 16px; font-family: inherit; }
+    .layer-badge { font-size: 9px; font-weight: 500; color: #9b9a97; padding: 2px 8px; border-radius: 3px; background: #f7f6f3; margin-left: 8px; }
+    .modules { display: flex; gap: 16px; justify-content: center; padding: 8px 16px 0; flex-wrap: wrap; }
+    .module { min-width: 100px; height: 48px; border-radius: 4px; display: flex; align-items: center; justify-content: center; padding: 0 14px; box-sizing: border-box; }
+    .module-label { font-size: 12px; font-weight: 500; color: #37352f; text-align: center; white-space: nowrap; font-family: inherit; }
+    .tech-badges { display: flex; gap: 4px; justify-content: center; padding-top: 4px; }
+    .tech-badge { font-size: 8px; padding: 1px 5px; border-radius: 3px; white-space: nowrap; background: #f7f6f3; border: 0.5px solid #e8e8e5; color: #9b9a97; font-family: inherit; }
+
+    /* Module with badge — taller to fit badge row */
+    .module.has-badges { height: 56px; flex-direction: column; gap: 2px; }
+    .module.has-badges .module-label { height: 18px; }
+
+    /* Type-specific colors */
+    .type-process { background: rgba(35, 131, 226, 0.06); border: 1px solid rgba(35, 131, 226, 0.2); }
+    .type-module { background: rgba(15, 157, 88, 0.06); border: 1px solid rgba(15, 157, 88, 0.2); }
+    .type-data { background: rgba(154, 106, 255, 0.06); border: 1px solid rgba(154, 106, 255, 0.2); }
+    .type-infra { background: rgba(234, 179, 8, 0.06); border: 1px solid rgba(234, 179, 8, 0.2); }
+    .type-security { background: rgba(220, 38, 38, 0.06); border: 1px solid rgba(220, 38, 38, 0.2); }
+    .type-channel { background: rgba(249, 115, 22, 0.06); border: 1px solid rgba(249, 115, 22, 0.2); }
+    .type-external { background: rgba(107, 114, 128, 0.06); border: 1px solid rgba(107, 114, 128, 0.2); }
+
+    /* Legend */
+    .legend-container { display: flex; gap: 80px; align-items: center; }
+    .legend-item { display: flex; align-items: center; gap: 6px; }
+    .legend-swatch { width: 12px; height: 12px; border-radius: 2px; }
+    .legend-text { font-size: 11px; color: #9b9a97; font-family: inherit; }
+
+    /* === Chart classes (notion) === */
+    .axis-line { stroke: #9b9a97; stroke-width: 1.5; fill: none; }
+    .axis-label { fill: #9b9a97; font-size: 12px; font-family: inherit; }
+    .axis-title { fill: #37352f; font-size: 13px; font-weight: 600; font-family: inherit; }
+    .tick-label { fill: #9b9a97; font-size: 11px; font-family: inherit; }
+    .grid-line { stroke: #e8e8e5; stroke-dasharray: 4,4; stroke-width: 0.5; fill: none; }
+    .bar { rx: 2; }
+    .bar:hover { opacity: 0.85; }
+    .slice { stroke: #ffffff; stroke-width: 2; }
+    .line-path { fill: none; stroke-width: 2.5; }
+    .area-fill { opacity: 0.15; }
+    .data-dot { stroke-width: 2; }
+    .scatter-point { stroke-width: 1.5; }
+    .bubble-point { stroke-width: 1.5; }
+    .radar-grid { stroke: rgba(0,0,0,0.08); fill: none; stroke-width: 0.5; }
+    .radar-axis { stroke: rgba(0,0,0,0.1); stroke-width: 0.5; }
+    .radar-data { stroke-width: 2; stroke-linejoin: round; }
+    .funnel-stage { stroke: white; stroke-width: 1; }
+    .funnel-label { fill: #37352f; font-size: 13px; font-weight: 600; font-family: inherit; }
+    .table-header { font-weight: 600; text-align: left; padding: 8px 12px; border-bottom: 2px solid #e8e8e5; }
+    .table-row { border-bottom: 1px solid rgba(0,0,0,0.06); }
+    .table-cell { padding: 8px 12px; font-size: 13px; }
+    .highlight-max { font-weight: 600; }
+    .highlight-min { font-weight: 600; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <div class="header-dot"></div>
+      <div>
+        <h1>Diagram Title</h1>
+        <div class="subtitle">Brief description of the system</div>
+      </div>
+    </div>
+
+    <div class="diagram-container">
+      <svg viewBox="0 0 1000 500" xmlns="http://www.w3.org/2000/svg">
+        <!-- Placeholder: replace with generated SVG content -->
+      </svg>
+    </div>
+
+    <div class="footer">
+      Generated by gmdiagram &middot; 2026-04-13
+    </div>
+  </div>
+</body>
+</html>

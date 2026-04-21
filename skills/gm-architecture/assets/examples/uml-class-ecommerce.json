@@ -1,0 +1,151 @@
+{
+  "title": "E-Commerce Order System",
+  "subtitle": "UML Class Diagram for an online shopping platform",
+  "diagramType": "uml-class",
+  "style": "dark-professional",
+  "format": "html",
+  "density": "normal",
+  "classes": [
+    {
+      "id": "user",
+      "name": "User",
+      "attributes": [
+        { "visibility": "-", "name": "id", "type": "int" },
+        { "visibility": "-", "name": "email", "type": "string" },
+        { "visibility": "-", "name": "name", "type": "string" }
+      ],
+      "methods": [
+        { "visibility": "+", "name": "login", "params": "()", "returnType": "bool" },
+        { "visibility": "+", "name": "register", "params": "()", "returnType": "bool" },
+        { "visibility": "+", "name": "placeOrder", "params": "()", "returnType": "Order" }
+      ],
+      "x": 50,
+      "y": 50
+    },
+    {
+      "id": "order",
+      "name": "Order",
+      "attributes": [
+        { "visibility": "-", "name": "id", "type": "int" },
+        { "visibility": "-", "name": "userId", "type": "int" },
+        { "visibility": "-", "name": "total", "type": "float" },
+        { "visibility": "-", "name": "status", "type": "OrderStatus" },
+        { "visibility": "-", "name": "createdAt", "type": "datetime" }
+      ],
+      "methods": [
+        { "visibility": "+", "name": "addItem", "params": "(product: Product, qty: int)", "returnType": "void" },
+        { "visibility": "+", "name": "removeItem", "params": "(item: OrderItem)", "returnType": "void" },
+        { "visibility": "+", "name": "calculateTotal", "params": "()", "returnType": "float" },
+        { "visibility": "+", "name": "pay", "params": "()", "returnType": "Payment" }
+      ],
+      "x": 350,
+      "y": 50
+    },
+    {
+      "id": "order-item",
+      "name": "OrderItem",
+      "attributes": [
+        { "visibility": "-", "name": "id", "type": "int" },
+        { "visibility": "-", "name": "orderId", "type": "int" },
+        { "visibility": "-", "name": "productId", "type": "int" },
+        { "visibility": "-", "name": "quantity", "type": "int" },
+        { "visibility": "-", "name": "price", "type": "float" }
+      ],
+      "methods": [],
+      "x": 650,
+      "y": 50
+    },
+    {
+      "id": "product",
+      "name": "Product",
+      "attributes": [
+        { "visibility": "-", "name": "id", "type": "int" },
+        { "visibility": "-", "name": "name", "type": "string" },
+        { "visibility": "-", "name": "price", "type": "float" },
+        { "visibility": "-", "name": "stock", "type": "int" },
+        { "visibility": "-", "name": "categoryId", "type": "int" }
+      ],
+      "methods": [
+        { "visibility": "+", "name": "reduceStock", "params": "(qty: int)", "returnType": "bool" }
+      ],
+      "x": 650,
+      "y": 300
+    },
+    {
+      "id": "category",
+      "name": "Category",
+      "attributes": [
+        { "visibility": "-", "name": "id", "type": "int" },
+        { "visibility": "-", "name": "name", "type": "string" },
+        { "visibility": "-", "name": "description", "type": "string" }
+      ],
+      "methods": [],
+      "x": 350,
+      "y": 300
+    },
+    {
+      "id": "payment",
+      "name": "Payment",
+      "attributes": [
+        { "visibility": "-", "name": "id", "type": "int" },
+        { "visibility": "-", "name": "orderId", "type": "int" },
+        { "visibility": "-", "name": "amount", "type": "float" },
+        { "visibility": "-", "name": "status", "type": "PaymentStatus" },
+        { "visibility": "-", "name": "paidAt", "type": "datetime" }
+      ],
+      "methods": [
+        { "visibility": "+", "name": "process", "params": "()", "returnType": "bool" },
+        { "visibility": "+", "name": "refund", "params": "()", "returnType": "bool" }
+      ],
+      "x": 350,
+      "y": 500
+    }
+  ],
+  "relationships": [
+    {
+      "id": "user-orders",
+      "from": "user",
+      "to": "order",
+      "type": "composition",
+      "label": "places",
+      "multiplicity": "1..*"
+    },
+    {
+      "id": "order-items",
+      "from": "order",
+      "to": "order-item",
+      "type": "composition",
+      "label": "contains",
+      "multiplicity": "1..*"
+    },
+    {
+      "id": "item-product",
+      "from": "order-item",
+      "to": "product",
+      "type": "association",
+      "label": "references",
+      "multiplicity": "*..1"
+    },
+    {
+      "id": "product-category",
+      "from": "product",
+      "to": "category",
+      "type": "association",
+      "label": "belongs to",
+      "multiplicity": "*..1"
+    },
+    {
+      "id": "order-payment",
+      "from": "order",
+      "to": "payment",
+      "type": "association",
+      "label": "has",
+      "multiplicity": "1..1"
+    }
+  ],
+  "metadata": {
+    "author": "gmdiagram",
+    "date": "2026-04-14",
+    "version": "0.6.1"
+  }
+}

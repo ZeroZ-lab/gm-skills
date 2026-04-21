@@ -1,0 +1,298 @@
+{
+  "$schema": "../../assets/schema-network.json",
+  "title": "企业三层网络架构拓扑图",
+  "subtitle": "Enterprise Three-Tier Network Topology",
+  "diagramType": "network",
+  "style": "dark-professional",
+  "format": "html",
+  "density": "normal",
+  "nodes": [
+    {
+      "id": "internet",
+      "label": "Internet",
+      "type": "cloud",
+      "ip": "Public",
+      "group": "external"
+    },
+    {
+      "id": "fw1",
+      "label": "Firewall",
+      "type": "firewall",
+      "ip": "10.0.1.1",
+      "group": "dmz"
+    },
+    {
+      "id": "lb",
+      "label": "LoadBalancer",
+      "type": "load-balancer",
+      "ip": "10.0.1.10",
+      "group": "dmz"
+    },
+    {
+      "id": "web1",
+      "label": "WebServer-1",
+      "type": "server",
+      "ip": "10.0.1.20",
+      "group": "dmz"
+    },
+    {
+      "id": "web2",
+      "label": "WebServer-2",
+      "type": "server",
+      "ip": "10.0.1.21",
+      "group": "dmz"
+    },
+    {
+      "id": "app1",
+      "label": "AppServer-1",
+      "type": "server",
+      "ip": "10.0.2.10",
+      "group": "app"
+    },
+    {
+      "id": "app2",
+      "label": "AppServer-2",
+      "type": "server",
+      "ip": "10.0.2.11",
+      "group": "app"
+    },
+    {
+      "id": "app3",
+      "label": "AppServer-3",
+      "type": "server",
+      "ip": "10.0.2.12",
+      "group": "app"
+    },
+    {
+      "id": "redis",
+      "label": "Redis Cluster",
+      "type": "database",
+      "ip": "10.0.2.20",
+      "group": "app"
+    },
+    {
+      "id": "mq",
+      "label": "Kafka MQ",
+      "type": "server",
+      "ip": "10.0.2.30",
+      "group": "app"
+    },
+    {
+      "id": "db-master",
+      "label": "MySQL Master",
+      "type": "database",
+      "ip": "10.0.3.10",
+      "group": "data"
+    },
+    {
+      "id": "db-slave",
+      "label": "MySQL Slave",
+      "type": "database",
+      "ip": "10.0.3.11",
+      "group": "data"
+    },
+    {
+      "id": "backup",
+      "label": "Backup Server",
+      "type": "server",
+      "ip": "10.0.3.50",
+      "group": "data"
+    },
+    {
+      "id": "jump",
+      "label": "JumpServer",
+      "type": "server",
+      "ip": "10.0.4.10",
+      "group": "mgmt"
+    },
+    {
+      "id": "monitor",
+      "label": "Monitor",
+      "type": "server",
+      "ip": "10.0.4.20",
+      "group": "mgmt"
+    },
+    {
+      "id": "dns",
+      "label": "CoreDNS",
+      "type": "dns",
+      "ip": "10.0.4.5",
+      "group": "mgmt"
+    }
+  ],
+  "connections": [
+    {
+      "id": "conn-internet-fw",
+      "from": "internet",
+      "to": "fw1",
+      "type": "wan",
+      "bandwidth": "1Gbps",
+      "label": "WAN"
+    },
+    {
+      "id": "conn-fw-lb",
+      "from": "fw1",
+      "to": "lb",
+      "type": "ethernet",
+      "bandwidth": "10Gbps"
+    },
+    {
+      "id": "conn-lb-web1",
+      "from": "lb",
+      "to": "web1",
+      "type": "ethernet",
+      "bandwidth": "1Gbps"
+    },
+    {
+      "id": "conn-lb-web2",
+      "from": "lb",
+      "to": "web2",
+      "type": "ethernet",
+      "bandwidth": "1Gbps"
+    },
+    {
+      "id": "conn-web1-app",
+      "from": "web1",
+      "to": "app1",
+      "type": "ethernet",
+      "bandwidth": "1Gbps"
+    },
+    {
+      "id": "conn-web2-app",
+      "from": "web2",
+      "to": "app2",
+      "type": "ethernet",
+      "bandwidth": "1Gbps"
+    },
+    {
+      "id": "conn-app-redis",
+      "from": "app1",
+      "to": "redis",
+      "type": "ethernet",
+      "label": "Cache"
+    },
+    {
+      "id": "conn-app-mq",
+      "from": "app2",
+      "to": "mq",
+      "type": "ethernet",
+      "label": "MQ"
+    },
+    {
+      "id": "conn-app-db",
+      "from": "app3",
+      "to": "db-master",
+      "type": "ethernet",
+      "bandwidth": "10Gbps",
+      "label": "DB Write"
+    },
+    {
+      "id": "conn-db-replica",
+      "from": "db-master",
+      "to": "db-slave",
+      "type": "ethernet",
+      "bandwidth": "10Gbps",
+      "label": "Replication"
+    },
+    {
+      "id": "conn-db-backup",
+      "from": "db-master",
+      "to": "backup",
+      "type": "ethernet",
+      "label": "Backup"
+    },
+    {
+      "id": "conn-jump-mgmt",
+      "from": "jump",
+      "to": "fw1",
+      "type": "ethernet",
+      "label": "SSH"
+    },
+    {
+      "id": "conn-jump-lb",
+      "from": "jump",
+      "to": "lb",
+      "type": "ethernet",
+      "label": "SSH"
+    },
+    {
+      "id": "conn-jump-web",
+      "from": "jump",
+      "to": "web1",
+      "type": "ethernet",
+      "label": "SSH"
+    },
+    {
+      "id": "conn-jump-app",
+      "from": "jump",
+      "to": "app1",
+      "type": "ethernet",
+      "label": "SSH"
+    },
+    {
+      "id": "conn-jump-db",
+      "from": "jump",
+      "to": "db-master",
+      "type": "ethernet",
+      "label": "SSH"
+    },
+    {
+      "id": "conn-monitor-all",
+      "from": "monitor",
+      "to": "lb",
+      "type": "ethernet",
+      "label": "Metrics"
+    },
+    {
+      "id": "conn-dns-all",
+      "from": "dns",
+      "to": "app1",
+      "type": "ethernet",
+      "label": "DNS"
+    }
+  ],
+  "zones": [
+    {
+      "id": "zone-dmz",
+      "label": "DMZ Zone (10.0.1.0/24)",
+      "nodes": ["fw1", "lb", "web1", "web2"],
+      "color": "#f59e0b"
+    },
+    {
+      "id": "zone-app",
+      "label": "Application Zone (10.0.2.0/24)",
+      "nodes": ["app1", "app2", "app3", "redis", "mq"],
+      "color": "#3b82f6"
+    },
+    {
+      "id": "zone-data",
+      "label": "Data Zone (10.0.3.0/24)",
+      "nodes": ["db-master", "db-slave", "backup"],
+      "color": "#10b981"
+    },
+    {
+      "id": "zone-mgmt",
+      "label": "Management Zone (10.0.4.0/24)",
+      "nodes": ["jump", "monitor", "dns"],
+      "color": "#8b5cf6"
+    },
+    {
+      "id": "zone-ext",
+      "label": "External",
+      "nodes": ["internet"],
+      "color": "#64748b"
+    }
+  ],
+  "colors": {
+    "primary": "#22d3ee",
+    "secondary": "#34d399",
+    "accent": "#a78bfa",
+    "background": "#020617",
+    "text": "#e2e8f0"
+  },
+  "metadata": {
+    "author": "gmdiagram",
+    "date": "2026-04-14",
+    "version": "0.6.1"
+  }
+}

@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cloud Native Ecosystem</title>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    body { background: #fef7ff; color: #4a3060; font-family: 'Nunito', 'Quicksand', system-ui, sans-serif; min-height: 100vh; padding: 40px 20px; }
+    .container { max-width: 1100px; margin: 0 auto; }
+    .header { display: flex; align-items: center; gap: 12px; margin-bottom: 32px; }
+    .pastel-dot { width: 12px; height: 12px; border-radius: 50%; background: #f0d4f7; box-shadow: 0 0 8px rgba(206,147,216,0.4); }
+    h1 { font-size: 22px; font-weight: 700; color: #5b21b6; }
+    .subtitle { font-size: 13px; color: #7c3aed; margin-top: 4px; }
+    .diagram-container { background: white; border: 2px solid #e9d5ff; border-radius: 16px; padding: 24px; margin-bottom: 32px; box-shadow: 0 4px 12px rgba(139,92,246,0.08); overflow-x: auto; }
+    .diagram-container svg { width: 100%; min-width: 700px; height: auto; display: block; }
+    .footer { font-size: 11px; color: #c4b5fd; text-align: center; padding-top: 14px; border-top: 2px dashed #ede9fe; }
+    .layer-card { width: 100%; border-radius: 12px; padding: 8px 0 12px; box-sizing: border-box; }
+    .layer-label { font-size: 14px; font-weight: 700; color: #5b21b6; padding: 0 16px; font-family: 'Nunito', sans-serif; }
+    .modules { display: flex; gap: 20px; justify-content: center; padding: 8px 16px 0; flex-wrap: wrap; }
+    .module { min-width: 100px; height: 50px; border-radius: 12px; display: flex; align-items: center; justify-content: center; padding: 0 16px; box-sizing: border-box; }
+    .module-label { font-size: 12px; font-weight: 600; color: #4a3060; text-align: center; white-space: nowrap; font-family: 'Nunito', sans-serif; }
+    .tech-badges { display: flex; gap: 4px; justify-content: center; padding-top: 4px; }
+    .tech-badge { font-size: 8px; padding: 2px 6px; border-radius: 6px; white-space: nowrap; background: #f5f3ff; border: 1px solid #ddd6fe; color: #7c3aed; font-family: 'Nunito', sans-serif; }
+    .module.has-badges { height: 58px; flex-direction: column; gap: 2px; }
+    .module.has-badges .module-label { height: 20px; }
+    .type-process { background: #fce7f3; border: 2px solid #f9a8d4; }
+    .type-module { background: #ede9fe; border: 2px solid #c4b5fd; }
+    .type-data { background: #e0e7ff; border: 2px solid #a5b4fc; }
+    .type-infra { background: #fef3c7; border: 2px solid #fcd34d; }
+    .type-security { background: #ffe4e6; border: 2px dashed #fda4af; }
+    .type-channel { background: #ffedd5; border: 2px solid #fdba74; }
+    .type-external { background: #f3f4f6; border: 2px solid #d1d5db; }
+    .legend-container { display: flex; gap: 60px; align-items: center; }
+    .legend-item { display: flex; align-items: center; gap: 6px; }
+    .legend-swatch { width: 14px; height: 14px; border-radius: 6px; }
+    .legend-text { font-size: 11px; color: #6b7280; font-family: 'Nunito', sans-serif; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <div class="pastel-dot"></div>
+      <div>
+        <h1>Cloud Native Ecosystem</h1>
+        <div class="subtitle">Modern cloud-native application architecture with containers and orchestration</div>
+      </div>
+    </div>
+    <div class="diagram-container">
+      <svg viewBox="0 0 1000 840" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <marker id="arrowhead" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#a78bfa"/></marker>
+          <marker id="arrowhead-pink" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#f9a8d4"/></marker>
+        </defs>
+        <!-- CONNECTIONS -->
+        <line x1="500" y1="141" x2="500" y2="191" stroke="#a78bfa" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+        <text x="520" y="170" font-size="10" fill="#7c3aed" font-family="Nunito, sans-serif">Route</text>
+        <line x1="500" y1="307" x2="500" y2="357" stroke="#a78bfa" stroke-width="1.5" marker-start="url(#arrowhead)" marker-end="url(#arrowhead)"/>
+        <text x="520" y="336" font-size="10" fill="#7c3aed" font-family="Nunito, sans-serif">Connect</text>
+        <line x1="500" y1="473" x2="500" y2="523" stroke="#a78bfa" stroke-width="1.5" marker-start="url(#arrowhead)" marker-end="url(#arrowhead)"/>
+        <text x="520" y="502" font-size="10" fill="#7c3aed" font-family="Nunito, sans-serif">Read/Write</text>
+        <path d="M 60,704 L 20,704 L 20,260 L 60,260" fill="none" stroke="#f9a8d4" stroke-width="1.5" stroke-dasharray="6,4" marker-end="url(#arrowhead-pink)"/>
+        <text x="30" y="482" font-size="9" fill="#f9a8d4" font-family="Nunito, sans-serif">Monitor</text>
+        <!-- LAYER 1: Ingress -->
+        <g transform="translate(40, 40)">
+          <rect width="920" height="101" rx="16" fill="white"/>
+          <foreignObject width="920" height="101">
+            <div xmlns="http://www.w3.org/1999/xhtml" class="layer-card type-channel">
+              <div class="layer-label">Ingress &amp; Routing</div>
+              <div class="modules">
+                <div class="module has-badges type-module">
+                  <span class="module-label">Load Balancer</span>
+                  <span class="tech-badges"><span class="tech-badge">Nginx</span></span>
+                </div>
+                <div class="module type-module"><span class="module-label">API Gateway</span></div>
+              </div>
+            </div>
+          </foreignObject>
+        </g>
+        <!-- LAYER 2: Microservices -->
+        <g transform="translate(40, 191)">
+          <rect width="920" height="116" rx="16" fill="white"/>
+          <foreignObject width="920" height="116">
+            <div xmlns="http://www.w3.org/1999/xhtml" class="layer-card type-process">
+              <div class="layer-label">Microservices</div>
+              <div class="modules">
+                <div class="module type-module"><span class="module-label">User Service</span></div>
+                <div class="module type-module"><span class="module-label">Order Service</span></div>
+                <div class="module type-module"><span class="module-label">Payment Service</span></div>
+                <div class="module type-module"><span class="module-label">Notification</span></div>
+              </div>
+            </div>
+          </foreignObject>
+        </g>
+        <!-- LAYER 3: Platform Services -->
+        <g transform="translate(40, 357)">
+          <rect width="920" height="116" rx="16" fill="white"/>
+          <foreignObject width="920" height="116">
+            <div xmlns="http://www.w3.org/1999/xhtml" class="layer-card type-infra">
+              <div class="layer-label">Platform Services</div>
+              <div class="modules">
+                <div class="module has-badges type-module">
+                  <span class="module-label">Service Mesh</span>
+                  <span class="tech-badges"><span class="tech-badge">Istio</span></span>
+                </div>
+                <div class="module type-module"><span class="module-label">Config Center</span></div>
+                <div class="module type-module"><span class="module-label">Service Discovery</span></div>
+              </div>
+            </div>
+          </foreignObject>
+        </g>
+        <!-- LAYER 4: Data & Storage -->
+        <g transform="translate(40, 523)">
+          <rect width="920" height="116" rx="16" fill="white"/>
+          <foreignObject width="920" height="116">
+            <div xmlns="http://www.w3.org/1999/xhtml" class="layer-card type-data">
+              <div class="layer-label">Data &amp; Storage</div>
+              <div class="modules">
+                <div class="module type-data"><span class="module-label">PostgreSQL</span></div>
+                <div class="module type-data"><span class="module-label">Redis Cache</span></div>
+                <div class="module has-badges type-channel">
+                  <span class="module-label">Message Broker</span>
+                  <span class="tech-badges"><span class="tech-badge">Kafka</span></span>
+                </div>
+              </div>
+            </div>
+          </foreignObject>
+        </g>
+        <!-- LAYER 5: Observability -->
+        <g transform="translate(40, 689)">
+          <rect width="920" height="116" rx="16" fill="white"/>
+          <foreignObject width="920" height="116">
+            <div xmlns="http://www.w3.org/1999/xhtml" class="layer-card type-external">
+              <div class="layer-label">Observability</div>
+              <div class="modules">
+                <div class="module has-badges type-module">
+                  <span class="module-label">Metrics</span>
+                  <span class="tech-badges"><span class="tech-badge">Prometheus</span></span>
+                </div>
+                <div class="module type-module"><span class="module-label">Logging</span></div>
+                <div class="module type-module"><span class="module-label">Tracing</span></div>
+              </div>
+            </div>
+          </foreignObject>
+        </g>
+        <!-- LEGEND -->
+        <g transform="translate(40, 820)">
+          <foreignObject width="920" height="30">
+            <div xmlns="http://www.w3.org/1999/xhtml" class="legend-container">
+              <div class="legend-item"><div class="legend-swatch" style="background:#ffedd5;border:2px solid #fdba74;"></div><span class="legend-text">Ingress</span></div>
+              <div class="legend-item"><div class="legend-swatch" style="background:#fce7f3;border:2px solid #f9a8d4;"></div><span class="legend-text">Service</span></div>
+              <div class="legend-item"><div class="legend-swatch" style="background:#fef3c7;border:2px solid #fcd34d;"></div><span class="legend-text">Platform</span></div>
+              <div class="legend-item"><div class="legend-swatch" style="background:#e0e7ff;border:2px solid #a5b4fc;"></div><span class="legend-text">Data</span></div>
+              <div class="legend-item"><div class="legend-swatch" style="background:#f3f4f6;border:2px solid #d1d5db;"></div><span class="legend-text">Observe</span></div>
+            </div>
+          </foreignObject>
+        </g>
+      </svg>
+    </div>
+    <div class="footer">Generated by gmdiagram &middot; 2026-04-13</div>
+  </div>
+</body>
+</html>

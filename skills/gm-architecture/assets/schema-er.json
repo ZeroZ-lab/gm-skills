@@ -1,0 +1,290 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "er-diagram-schema",
+  "title": "ER Diagram Schema",
+  "description": "Intermediate representation for Entity-Relationship diagrams. LLM extracts database structure from natural language into this format.",
+  "type": "object",
+  "required": [
+    "title",
+    "diagramType",
+    "style",
+    "entities"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "title": {
+      "type": "string",
+      "description": "Diagram title",
+      "examples": [
+        "E-Commerce Database",
+        "Blog System ER Diagram"
+      ]
+    },
+    "subtitle": {
+      "type": "string",
+      "description": "Optional subtitle"
+    },
+    "diagramType": {
+      "type": "string",
+      "const": "er",
+      "description": "Must be 'er' for ER diagrams"
+    },
+    "style": {
+      "type": "string",
+      "enum": [
+        "dark-professional",
+        "hand-drawn",
+        "light-corporate",
+        "cyberpunk-neon",
+        "blueprint",
+        "warm-cozy",
+        "minimalist",
+        "terminal-retro",
+        "pastel-dream",
+        "notion",
+        "material",
+        "glassmorphism"
+      ],
+      "default": "dark-professional"
+    },
+    "format": {
+      "type": "string",
+      "enum": [
+        "html",
+        "svg",
+        "mermaid"
+      ],
+      "default": "html"
+    },
+    "density": {
+      "type": "string",
+      "enum": [
+        "compact",
+        "normal",
+        "spacious"
+      ],
+      "description": "Layout density. compact=tighter spacing for dense diagrams; normal=standard spacing; spacious=generous spacing for presentations.",
+      "default": "normal"
+    },
+    "entities": {
+      "type": "array",
+      "description": "Database entities (tables) with their attributes.",
+      "items": {
+        "$ref": "#/$defs/entity"
+      },
+      "minItems": 1
+    },
+    "relationships": {
+      "type": "array",
+      "description": "Relationships between entities.",
+      "items": {
+        "$ref": "#/$defs/relationship"
+      },
+      "default": []
+    },
+    "legend": {
+      "type": "array",
+      "description": "Legend entries. Auto-generated if omitted.",
+      "items": {
+        "$ref": "#/$defs/legendEntry"
+      },
+      "default": []
+    },
+    "font": {
+      "type": "string",
+      "pattern": "^[a-zA-Z0-9][a-zA-Z0-9 ._+\\-]{0,50}$",
+      "description": "Optional font override. Use a Google Fonts name. Alphanumeric, spaces, dots, hyphens, plus, underscores allowed.",
+      "default": null
+    },
+    "colors": {
+      "type": "object",
+      "description": "Optional color overrides. Each key overrides the corresponding semantic color from the chosen style.",
+      "properties": {
+        "primary": {
+          "type": "string",
+          "pattern": "^#[0-9a-fA-F]{6}$",
+          "description": "Primary accent color (borders, highlights)"
+        },
+        "secondary": {
+          "type": "string",
+          "pattern": "^#[0-9a-fA-F]{6}$",
+          "description": "Secondary color (subtle borders, backgrounds)"
+        },
+        "accent": {
+          "type": "string",
+          "pattern": "^#[0-9a-fA-F]{6}$",
+          "description": "Accent color (highlights, call-to-action elements)"
+        },
+        "background": {
+          "type": "string",
+          "pattern": "^#[0-9a-fA-F]{6}$",
+          "description": "Page background color"
+        },
+        "text": {
+          "type": "string",
+          "pattern": "^#[0-9a-fA-F]{6}$",
+          "description": "Primary text color"
+        }
+      },
+      "additionalProperties": false
+    },
+    "metadata": {
+      "type": "object",
+      "properties": {
+        "author": {
+          "type": "string"
+        },
+        "date": {
+          "type": "string",
+          "format": "date"
+        },
+        "version": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "$defs": {
+    "entity": {
+      "type": "object",
+      "required": [
+        "id",
+        "label",
+        "attributes"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[a-z0-9][a-z0-9-]*$"
+        },
+        "label": {
+          "type": "string",
+          "description": "Entity (table) name"
+        },
+        "color": {
+          "type": "string",
+          "description": "Optional color override (hex)"
+        },
+        "icon": {
+          "type": "string",
+          "description": "Optional icon identifier from the icons catalog. Rendered in the entity header.",
+          "examples": [
+            "database",
+            "table",
+            "users"
+          ]
+        },
+        "attributes": {
+          "type": "array",
+          "description": "Columns/fields of this entity.",
+          "items": {
+            "$ref": "#/$defs/attribute"
+          },
+          "minItems": 1
+        }
+      }
+    },
+    "attribute": {
+      "type": "object",
+      "required": [
+        "name",
+        "type"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Attribute/column name"
+        },
+        "type": {
+          "type": "string",
+          "description": "Data type (e.g., int, string, date, boolean, uuid, text, float, json, timestamp)"
+        },
+        "pk": {
+          "type": "boolean",
+          "description": "Is this a primary key?",
+          "default": false
+        },
+        "fk": {
+          "type": "boolean",
+          "description": "Is this a foreign key?",
+          "default": false
+        },
+        "nullable": {
+          "type": "boolean",
+          "description": "Can this attribute be null?",
+          "default": true
+        }
+      }
+    },
+    "relationship": {
+      "type": "object",
+      "required": [
+        "from",
+        "to",
+        "fromCard",
+        "toCard"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "from": {
+          "type": "string",
+          "description": "Source entity id"
+        },
+        "to": {
+          "type": "string",
+          "description": "Target entity id"
+        },
+        "fromCard": {
+          "type": "string",
+          "enum": [
+            "1",
+            "N",
+            "0..1"
+          ],
+          "description": "Cardinality on the 'from' side"
+        },
+        "toCard": {
+          "type": "string",
+          "enum": [
+            "1",
+            "N",
+            "0..1"
+          ],
+          "description": "Cardinality on the 'to' side"
+        },
+        "label": {
+          "type": "string",
+          "description": "Relationship label (e.g., 'has many', 'belongs to')"
+        },
+        "style": {
+          "type": "string",
+          "enum": [
+            "solid",
+            "dashed",
+            "dotted"
+          ],
+          "description": "Solid for identifying, dashed for non-identifying, dotted for optional/weak",
+          "default": "solid"
+        }
+      }
+    },
+    "legendEntry": {
+      "type": "object",
+      "required": [
+        "label"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "label": {
+          "type": "string"
+        },
+        "color": {
+          "type": "string"
+        }
+      }
+    }
+  }
+}

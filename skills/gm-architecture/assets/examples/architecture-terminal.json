@@ -1,0 +1,65 @@
+{
+  "title": "Retro Terminal System",
+  "subtitle": "Classic command-line infrastructure with phosphor-green aesthetics",
+  "style": "terminal-retro",
+  "diagramType": "architecture",
+  "format": "html",
+  "layers": [
+    {
+      "id": "terminal-layer",
+      "label": "Terminal Interface",
+      "type": "module",
+      "children": [
+        { "id": "shell", "label": "Bash Shell", "type": "module" },
+        { "id": "tui", "label": "TUI Framework", "type": "module" },
+        { "id": "cli-parser", "label": "CLI Parser", "type": "module" }
+      ]
+    },
+    {
+      "id": "session-layer",
+      "label": "Session Manager",
+      "type": "process",
+      "children": [
+        { "id": "auth-daemon", "label": "Auth Daemon", "type": "security" },
+        { "id": "session-keeper", "label": "Session Keeper", "type": "module" }
+      ]
+    },
+    {
+      "id": "kernel-layer",
+      "label": "Kernel Services",
+      "type": "infra",
+      "children": [
+        { "id": "process-mgr", "label": "Process Manager", "type": "module" },
+        { "id": "file-system", "label": "File System", "type": "data" },
+        { "id": "network-stack", "label": "Network Stack", "type": "channel" }
+      ]
+    },
+    {
+      "id": "hardware-layer",
+      "label": "Hardware",
+      "type": "external",
+      "children": [
+        { "id": "cpu", "label": "CPU", "type": "infra" },
+        { "id": "memory", "label": "Memory", "type": "data" },
+        { "id": "disk", "label": "Disk", "type": "data" }
+      ]
+    }
+  ],
+  "connections": [
+    { "from": "terminal-layer", "to": "session-layer", "label": "Commands", "direction": "unidirectional" },
+    { "from": "session-layer", "to": "kernel-layer", "label": "Syscalls", "direction": "bidirectional" },
+    { "from": "kernel-layer", "to": "hardware-layer", "label": "Driver I/O", "direction": "bidirectional" }
+  ],
+  "groups": [],
+  "legend": [
+    { "label": "Interface", "type": "module" },
+    { "label": "Process", "type": "process" },
+    { "label": "Kernel", "type": "infra" },
+    { "label": "Hardware", "type": "external" }
+  ],
+  "metadata": {
+    "author": "gmdiagram",
+    "date": "2026-04-14",
+    "version": "0.6.0"
+  }
+}
