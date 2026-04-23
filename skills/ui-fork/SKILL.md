@@ -1,60 +1,60 @@
 ---
 name: ui-fork
-description: 从一张或多张 UI 截图中提炼可复用设计指南、设计系统草案、design tokens 和后续 AI 延续设计约束。Use when users want to analyze UI screenshots, fork an interface style, create a design guide from images, extract UI design-system rules, or generate a prompt contract for future AI-generated pages.
-argument-hint: "[UI 截图/产品背景/输出模式 brief|guide|system]"
+description: 从一张或多张 UI 截图中提炼产品级设计系统草案、组件规则、design tokens 和后续 AI 延续设计约束。Use when users want to analyze UI screenshots, fork an interface style, create reusable design guidelines from images, extract implementation-oriented design-system specs, or generate prompt contracts for future AI-generated pages.
+argument-hint: "[UI 截图/产品背景/输出模式 brief|guide|system/是否保存为 DESIGN.md]"
 ---
 
 # ui-fork
 
-把 UI 截图转成可复用的设计系统草案和后续 AI 续写约束。目标不是描述图片，而是把图片中的界面逻辑提炼成可延续、可实现、可评估的设计资产。
+Convert one or more UI screenshots into a reusable, implementation-oriented design system specification.
 
-## 默认行为
+This skill is a **UI Screenshot -> Design System Draft Engine**. It is not for aesthetic commentary. It should compress good UI into assets that another AI, designer, or frontend engineer can continue using.
 
-- 默认输出模式：`guide`。
-- 默认范围：分析截图并输出设计指南、tokens 草案、组件规则、Prompt Contract。
-- 不直接生成前端代码，除非用户明确要求。
-- 如果用户没有提供产品背景，先基于截图推断页面类型和目标，并在 `Confidence Split` 中标注为推断。
+## Core Contract
 
-## 输出语言
+Always produce a structured design asset, not a loose visual review.
 
-在开始分析前，必须询问用户：
+The output must extract the interface on five layers:
 
-**"生成的 DESIGN.md 文档使用中文还是英文？"**
+- Product Intent: page type, page goal, user task, reading path.
+- Structural System: regions, hierarchy, grid, density, module grouping.
+- Visual System: color, typography, spacing, radius, border, shadow, theme mapping.
+- Component System: role, anatomy, reuse rule, variable parts, invariant parts.
+- Continuation Contract: rules future AI-generated designs must follow.
 
-使用 AskUserQuestion 提供选项：
-- **中文**：所有章节标题和内容使用中文
-- **英文**：所有章节标题和内容使用英文
-- **双语**：章节标题使用英文，内容使用中文（推荐用于国际化项目）
+Default output language is Chinese. Use another language only if the user asks for it.
 
-根据用户选择，后续所有输出内容都必须严格遵循该语言设置。
+Default mode is `guide`. If the user says "tokens", "落地", "实现", "设计系统", or "DESIGN.md", use `system` unless they explicitly request a lighter output.
 
-## 输入
+Do not ask for language or file-save preferences before analysis. Ask only when a missing decision would change the result materially, or when writing/overwriting a file requires confirmation.
 
-接受任意组合：
+## Inputs
 
-- 一张或多张 UI 截图
-- 产品背景、目标用户、业务目标
-- 输出模式：`brief`、`guide`、`system`
-- 额外要求：是否包含 tokens、是否包含前端实现建议、是否对比 light/dark
+Accept any combination of:
 
-当用户没有指定输出模式时，使用 `guide`。只有缺失信息会显著改变结论时才追问；否则继续分析并明确列出假设。
+- One or more UI screenshots.
+- Product background, target users, business goal, brand constraints.
+- Output mode: `brief`, `guide`, or `system`.
+- Follow-up goal: create a design guide, extend this style, generate tokens, write `DESIGN.md`, or prepare constraints for another AI.
 
-## 输出模式
+If product context is missing, infer the likely context from the screenshot and label it as inference in `Confidence Split`.
+
+## Output Modes
 
 ### brief
 
-用于快速判断和方向提炼。输出：
+Use for quick style capture across many screenshots. Output:
 
-- 页面类型
-- 页面目标和用户主任务
+- 页面类型与目标
 - 结构骨架
-- 核心视觉语言
+- 核心视觉特征
 - 核心组件
-- 后续 AI 续写约束
+- AI 延续约束
+- 关键不确定项
 
 ### guide
 
-标准模式。使用 `templates/output_template.md` 的完整结构，输出：
+Use `templates/output_template.md`. Output the full design specification:
 
 - Design Brief
 - Structural System
@@ -65,91 +65,85 @@ argument-hint: "[UI 截图/产品背景/输出模式 brief|guide|system]"
 - Prompt Contract
 - Confidence Split
 
+For tone and depth, use `examples/directory_ai_navigation_guide_output.md` as the reference quality bar: the output should read like a reusable design guide, not like a screenshot caption.
+
 ### system
 
-重度模式。在 `guide` 基础上加强：
+Use `guide` plus stronger implementation detail:
 
-- component anatomy
-- semantic tokens
-- reuse rules
-- edge cases and failure modes
-- frontend implementation hints
+- Full token draft using `templates/tokens_template.yaml`.
+- Component anatomy for every major component.
+- Semantic token suggestions.
+- Reuse rules and failure modes.
+- Implementation hints for design handoff.
 
-即使在 `system` 模式，也不要直接写完整代码，除非用户明确要求。
+Even in `system` mode, do not write frontend code unless the user explicitly asks for implementation.
 
-## 输出文件处理
+## Workflow
 
-完成分析后，必须将结果输出为 `DESIGN.md` 文件：
+### 1. Inspect before interpreting
 
-### 文件检查流程
+Start with concrete observations from the screenshot:
 
-1. **检查是否存在 DESIGN.md**
-   - 使用 Read 工具检查当前目录是否已有 DESIGN.md
+- Visible page regions.
+- Visible content hierarchy.
+- Visible components.
+- Visible theme, typography, spacing, surfaces, dividers, and interaction affordances.
 
-2. **根据情况询问用户**
-   - 如果文件不存在：询问是否创建 DESIGN.md
-   - 如果文件已存在：提供三个选项
-     - **新建**：在当前目录创建 DESIGN.md（覆盖原文件）
-     - **覆盖**：完全替换现有内容
-     - **融合**：保留原有内容，将新分析结果追加或合并
+Do not jump directly to style labels such as "clean", "modern", or "premium".
 
-3. **执行操作**
-   - 新建/覆盖：使用 Write 工具直接写入
-   - 融合：先读取原文件，智能合并后写入
+### 2. Classify the page type
 
-### 融合策略
+Identify the primary page type before writing the guide:
 
-当用户选择"融合"时：
-- 保留原有的 Design Brief 和核心结构
-- 新增或更新 Component System 中的组件
-- 合并 Design Tokens，标注来源
-- 追加新的 Prompt Contract 规则
-- 在文档开头添加更新日志
+- Marketing / 官网型
+- Dashboard / 数据看板型
+- Workspace / 工作台型
+- Directory / 导航聚合型
+- Content / 内容阅读型
+- Tool / 工具型
+- Form / 流程录入型
+- Mobile App / 移动端界面
+- AI Workbench / AI 工作台型
 
-## 工作流
+If the page is mixed, name the primary type and secondary type. Read `references/page_types.md` when the page type is ambiguous or when using `system` mode.
 
-### Step 1: 判断页面类型和意图
+### 3. Separate observation, inference, and unknowns
 
-先判断页面属于哪类，再进入视觉提炼。必要时读取 `references/page_types.md`。
+Keep these categories distinct throughout the output:
 
-必须识别：
+- Direct observations: facts clearly visible in the screenshot.
+- Likely inferences: judgments based on UI patterns and context.
+- Unknowns: items the screenshot cannot confirm.
 
-- 页面类型
-- 产品或业务目标
-- 用户主任务
-- 主阅读路径和辅助路径
-- 页面是展示型、操作型、浏览型还是混合型
+Never present an inferred font family, exact hex value, exact spacing value, hover state, or breakpoint as confirmed unless the screenshot or user explicitly provides it.
 
-### Step 2: 抽象结构系统
+### 4. Extract structural logic
 
-把截图从“画面”转成布局骨架：
+Convert the screenshot from a picture into a reusable layout system:
 
-- 页面一级区域
-- 主次内容关系
-- 栅格、列宽、容器推断
-- 模块组织逻辑
-- 信息密度策略
-- 扫描路径和注意力引导
+- Page-level regions and their order.
+- Primary, secondary, navigation, action, and support zones.
+- Grid, columns, container width, and responsive assumptions.
+- Module grouping and repetition rules.
+- Information density and scanning path.
 
-### Step 3: 提炼视觉系统
+### 5. Extract visual logic
 
-用设计系统语言描述视觉，不写空泛审美评价。
+Describe visual decisions as system rules:
 
-必须提炼：
+- Background, surface, text, accent, state, and border relationships.
+- Typography hierarchy across headings, body, labels, metadata, and numbers.
+- Spacing rhythm at page, module, and component levels.
+- Radius scale and where each radius level applies.
+- Border, shadow, elevation, and surface strategy.
+- Light/dark token mapping when multiple themes are visible.
 
-- 主题特征
-- 色彩策略
-- 字体层级
-- 间距节奏
-- 圆角系统
-- 边框与阴影系统
-- light/dark 映射关系，如适用
+Values may be approximate, but approximate values must be labeled as estimates.
 
-不要编造无法确认的精确值。可以给近似值，但必须标注为“估计”。
+### 6. Extract component logic
 
-### Step 4: 提炼组件系统
-
-对每个重要组件描述：
+For each important visible component, output:
 
 - 作用
 - 结构
@@ -158,207 +152,89 @@ argument-hint: "[UI 截图/产品背景/输出模式 brief|guide|system]"
 - 可变项
 - 不可变项
 
-常见组件包括：
+Only analyze components that are visible or directly implied by the page type. Do not invent components to fill a template.
 
-- 导航栏
-- Hero
-- 搜索
-- 按钮
-- 标签/分类
-- 卡片
-- 列表/趋势/数据模块
-- 侧栏
-- 图表
-- 分页
-- 页脚
+### 7. Infer interaction carefully
 
-只分析截图中存在或强相关的组件，不要为了填模板虚构组件。
+Interaction rules are usually inferred from static screenshots. Label them as assumptions:
 
-### Step 5: 推断交互模式
+- Hover, focus, active, selected, disabled states.
+- Filter, tab, navigation, search, and theme-switch behavior.
+- Motion duration, easing, and where animation is allowed.
+- Loading, empty, error, and success states when relevant to the page type.
 
-从截图中推断交互规则，并明确它们是推断：
+### 8. Produce tokens as draft assets
 
-- hover
-- focus
-- active
-- 筛选和导航切换
-- 主题切换
-- 动效节奏
-- 状态反馈
+Use `templates/tokens_template.yaml` for token shape. Tokens are draft implementation hints, not final truth.
 
-### Step 6: 输出可复用资产
+Rules:
 
-必须输出四类核心资产：
+- Prefer semantic tokens over one-off values.
+- Use token references for component rules, such as `{color.brand.primary}`.
+- Mark estimated values as estimated.
+- Leave unconfirmable values blank or label them as unknown.
+- Do not overfit tokens to one screenshot if multiple screenshots imply a broader system.
 
-- Design Brief
-- Design Guide
-- Design Tokens Draft
-- Prompt Contract
+### 9. Write a strong Prompt Contract
 
-tokens 使用 `templates/tokens_template.yaml` 的结构。不要把 tokens 写成最终权威值；除非截图或用户明确给出数值，否则标记为草案或估计。
+Prompt Contract is a primary deliverable. Use `templates/prompt_contract_template.md` when writing `guide` or `system` output.
 
-### Step 7: 质量自检
+It must define:
 
-完成后用 `templates/rubric.md` 检查输出是否达标。不要把完整评分过程展开成冗长报告；只在需要时给出简短自检结论或风险提示。
+- What future AI outputs must inherit.
+- What may vary.
+- What must not be broken.
+- How new components should extend the system.
+- Which decorative moves are forbidden unless explicitly present or requested.
 
-### Step 8: 输出到 DESIGN.md
+### 10. Quality gate
 
-分析完成后，必须执行以下流程：
+Before finalizing, self-check against `templates/rubric.md`.
 
-#### 8.1 文件格式：双层结构
+The output is acceptable only if it:
 
-输出文件采用 **YAML Front Matter + Markdown Body** 的双层结构：
+- Identifies page type and user intent.
+- Extracts reusable structure, not just visible details.
+- Explains component reuse and invariants.
+- Provides implementation-oriented tokens or token placeholders.
+- Contains a concrete Prompt Contract.
+- Clearly separates observations, inferences, and unknowns.
+- Could be reused as an AI design input document, frontend implementation seed, or design-system seed.
 
-**YAML Front Matter（机器可读层）**：
-```yaml
----
-colors:
-  brand:
-    primary: "#3B82F6"
-    primaryHover: "#2563EB"
-  background:
-    default: "#FFFFFF"
-    surface: "#F9FAFB"
-  text:
-    primary: "#111827"
-    secondary: "#6B7280"
+If the output would score below 32/40, revise it before responding. Do not expose a long scoring report unless the user asks.
 
-typography:
-  fontFamily:
-    base: "Inter, system-ui, sans-serif"
-  fontSize:
-    h1: "36px"
-    body: "14px"
-  fontWeight:
-    regular: 400
-    semibold: 600
+## Optional DESIGN.md Output
 
-spacing:
-  xs: "4px"
-  sm: "8px"
-  md: "16px"
-  lg: "24px"
+Only write a `DESIGN.md` file when the user asks to save, generate, create, update, or persist the design guide.
 
-components:
-  button:
-    primary:
-      backgroundColor: "{colors.brand.primary}"
-      textColor: "#FFFFFF"
-      padding: "12px 24px"
-      rounded: "8px"
----
-```
+When writing `DESIGN.md`:
 
-**优势**：
-- AI 可直接解析 YAML 获取精确值
-- 人类可阅读 Markdown 理解设计理念
-- 一份文件同时服务 AI 和人类
+1. Check whether `DESIGN.md` already exists.
+2. If it does not exist, create it directly.
+3. If it exists, do not overwrite silently. Ask whether to overwrite, append, or merge.
+4. Use the same fixed Markdown structure as `templates/output_template.md`.
+5. In `system` mode, include YAML front matter only if the user asks for machine-readable tokens or if the existing `DESIGN.md` already uses front matter.
 
-**Markdown Body（人类可读层）**：
-- Overview：页面类型、目标、用户任务
-- Colors：色彩策略和使用场景
-- Typography：字体层级和排版规则
-- Layout：布局系统和栅格
-- Components：组件详细说明
-- Interaction：交互模式
-- Prompt Contract：AI 延续设计约束
+## Prohibited Output
 
-#### 8.2 Token 引用系统
+Read `references/anti_patterns.md` when output feels generic. Never:
 
-使用 `{path.to.token}` 语法建立引用关系：
-- 组件引用基础 token：`backgroundColor: "{colors.brand.primary}"`
-- 避免硬编码重复值
-- 修改一处，全局生效
-- 提高可维护性
+- Write vague praise without system explanation.
+- Stop at color and font summary.
+- Confuse observation with inference.
+- Invent exact hex, font, spacing, or breakpoint values.
+- Flatten every page into the same template regardless of page type.
+- Generate frontend code unless requested.
+- Add glassmorphism, glow, noise, complex gradients, or 3D effects without evidence.
+- Write a weak Prompt Contract such as "keep the style consistent".
 
-#### 8.3 章节顺序（固定）
+## Final Response Style
 
-1. Overview
-2. Colors
-3. Typography
-4. Layout
-5. Elevation & Depth（如适用）
-6. Shapes
-7. Components
-8. Interaction Patterns
-9. Prompt Contract
-10. Confidence Split
+Be structured, concise, and implementation-oriented.
 
-**固定顺序的优势**：
-- 标准化输出，易于解析
-- 便于版本对比
-- 降低认知负担
+Lead with the design system result, not with process commentary. Prefer rules, reusable patterns, and constraints over taste adjectives. The final result should be usable as:
 
-#### 8.4 文件操作流程
-
-1. **检查文件是否存在**
-   ```
-   使用 Read 工具检查当前目录的 DESIGN.md
-   ```
-
-2. **询问用户操作方式**
-   - 如果文件不存在：
-     - 询问："是否创建 DESIGN.md 文件保存设计规范？"
-   
-   - 如果文件已存在：
-     - 使用 AskUserQuestion 提供三个选项：
-       - **新建**：创建新的 DESIGN.md（覆盖原文件）
-       - **追加**：在原文件末尾追加新的分析结果
-       - **融合**：智能合并原有内容和新分析结果
-
-3. **执行对应操作**
-   - **新建/覆盖**：直接使用 Write 工具写入完整内容（YAML + Markdown）
-   - **追加**：使用 Edit 工具在文件末尾添加新内容，包含时间戳和分隔符
-   - **融合**：
-     - 读取原文件内容
-     - 合并 YAML Front Matter（保留原有 token，标注新增）
-     - 保留原有 Overview
-     - 合并 Components（去重，标注来源）
-     - 追加新的 Prompt Contract 规则
-     - 在文档开头添加更新日志
-
-4. **确认完成**
-   告知用户文件已保存，并说明保存位置和操作类型。
-
-## Prompt Contract 要求
-
-Prompt Contract 是这个 skill 的关键产物。它必须说明后续 AI 继续生成页面时：
-
-- 必须继承的页面类型和信息架构
-- 必须复用的组件骨架
-- 必须保持的视觉系统
-- 可以变化的局部内容
-- 禁止破坏的布局和风格边界
-- 对装饰、动效、主题切换、组件扩展的约束
-
-Prompt Contract 要写成后续 AI 可以直接遵守的规则，不要写成模糊建议。
-
-## 观察、推断与未知
-
-始终区分三类信息：
-
-- 直接观察：截图中明确可见的事实。
-- 高概率推断：基于 UI 经验和上下文得出的判断。
-- 无法确认：截图不足以证明的部分。
-
-不要把推断写成事实。不要因为模板需要而补齐不存在的内容。
-
-## 禁止项
-
-必要时读取 `references/anti_patterns.md`。始终避免：
-
-- 泛泛审美评价，例如只说“简洁、高级、现代”
-- 只总结颜色和字体
-- 混淆观察和推断
-- 编造精确 hex、字体名、尺寸
-- 把所有页面套成同一种结构
-- 直接跳到前端代码
-- 无依据加入玻璃拟态、复杂发光、噪点、过度渐变
-
-## 输出风格
-
-- 专业、结构化、直接。
-- 以实现价值为目标，而不是审美评论。
-- 优先写规则、结构和约束，再写视觉感受。
-- 对不确定项诚实标注。
-- 内容应能直接作为后续设计、前端实现或 AI 续写的输入。
+- A design guide for humans.
+- A token draft for frontend implementation.
+- A prompt contract for future AI-generated pages.
+- A reference spec for extending the same UI language.

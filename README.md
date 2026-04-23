@@ -49,7 +49,7 @@ npx skills add ZeroZ-lab/gm-skills --list
 | `gm-agent-docs` | 分析项目结构，生成 CLAUDE.md 和 AGENTS.md |
 | `pngimg-download` | Search and download free transparent PNG images from pngimg.com |
 | `auto-skill-fit` | 扫描项目技术栈，推荐并安装匹配的 agent skills 套装 |
-| `ui-fork` | 从 UI 截图提炼设计指南、design tokens 和后续 AI 延续设计约束 |
+| `ui-fork` | 从 UI 截图提炼产品级设计系统草案、design tokens 和后续 AI 延续设计约束 |
 
 ### auto-skill-fit
 

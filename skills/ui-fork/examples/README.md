@@ -18,6 +18,7 @@
 - **输入**：类似 Product Hunt、Hacker News 的导航首页截图
 - **输出**：提炼信息架构、卡片系统、标签系统、侧栏辅助发现机制
 - **模式**：`guide`
+- **参考输出**：`directory_ai_navigation_guide_output.md`
 
 #### 场景 2：Dashboard 看板
 - **输入**：数据看板截图
@@ -43,6 +44,21 @@
 - `dashboard_system_input.png`
 - `dashboard_system_output.md`
 - `dashboard_system_tokens.yaml`
+
+## 质量参考
+
+`directory_ai_navigation_guide_output.md` 是 guide 模式的质量标尺。它展示了一个产品级输出应该如何从截图推导出：
+
+- 产品定位
+- 设计原则
+- 信息架构
+- 布局系统
+- 视觉语言
+- 组件系统
+- 交互规范
+- 明暗主题策略
+- 前端落地建议
+- AI Prompt Contract
 
 ## 快速测试
 
