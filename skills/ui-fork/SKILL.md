@@ -57,15 +57,12 @@ Use for quick style capture across many screenshots. Output:
 Use `templates/output_template.md`. Output the full design specification:
 
 - Design Brief
-- Structural System
-- Visual System
-- Component System
-- Interaction Assumptions
+- Design Guide
 - Design Tokens Draft
 - Prompt Contract
 - Confidence Split
 
-For tone and depth, use `examples/directory_ai_navigation_guide_output.md` as the reference quality bar: the output should read like a reusable design guide, not like a screenshot caption.
+For structure, tone, and depth, use `examples/directory_ai_navigation_guide_output.md` as the reference quality bar: the output should read like a clear reusable design guide, not like a screenshot caption.
 
 ### system
 
@@ -202,6 +199,22 @@ The output is acceptable only if it:
 - Could be reused as an AI design input document, frontend implementation seed, or design-system seed.
 
 If the output would score below 32/40, revise it before responding. Do not expose a long scoring report unless the user asks.
+
+### 11. Markdown clarity gate
+
+The generated Markdown must render clearly as a document.
+
+Rules:
+
+- Use a metadata table at the top for version, scope, source, and goal.
+- Include a short table of contents for `guide` and `system` outputs.
+- Use the A-F document package structure from `templates/output_template.md`.
+- Prefer tables for repeated component fields, token summaries, and theme comparisons.
+- Use fenced code blocks with language tags for YAML, JSON, CSS, or prompt snippets.
+- Keep paragraphs short; split long prose into named subsections.
+- Do not rely on trailing spaces for line breaks.
+- Do not produce a wall of bullets when a table would be clearer.
+- Preserve observation, inference, and unknowns as separate sections.
 
 ## Optional DESIGN.md Output
 
