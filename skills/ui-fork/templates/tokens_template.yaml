@@ -1,4 +1,9 @@
 design_tokens:
+  meta:
+    status: "draft"
+    source: "screenshot-derived"
+    confidence: ""
+    notes: []
   color:
     background:
       default: ""
@@ -89,3 +94,15 @@ design_tokens:
     duration_slow: "250ms"
     easing_standard: "ease-out"
     easing_emphasized: ""
+  component:
+    button:
+      primary:
+        background: "{color.brand.primary}"
+        text: "{color.brand.on_primary}"
+        radius: "{radius.md}"
+        border: "{border.width_default} {border.style_default} transparent"
+    card:
+      background: "{color.surface.default}"
+      border: "{border.width_default} {border.style_default} {color.border.default}"
+      radius: "{radius.lg}"
+      shadow: "{shadow.card}"
