@@ -1,0 +1,91 @@
+design_tokens:
+  color:
+    background:
+      default: ""
+      muted: ""
+      inverse: ""
+    surface:
+      default: ""
+      elevated: ""
+      subtle: ""
+      selected: ""
+    text:
+      primary: ""
+      secondary: ""
+      tertiary: ""
+      inverse: ""
+      disabled: ""
+    brand:
+      primary: ""
+      primary_hover: ""
+      primary_active: ""
+      primary_soft: ""
+      on_primary: ""
+    border:
+      default: ""
+      strong: ""
+      subtle: ""
+      focus: ""
+    state:
+      success: ""
+      warning: ""
+      danger: ""
+      info: ""
+  typography:
+    font_family:
+      base: ""
+      heading: ""
+      mono: ""
+    font_size:
+      display: ""
+      h1: ""
+      h2: ""
+      h3: ""
+      body: ""
+      body_sm: ""
+      caption: ""
+      label: ""
+    font_weight:
+      regular: 400
+      medium: 500
+      semibold: 600
+      bold: 700
+    line_height:
+      heading: ""
+      body: ""
+      compact: ""
+  spacing:
+    2: "2px"
+    4: "4px"
+    8: "8px"
+    12: "12px"
+    16: "16px"
+    20: "20px"
+    24: "24px"
+    32: "32px"
+    40: "40px"
+    48: "48px"
+    64: "64px"
+  radius:
+    none: "0"
+    sm: ""
+    md: ""
+    lg: ""
+    xl: ""
+    pill: "999px"
+  border:
+    width_default: "1px"
+    width_strong: ""
+    style_default: "solid"
+  shadow:
+    none: "none"
+    card: ""
+    popover: ""
+    hover: ""
+    focus_ring: ""
+  motion:
+    duration_fast: "150ms"
+    duration_normal: "200ms"
+    duration_slow: "250ms"
+    easing_standard: "ease-out"
+    easing_emphasized: ""

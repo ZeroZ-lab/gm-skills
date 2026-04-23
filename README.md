@@ -22,6 +22,7 @@ npx skills add ZeroZ-lab/gm-skills --skill gm-x-hook-writer
 npx skills add ZeroZ-lab/gm-skills --skill gm-agent-docs
 npx skills add ZeroZ-lab/gm-skills --skill pngimg-download
 npx skills add ZeroZ-lab/gm-skills --skill auto-skill-fit
+npx skills add ZeroZ-lab/gm-skills --skill ui-fork
 ```
 
 Install to specific agents:
@@ -48,6 +49,7 @@ npx skills add ZeroZ-lab/gm-skills --list
 | `gm-agent-docs` | 分析项目结构，生成 CLAUDE.md 和 AGENTS.md |
 | `pngimg-download` | Search and download free transparent PNG images from pngimg.com |
 | `auto-skill-fit` | 扫描项目技术栈，推荐并安装匹配的 agent skills 套装 |
+| `ui-fork` | 从 UI 截图提炼设计指南、design tokens 和后续 AI 延续设计约束 |
 
 ### auto-skill-fit
 
@@ -70,7 +72,8 @@ gm-skills/
 │   ├── gm-de-ai-article/
 │   ├── gm-topic-engine/
 │   ├── gm-x-hook-writer/
-│   └── pngimg-download/
+│   ├── pngimg-download/
+│   └── ui-fork/
 └── README.md
 ```
 
