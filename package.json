@@ -1,0 +1,9 @@
+{
+  "name": "gm-skills",
+  "version": "1.0.0",
+  "description": "Agent skills 集合 — 设计、写作、技能审查、技术栈推荐",
+  "private": true,
+  "license": "MIT",
+  "homepage": "https://github.com/ZeroZ-lab/gm-skills",
+  "repository": "https://github.com/ZeroZ-lab/gm-skills.git"
+}

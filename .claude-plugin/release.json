@@ -1,0 +1,10 @@
+{
+  "bump": {
+    "files": [
+      "package.json",
+      ".claude-plugin/plugin.json"
+    ],
+    "strategy": "sync"
+  },
+  "changelog": "CHANGELOG.md"
+}

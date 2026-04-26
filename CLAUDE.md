@@ -8,6 +8,7 @@ Agent skills 集合，`npx skills add ZeroZ-lab/gm-skills` 安装。Markdown + S
 npx skills add . --list                              # 验证所有 skill 可发现
 grep -rn '^name:\|^description:' skills/*/SKILL.md   # 检查 frontmatter
 git submodule update --remote skills/cc-design        # 拉取 cc-design 最新
+cat .claude-plugin/plugin.json                       # 检查插件清单（版本号同步）
 ```
 
 ## 写代码时
@@ -35,8 +36,9 @@ description: A useful skill
 ## 完成标准
 
 1. `npx skills add . --list` 输出包含新 skill 名称
-2. README.md 的 Skills 表格、Install 命令、Structure 已同步更新
-3. commit message: `type(scope): description`
+2. `cat .claude-plugin/plugin.json` 的 version 字段与 package.json 一致
+3. README.md 的 Skills 表格、Install 命令、Structure 已同步更新
+4. commit message: `type(scope): description`
 
 ## 卡住时
 

@@ -8,6 +8,21 @@ A curated collection of agent skills for development workflow, writing, and agen
 
 ## Install
 
+### Claude Code 插件（推荐）
+
+```bash
+# 添加 marketplace
+/plugin add-marketplace ZeroZ-lab/gm-skills
+
+# 安装插件
+/plugin install gm-skills@gm-skills
+
+# 或直接在 Discover 中搜索 gm-skills
+/plugin
+```
+
+### npx skills（传统方式）
+
 ```bash
 npx skills add ZeroZ-lab/gm-skills
 ```
@@ -22,6 +37,7 @@ npx skills add ZeroZ-lab/gm-skills --skill gm-x-hook-writer
 npx skills add ZeroZ-lab/gm-skills --skill gm-agent-docs
 npx skills add ZeroZ-lab/gm-skills --skill pngimg-download
 npx skills add ZeroZ-lab/gm-skills --skill auto-skill-fit
+npx skills add ZeroZ-lab/gm-skills --skill gm-skill-quality
 npx skills add ZeroZ-lab/gm-skills --skill ui-fork
 ```
 
@@ -49,6 +65,7 @@ npx skills add ZeroZ-lab/gm-skills --list
 | `gm-agent-docs` | 分析项目结构，生成 CLAUDE.md 和 AGENTS.md |
 | `pngimg-download` | Search and download free transparent PNG images from pngimg.com |
 | `auto-skill-fit` | 扫描项目技术栈，推荐并安装匹配的 agent skills 套装 |
+| `gm-skill-quality` | 审查 agent skills 质量，基于 6 轴体系对 SKILL.md 给出结构化审查报告和优化建议 |
 | `ui-fork` | 从 UI 截图提炼产品级设计系统草案、design tokens 和后续 AI 延续设计约束 |
 
 ### auto-skill-fit
@@ -70,6 +87,7 @@ gm-skills/
 │   ├── cc-design/          # submodule → ZeroZ-lab/cc-design
 │   ├── gm-agent-docs/
 │   ├── gm-de-ai-article/
+│   ├── gm-skill-quality/
 │   ├── gm-topic-engine/
 │   ├── gm-x-hook-writer/
 │   ├── pngimg-download/
