@@ -2,7 +2,8 @@
   "bump": {
     "files": [
       "package.json",
-      ".claude-plugin/plugin.json"
+      ".claude-plugin/plugin.json",
+      ".codex-plugin/plugin.json"
     ],
     "strategy": "sync"
   },

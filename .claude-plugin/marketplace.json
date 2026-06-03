@@ -1,6 +1,6 @@
 {
   "name": "gm-skills",
-  "description": "Agent skills 集合 — 设计、写作、技能审查、技术栈推荐",
+  "description": "Agent skills 集合 — 设计、写作、技能审查、技术栈推荐和可视化解释布局",
   "owner": {
     "name": "ZeroZ-lab"
   },
@@ -8,7 +8,7 @@
   "plugins": [
     {
       "name": "gm-skills",
-      "description": "Agent skills 集合 — cc-design 设计、gm-skill-quality 技能审查、auto-skill-fit 技术栈推荐、内容写作与 agent 配置",
+      "description": "Agent skills 集合 — cc-design 设计、gm-skill-quality 技能审查、auto-skill-fit 技术栈推荐、内容写作、agent 配置和可视化解释布局",
       "homepage": "https://github.com/ZeroZ-lab/gm-skills",
       "source": {
         "source": "url",

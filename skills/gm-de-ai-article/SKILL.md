@@ -3,7 +3,7 @@ name: gm-de-ai-article
 description: 用于修改公众号文章、博客草稿、newsletter 与观点文中明显模板化、套话化、过度工整的 AI 写作痕迹，并保住作者判断、经历与表达控制权。
 argument-hint: "[文章草稿]"
 context: fork
-disable-model-invocation: true
+disable-model-invocation: false
 ---
 
 # gm-de-ai-article

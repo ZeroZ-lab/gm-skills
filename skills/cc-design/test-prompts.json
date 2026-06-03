@@ -1,0 +1,86 @@
+[
+  {
+    "id": 1,
+    "prompt": "I want to create a SaaS product login page, show me 3 style directions for comparison",
+    "expected": "Loads the base-required bundle first; asks only the route-shaping questions still needed for context/constraints; routes to variant-exploration for 3 directions; avoids purple gradients/emoji/Inter and other AI slop; provides specific reasoning for each variation's differentiation dimension",
+    "tests": "base-required bundle + route-shaping questions + variations logic + anti-AI slop checklist + design_canvas usage"
+  },
+  {
+    "id": 2,
+    "prompt": "Help me make a 10-page product pitch deck for an AI tool startup",
+    "expected": "Starts with deck_stage.js; verbally vocalizes design system (colors/fonts/layout rhythm) and waits for confirmation; alternates section divider/content/data/quote layouts; font size ≥24px; 1-indexed labels",
+    "tests": "Junior Designer: report first then execute + deck_stage usage + visual rhythm + scale compliance"
+  },
+  {
+    "id": 3,
+    "prompt": "Create a 30-second HTML animation explaining how neural networks work",
+    "expected": "Uses animations.jsx Stage+Sprite; writes timeline first then components; entry easeOut exit easeIn; tells story in phases not stacking animations; text dwell ≥3s",
+    "tests": "animations workflow + correct easing + rhythm design + duration control"
+  },
+  {
+    "id": 4,
+    "prompt": "Create a Habit Tracker App prototype",
+    "expected": "Asks user for overview flat layout or flow demo (defaults to overview); uses assets/ios_frame.jsx, doesn't hand-write Dynamic Island; Tracker is high-density type, each screen ≥3 information density elements (completion rate, streak days, trend curve, achievement badge, etc., not decorative); at least 5-7 screens side-by-side (home/new habit/detail/stats/settings)",
+    "tests": "overview/flow form routing + ios_frame hard binding + information density classification (high-density) + multi-screen side-by-side"
+  },
+  {
+    "id": 5,
+    "prompt": "Create a Reading Notes App prototype",
+    "expected": "Overview flat layout primary; ios_frame.jsx; reading notes leans content-display, density requirements less extreme than Tracker, but notes list still needs ≥3 information layers (book, quote, tags, progress); at least 4-6 screens (home bookshelf/note detail/highlight annotation/search/notebook management); font priority serif display",
+    "tests": "overview default + ios_frame + information hierarchy + content-focused visual rhythm"
+  },
+  {
+    "id": 6,
+    "prompt": "Create a Running Tracker App prototype",
+    "expected": "Overview flat layout; ios_frame.jsx; running app is high-density type (map, pace curve, heart rate zones, per-km split data), each screen ≥3 product-differentiating info elements; at least 5 screens (today overview/real-time during run/route map/history/monthly stats); avoids AI slop (no purple gradients, no decorative icon stacking, but data visualization icons allowed)",
+    "tests": "overview + ios_frame + high-density data visualization + map/chart mixed layout + slop boundary conditions"
+  },
+  {
+    "id": 7,
+    "prompt": "Design a fintech landing page for SMB payroll automation",
+    "expected": "Loads the base-required bundle first; asks only the missing route-shaping questions that affect bundle choice; routes to landing-page; once enough context exists, outputs a visible execution plan with confirmed facts, assumptions, first artifact, variation axes, and verification approach; waits for approval before building HTML",
+    "tests": "two-stage routing + planning gate + visible plan + approval before build"
+  },
+  {
+    "id": 8,
+    "prompt": "Build a polished onboarding flow for a B2B AI sales assistant. Audience is RevOps managers. Three screens. Use a restrained enterprise tone. Just move fast.",
+    "expected": "Skips most clarification because the brief is rich and speed is requested, but still produces a compressed mini-plan before building; does not jump directly into HTML unless the user explicitly says to skip planning",
+    "tests": "rich-brief path + speed path + mini-plan still required"
+  },
+  {
+    "id": 9,
+    "prompt": "Create a Stripe-style pricing page and export it as PDF",
+    "expected": "Loads the base-required bundle first; routes to brand-style-clone + landing-page; includes before-export for the PDF target; asks only for missing brand/context details before planning; keeps export constraints visible before build",
+    "tests": "brand clone + landing page + export checkpoint + two-stage routing"
+  },
+  {
+    "id": 10,
+    "prompt": "Create an interactive flow diagram explaining how a RAG (Retrieval-Augmented Generation) pipeline works, step by step",
+    "expected": "Routes to interactive-explainer (flow); loads explainer-interaction-patterns.md + explainer-node-graph-visuals.md + react-setup.md; copies flow_explainer.jsx; builds a valid directed graph with nodes (input/process/output/decision kinds), edges, and guided steps with focus arrays; triggers before-animation checkpoint for motion elements; responsive layout",
+    "tests": "interactive-explainer flow routing + flow_explainer.jsx template + node/edge schema compliance + step-by-step playback + responsive"
+  },
+  {
+    "id": 11,
+    "prompt": "对比 PostgreSQL 和 MongoDB 作为主力数据库的优劣，做成交互式对比图",
+    "expected": "Routes to interactive-explainer (compare); detects Chinese '对比' keyword; loads explainer-interaction-patterns.md + explainer-node-graph-visuals.md + react-setup.md; copies compare_explainer.jsx; creates at least 2 subjects with distinct accentColor; builds multi-dimension comparison with items carrying pro/con/neutral/highlight kinds and valid scores (0-5); dimension tab switching works; responsive",
+    "tests": "interactive-explainer compare routing via Chinese keyword + compare_explainer.jsx template + multi-subject multi-dimension schema + dimension switching + dual encoding"
+  },
+  {
+    "id": 12,
+    "prompt": "做一个交互式技术选型决策树，帮用户在 React/Vue/Svelte/Angular 之间选择前端框架",
+    "expected": "Routes to interactive-explainer (decision_tree); loads explainer references; copies decision_tree.jsx; builds a valid tree with question/factor/conclusion node kinds; every edge has a label describing the branch condition; at least one root node and multiple conclusion nodes with verdict strings; no cycles; hover path highlighting; responsive",
+    "tests": "interactive-explainer decision_tree routing + decision_tree.jsx template + tree schema (acyclic, single root, conclusion verdicts) + edge labels required"
+  },
+  {
+    "id": 13,
+    "prompt": "Create a knowledge artifact explaining how DNS resolution works, from browser cache to authoritative name server",
+    "expected": "Routes to knowledge-artifact; loads knowledge-artifact-spec.md + information-design-theory.md + interaction-design-theory.md; content category 'data flow / control flow' triggers Static-only Ban (P4 applies); defaults to Level 2 interaction density (3-5 interactions) and A2 animation (process demonstration with stepper or path highlighting); uses flow_explainer.jsx or animations.jsx as template; at least one primary animation module carrying core explanation; responsive",
+    "tests": "knowledge-artifact routing + Static-only Ban enforcement + Level 2 density default + A2 animation default + cognitive structure detection (process, change, paths) + template selection by animation intensity"
+  },
+  {
+    "id": 14,
+    "prompt": "Make an editable PowerPoint export of a 5-slide quarterly business review deck",
+    "expected": "Routes to slide-deck + editable-pptx-export; triggers before-export checkpoint; loads editable-pptx.md and verifies the 4 hard constraints BEFORE starting HTML: (1) one HTML file per slide, (2) only text boxes, rectangles, and images, (3) no absolute positioning on text, (4) UTF-8 encoding with proper escaping; uses deck_stage.js for the slide canvas; font size ≥24px; exports via platform-tools.md PPTX pipeline",
+    "tests": "editable PPTX export routing + before-export checkpoint + 4 hard constraints verified before build + deck_stage template + PPTX export pipeline"
+  }
+]

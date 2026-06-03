@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Payment State Machine Example</title>
+<style>
+body{margin:0;background:#f5f7fa;font:16px/1.55 system-ui}
+main{max-width:1120px;margin:auto;padding:20px 16px}
+</style>
+</head>
+<body>
+<main>
+<payment-state-machine></payment-state-machine>
+</main>
+
+<script>
+class PaymentStateMachine extends HTMLElement {
+  constructor(){ super(); this.attachShadow({mode:"open"}); }
+
+  get tokens(){
+    return {
+      canvas:{w:1120,h:770},
+      section:{x:56,y:150,w:1008,h:480,radius:16,pad:18,splitY:430,noteGap:28},
+      node:{w:198,h:116,radius:18,border:1.5,metaX:22,metaY:22,metaW:54,metaH:24,metaTextY:34,titleY:68,descY:94},
+      font:{nodeTitle:20,nodeDesc:14,label:11,note:13,meta:12},
+      line:{width:3,baseWidth:7,arrow:5,labelH:22,labelPadX:12},
+      color:{paper:"#fff",ink:"#0f172a",muted:"#64748b",border:"#d8e0ea",faint:"#eef2f7",blue:"#2563eb",green:"#059669",orange:"#ea580c",red:"#dc2626",purple:"#7c3aed",gray:"#334155"}
+    };
+  }
+
+  get data(){
+    return {
+      nodes:[
+        {id:"created",x:82,y:260,title:"CREATED",desc:"订单已创建",tone:"gray"},
+        {id:"pending",x:340,y:260,title:"PENDING",desc:"等待支付",tone:"blue"},
+        {id:"paid",x:620,y:260,title:"PAID",desc:"支付成功",tone:"green"},
+        {id:"fulfill",x:878,y:260,title:"FULFILL",desc:"履约完成",tone:"purple"},
+        {id:"closed",x:82,y:470,title:"CLOSED",desc:"超时关闭",tone:"orange"},
+        {id:"failed",x:340,y:470,title:"FAILED",desc:"支付失败",tone:"red"},
+        {id:"refunded",x:620,y:470,title:"REFUNDED",desc:"退款完成",tone:"orange"}
+      ],
+      edges:[
+        {from:"created",to:"pending",label:"创建支付单",tone:"blue",route:"right-left",labelAt:{x:300,y:225}},
+        {from:"pending",to:"paid",label:"回调确认",tone:"green",route:"right-left",labelAt:{x:585,y:225}},
+        {from:"paid",to:"fulfill",label:"触发履约",tone:"purple",route:"right-left",labelAt:{x:850,y:225}},
+        {from:"pending",to:"failed",label:"失败回调",tone:"red",route:"down",labelAt:{x:565,y:436}},
+        {from:"pending",to:"closed",label:"超时关闭",tone:"orange",route:"left-down",labelAt:{x:250,y:436}},
+        {from:"paid",to:"refunded",label:"退款流程",tone:"orange",route:"down",labelAt:{x:845,y:436}}
+      ]
+    };
+  }
+
+  connectedCallback(){ this.render(); }
+
+  render(){
+    const t=this.tokens, {nodes,edges}=this.data;
+    const byId=Object.fromEntries(nodes.map(n=>[n.id,{...n,w:t.node.w,h:t.node.h}]));
+    this.shadowRoot.innerHTML = `
+<style>
+svg{width:100%;height:auto;display:block;background:#fff;border:1px solid ${t.color.border};border-radius:18px}
+text{font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+.edge-bg,.edge{fill:none;stroke-linecap:round;stroke-linejoin:round}
+.edge{stroke-width:${t.line.width}}
+.flow{stroke-dasharray:7 10;animation:flow 1.8s linear infinite}
+@keyframes flow{to{stroke-dashoffset:-34}}
+</style>
+<svg viewBox="0 0 ${t.canvas.w} ${t.canvas.h}">
+${this.defs()}
+<rect width="${t.canvas.w}" height="${t.canvas.h}" fill="${t.color.paper}"/>
+<text x="56" y="54" fill="${t.color.ink}" font-size="31" font-weight="850">Payment State Machine</text>
+${this.renderSection()}
+<g>${edges.map(e=>this.renderEdge(e,byId,true)).join("")}</g>
+<g>${edges.map(e=>this.renderEdge(e,byId,false)).join("")}</g>
+<g>${edges.map(e=>this.renderLabel(e)).join("")}</g>
+<g>${nodes.map(n=>this.renderNode({...n,w:t.node.w,h:t.node.h})).join("")}</g>
+</svg>`;
+  }
+
+  defs(){
+    const c=this.tokens.color;
+    return `<defs>${["blue","green","orange","red","purple","gray"].map(k=>`
+<marker id="arrow-${k}" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="5" markerHeight="5" orient="auto">
+<path d="M0 0 L10 5 L0 10 Z" fill="${c[k]}"/>
+</marker>`).join("")}</defs>`;
+  }
+
+  renderSection(){
+    const t=this.tokens;
+    return `<rect x="${t.section.x}" y="${t.section.y}" width="${t.section.w}" height="${t.section.h}" rx="${t.section.radius}" fill="#fff" stroke="#e2e8f0"/>
+<path d="M${t.section.x} ${t.section.splitY} H${t.section.x+t.section.w}" stroke="${t.color.faint}"/>`;
+  }
+
+  renderNode(n){
+    const t=this.tokens, tone=this.tone(n.tone);
+    return `<g transform="translate(${n.x} ${n.y})">
+<rect width="${n.w}" height="${n.h}" rx="${t.node.radius}" fill="${tone.bg}" stroke="${tone.stroke}" stroke-width="${t.node.border}"/>
+<rect x="${t.node.metaX}" y="${t.node.metaY}" width="${t.node.metaW}" height="${t.node.metaH}" rx="12" fill="${tone.main}"/>
+<text x="${t.node.metaX+t.node.metaW/2}" y="${t.node.metaTextY}" text-anchor="middle" dominant-baseline="middle" fill="#fff" font-size="${t.font.meta}" font-weight="850">状态</text>
+<text x="${n.w/2}" y="${t.node.titleY}" text-anchor="middle" dominant-baseline="middle" fill="${t.color.ink}" font-size="${t.font.nodeTitle}" font-weight="850">${n.title}</text>
+<text x="${n.w/2}" y="${t.node.descY}" text-anchor="middle" dominant-baseline="middle" fill="${t.color.muted}" font-size="${t.font.nodeDesc}">${n.desc}</text>
+</g>`;
+  }
+
+  renderEdge(e,byId,base){
+    const t=this.tokens, tone=this.tone(e.tone), d=this.points(e,byId).map((p,i)=>`${i?"L":"M"}${p.x} ${p.y}`).join(" ");
+    return base ? `<path class="edge-bg" d="${d}" stroke="${tone.base}" stroke-width="${t.line.baseWidth}"/>`
+                : `<path class="edge flow" d="${d}" stroke="${tone.main}" marker-end="url(#arrow-${e.tone})"/>`;
+  }
+
+  renderLabel(e){
+    const t=this.tokens, tone=this.tone(e.tone), p=e.labelAt, w=Math.max(68,e.label.length*12+t.line.labelPadX*2);
+    return `<rect x="${p.x-w/2}" y="${p.y-11}" width="${w}" height="${t.line.labelH}" rx="11" fill="#fff" stroke="#e2e8f0"/>
+<text x="${p.x}" y="${p.y}" text-anchor="middle" dominant-baseline="middle" fill="${tone.main}" font-size="${t.font.label}" font-weight="800">${e.label}</text>`;
+  }
+
+  points(e,byId){
+    const A=this.anchor(byId[e.from]), B=this.anchor(byId[e.to]), midY=this.tokens.section.splitY;
+    if(e.route==="right-left") return [A.right,B.left];
+    if(e.route==="down") return [A.bottom,{x:A.bottom.x,y:midY},{x:B.top.x,y:midY},B.top];
+    if(e.route==="left-down") return [A.left,{x:B.top.x,y:A.left.y},{x:B.top.x,y:midY},B.top];
+    return [A.right,B.left];
+  }
+
+  anchor(n){return {left:{x:n.x,y:n.y+n.h/2},right:{x:n.x+n.w,y:n.y+n.h/2},top:{x:n.x+n.w/2,y:n.y},bottom:{x:n.x+n.w/2,y:n.y+n.h}}}
+
+  tone(k){
+    return {
+      blue:{main:"#2563eb",bg:"#dbeafe",stroke:"#bfdbfe",base:"#dbeafe"},
+      green:{main:"#059669",bg:"#dcfce7",stroke:"#bbf7d0",base:"#dcfce7"},
+      orange:{main:"#ea580c",bg:"#ffedd5",stroke:"#fed7aa",base:"#ffedd5"},
+      red:{main:"#dc2626",bg:"#fee2e2",stroke:"#fecaca",base:"#fee2e2"},
+      purple:{main:"#7c3aed",bg:"#ede9fe",stroke:"#ddd6fe",base:"#ede9fe"},
+      gray:{main:"#334155",bg:"#f1f5f9",stroke:"#cbd5e1",base:"#e2e8f0"}
+    }[k];
+  }
+}
+customElements.define("payment-state-machine", PaymentStateMachine);
+</script>
+</body>
+</html>

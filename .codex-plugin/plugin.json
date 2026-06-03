@@ -1,0 +1,40 @@
+{
+  "name": "gm-skills",
+  "version": "1.1.0",
+  "description": "Agent skills 集合，覆盖设计、写作、技能审查、技术栈推荐和可视化解释。",
+  "author": {
+    "name": "ZeroZ-lab",
+    "url": "https://github.com/ZeroZ-lab/gm-skills"
+  },
+  "homepage": "https://github.com/ZeroZ-lab/gm-skills",
+  "repository": "https://github.com/ZeroZ-lab/gm-skills.git",
+  "license": "MIT",
+  "keywords": [
+    "skills",
+    "design",
+    "writing",
+    "agent-config",
+    "quality-review",
+    "tech-stack",
+    "visual-explanation"
+  ],
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "gm-skills",
+    "shortDescription": "开发、设计、写作和 agent 协作技能集合。",
+    "longDescription": "gm-skills 是一组可复用 agent skills，覆盖高保真设计、写作去 AI 味、技能质量审查、技术栈推荐、UI fork 分析，以及面向 HTML + SVG 的可视化解释布局。",
+    "developerName": "ZeroZ-lab",
+    "category": "Productivity",
+    "capabilities": [
+      "Read",
+      "Write",
+      "Review"
+    ],
+    "websiteURL": "https://github.com/ZeroZ-lab/gm-skills",
+    "defaultPrompt": [
+      "审查这个 skill 的质量并给出修改建议",
+      "帮我从这些素材里提炼写作选题",
+      "生成一个移动端可读的 SVG 可视化解释图"
+    ]
+  }
+}
