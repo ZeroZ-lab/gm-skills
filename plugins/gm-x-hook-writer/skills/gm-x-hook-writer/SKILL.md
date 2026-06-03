@@ -1,7 +1,12 @@
 ---
 name: gm-x-hook-writer
-description: Use when users need stronger X/Twitter hooks, first lines, or thread openers from a topic, draft, opinion, or observation without writing the full post.
+description: 为 X/Twitter 推文生成更强的 hook 和首句，不负责写完整推文。Use when users need stronger X/Twitter hooks, first lines, or thread openers from a topic, draft, opinion, or observation without writing the full post.
 argument-hint: "[主题 / 素材 / 观点 / 长度偏好]"
+context: fork
+disable-model-invocation: false
+allowed-tools:
+  - Read
+  - AskUserQuestion
 ---
 
 # gm-x-hook-writer

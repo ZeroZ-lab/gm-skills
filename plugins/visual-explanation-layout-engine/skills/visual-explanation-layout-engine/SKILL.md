@@ -1,6 +1,12 @@
 ---
 name: visual-explanation-layout-engine
 description: Turn complex ideas, workflows, systems, states, responsibilities, and causal structures into mobile-readable HTML + SVG visual explanations. Use for flowcharts, swimlanes, state machines, architecture diagrams, data-flow diagrams, value-flow diagrams, decision models, Web Component based visual artifacts, and GIF-ready lightweight animated diagrams.
+allowed-tools:
+  - Read
+  - Write
+  - Edit
+  - Bash
+  - Glob
 ---
 
 # Visual Explanation Layout Engine

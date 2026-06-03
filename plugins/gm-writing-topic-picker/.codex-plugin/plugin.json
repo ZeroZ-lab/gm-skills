@@ -1,7 +1,7 @@
 {
   "name": "gm-writing-topic-picker",
   "version": "1.1.0",
-  "description": "Use when there is one article idea that may or may not be worth writing, when choosing between several writing topics, or when a topic feels too ordinary and needs a sharper angle.",
+  "description": "判断写作选题值不值得写、找到更锋利的切入角度。Use when there is one article idea that may or may not be worth writing, when choosing between several writing topics, or when a topic feels too ordinary and needs a sharper angle.",
   "author": {
     "name": "ZeroZ-lab",
     "url": "https://github.com/ZeroZ-lab/gm-skills"

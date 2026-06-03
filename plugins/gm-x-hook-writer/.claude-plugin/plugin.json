@@ -1,7 +1,7 @@
 {
   "name": "gm-x-hook-writer",
   "version": "1.1.0",
-  "description": "Use when users need stronger X/Twitter hooks, first lines, or thread openers from a topic, draft, opinion, or observation without writing the full post.",
+  "description": "为 X/Twitter 推文生成更强的 hook 和首句，不负责写完整推文。Use when users need stronger X/Twitter hooks, first lines, or thread openers from a topic, draft, opinion, or observation without writing the full post.",
   "author": {
     "name": "ZeroZ-lab",
     "url": "https://github.com/ZeroZ-lab/gm-skills"

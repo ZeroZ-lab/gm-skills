@@ -4,6 +4,8 @@ description: 从零散想法、笔记、评论、私信、收藏链接、草稿�
 argument-hint: "[想法、笔记、评论、草稿]"
 context: fork
 disable-model-invocation: false
+allowed-tools:
+  - Read
 ---
 
 # gm-topic-engine

@@ -45,7 +45,7 @@ argument-hint: "[项目路径或描述]"
 
 **必须包含的 6 个 section（按此顺序）：**
 
-```markdown
+````markdown
 # 项目名
 
 一句话说明（技术栈 + 版本，要具体）。
@@ -82,7 +82,7 @@ argument-hint: "[项目路径或描述]"
 | 文件 | 何时读取 |
 |------|---------|
 | `docs/xxx.md` | 做 xxx 时 |
-```
+````
 
 **禁止出现的内容：**
 - 大段散文、项目历史
@@ -109,7 +109,7 @@ See [CLAUDE.md](./CLAUDE.md) for all project instructions.
 
 ### Next.js 项目
 
-```markdown
+````markdown
 # my-app
 
 Next.js 14 全栈应用，App Router + Prisma + PostgreSQL + TypeScript。
@@ -152,11 +152,11 @@ export async function getUser(id) {
 - 类型错误修不好 → `pnpm tsc --noEmit` 看完整报错
 - 数据库冲突 → `pnpm prisma migrate reset`（会清数据，先确认）
 - 绝不：跳过 build、直接改 migrations、force push main
-```
+````
 
 ### Python 项目
 
-```markdown
+````markdown
 # my-service
 
 FastAPI REST API，Python 3.12 + SQLAlchemy + Alembic + PostgreSQL。
@@ -199,4 +199,4 @@ async def get_user(user_id, db):
 - 测试失败 3 次 → 停下来，贴完整 traceback
 - migration 冲突 → `alembic downgrade -1` 再重新生成
 - 绝不：删 migration 文件、跳过 mypy、改 alembic_version 表
-```
+````

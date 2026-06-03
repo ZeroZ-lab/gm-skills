@@ -21,7 +21,7 @@ allowed-tools:
   - mcp__playwright__browser_snapshot
   - mcp__playwright__browser_evaluate
   - mcp__playwright__browser_console_messages
-  - mcp__playwright__browser_run_code
+  - mcp__playwright__browser_run_code_unsafe
   - mcp__playwright__browser_tabs
   - mcp__playwright__browser_click
   - mcp__playwright__browser_type

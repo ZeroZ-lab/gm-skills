@@ -4,6 +4,10 @@ description: 用于修改公众号文章、博客草稿、newsletter 与观点�
 argument-hint: "[文章草稿]"
 context: fork
 disable-model-invocation: false
+allowed-tools:
+  - Read
+  - Write
+  - Edit
 ---
 
 # gm-de-ai-article

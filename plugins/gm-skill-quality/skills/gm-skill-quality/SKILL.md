@@ -1,7 +1,12 @@
 ---
 name: gm-skill-quality
-description: 审查 agent skills 质量，对 SKILL.md 给出结构化审查报告和优化建议。使用 cuando 需要评估 skill 实现质量、编写新 skill 后质量把关、review PR 中的 skill 变更
+description: 审查 agent skills 质量，对 SKILL.md 给出结构化审查报告和优化建议。使用场景：需要评估 skill 实现质量、编写新 skill 后质量把关、review PR 中的 skill 变更
 argument-hint: "[目标 skill 路径，默认扫描所有本地非 submodule skill]"
+allowed-tools:
+  - Read
+  - Write
+  - Glob
+  - Grep
 ---
 
 # Skill Quality — 技能质量审查
@@ -13,7 +18,7 @@ argument-hint: "[目标 skill 路径，默认扫描所有本地非 submodule ski
 ## 入口/出口
 
 - **入口**: 一个或多个目标 skill 的 `SKILL.md`
-- **出口**: 结构化审查报告（`review/<skill-name>-quality-report.md`）
+- **出口**: 结构化审查报告（`<target-skill-dir>/review/<skill-name>-quality-report.md`，即在目标 skill 目录下创建 `review/` 子目录）
 - **指向**: 通过 → 通知用户可合并/发布；有问题 → 给出具体修复建议
 - **假设已加载**: 无
 
@@ -237,7 +242,7 @@ source: CANON.md 第 2（Simple First）、3（Scope Discipline）条。
 - [ ] Critical 问题标记了处理要求
 - [ ] 结果包含具体改进建议（不仅仅是判分）
 - [ ] Verdict 已给出并附理由
-- [ ] 报告已输出到 `review/<skill-name>-quality-report.md`
+- [ ] 报告已输出到 `<target-skill-dir>/review/<skill-name>-quality-report.md`
 
 ## 验证失败处理
 

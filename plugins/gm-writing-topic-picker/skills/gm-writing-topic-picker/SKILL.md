@@ -1,9 +1,12 @@
 ---
 name: gm-writing-topic-picker
-description: Use when there is one article idea that may or may not be worth writing, when choosing between several writing topics, or when a topic feels too ordinary and needs a sharper angle.
+description: 判断写作选题值不值得写、找到更锋利的切入角度。Use when there is one article idea that may or may not be worth writing, when choosing between several writing topics, or when a topic feels too ordinary and needs a sharper angle.
 argument-hint: "[选题、想法、目标读者、写作目的]"
 context: fork
 disable-model-invocation: false
+allowed-tools:
+  - Read
+  - AskUserQuestion
 ---
 
 # gm-writing-topic-picker

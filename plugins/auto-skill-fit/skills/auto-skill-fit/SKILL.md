@@ -2,6 +2,12 @@
 name: auto-skill-fit
 description: 扫描项目技术栈，推荐并安装匹配的 agent skills 套装。Use when starting a new project, onboarding to a codebase, or when the user asks "what skills should I install", "recommend skills for this project", "auto setup skills".
 argument-hint: "[项目路径，默认当前目录]"
+allowed-tools:
+  - Bash
+  - Read
+  - Glob
+  - AskUserQuestion
+  - Skill
 ---
 
 # auto-skill-fit
@@ -32,6 +38,16 @@ argument-hint: "[项目路径，默认当前目录]"
 **归一化**：`react-dom` → `react`，`@next/font` → `nextjs`，`tailwindcss` → `tailwind`。
 
 只保留框架级关键词（react, nextjs, vue, svelte, tailwind, supabase, prisma, drizzle, fastapi, django 等），过滤工具库（lodash, axios 等）。
+
+### Step 1.5: 前置检查
+
+确认 `npx skills` 可用：
+
+```bash
+npx skills --version 2>/dev/null
+```
+
+如果失败，提示用户先安装：`npm i -g skills.sh` 或 `npx skills@latest --help`。未安装时仍可继续扫描（Step 1），但无法搜索和安装（Step 2-6）。
 
 ### Step 2: 搜索 skills.sh
 

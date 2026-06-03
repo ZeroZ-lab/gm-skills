@@ -1,7 +1,7 @@
 ---
 name: pngimg-download
 description: "Search and download free transparent PNG images from pngimg.com. Use when the user wants to find or download PNG images with transparent backgrounds, clipart, or icons for design projects."
-allowed-tools: Bash(bash *download.sh*), WebFetch(https://pngimg.com/*)
+allowed-tools: Bash(bash *download.sh*)
 ---
 
 # pngimg-download
@@ -10,10 +10,9 @@ Search and download free transparent PNG images from [pngimg.com](https://pngimg
 
 ## How It Works
 
-pngimg.com organizes images by category. The URL pattern is:
-- Category listing: `https://pngimg.com/images/{category}`
-- Image download: `https://pngimg.com/d/{filename}.png`
-- Direct file URL: `https://pngimg.com/uploads/{category}/{filename}.png`
+pngimg.com organizes images by category. The script uses the search API:
+- Search endpoint: `https://pngimg.com/search_image/?search_image={keyword}`
+- Result images are extracted from `/uploads/...` paths on the search results page
 
 ## Usage
 
@@ -22,7 +21,7 @@ pngimg.com organizes images by category. The URL pattern is:
 Browse a category page to find available images:
 
 ```bash
-bash ~/.kiro/skills/pngimg-download/download.sh search <keyword>
+bash "$(dirname "$0")/download.sh" search <keyword>
 ```
 
 This fetches the category page and lists available PNG images with their download URLs.
@@ -33,7 +32,7 @@ Download a specific image or multiple images from a category:
 
 ```bash
 # Download first N images from a category
-bash ~/.kiro/skills/pngimg-download/download.sh download <keyword> [count] [output_dir]
+bash "$(dirname "$0")/download.sh" download <keyword> [count] [output_dir]
 ```
 
 Parameters:
@@ -45,13 +44,13 @@ Parameters:
 
 ```bash
 # Search for cat images
-bash ~/.kiro/skills/pngimg-download/download.sh search cat
+bash "$(dirname "$0")/download.sh" search cat
 
 # Download 3 cat images to current directory
-bash ~/.kiro/skills/pngimg-download/download.sh download cat 3
+bash "$(dirname "$0")/download.sh" download cat 3
 
 # Download 5 apple images to ./assets/
-bash ~/.kiro/skills/pngimg-download/download.sh download apple 5 ./assets/
+bash "$(dirname "$0")/download.sh" download apple 5 ./assets/
 ```
 
 ## Notes
