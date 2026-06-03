@@ -32,7 +32,18 @@ You can install any listed plugin the same way:
 
 ### Codex
 
-Codex reads the marketplace from [.agents/plugins/marketplace.json](/Users/zhengjianqiao/workspace/gm-skills/.agents/plugins/marketplace.json). Add this repository as a marketplace, then install the specific plugin you want from `gm-skills`.
+Codex is supported through the root marketplace at [.agents/plugins/marketplace.json](/Users/zhengjianqiao/workspace/gm-skills/.agents/plugins/marketplace.json).
+
+Install flow in Codex:
+
+1. Open the Codex plugin directory.
+2. Add `https://github.com/ZeroZ-lab/gm-skills` as a marketplace.
+3. Install the plugin you want from the `gm-skills` marketplace, for example:
+   - `gm-topic-engine`
+   - `visual-explanation-layout-engine`
+   - `cc-design`
+
+If you already added this marketplace before the multi-plugin split, refresh the marketplace in Codex so it pulls the latest catalog instead of the older cached `gm-skills` entry.
 
 ## Plugins
 
