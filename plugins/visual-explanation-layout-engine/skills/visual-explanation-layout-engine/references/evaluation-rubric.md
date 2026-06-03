@@ -1,51 +1,51 @@
 # Evaluation Rubric
 
-Score each diagram from 1 to 5.
+Score the diagram from 1 to 5 in each category before delivery.
 
 ## 1. Topology Fit
 
-5 = Layout perfectly matches the information relationship.
-3 = Usable but slightly forced.
-1 = Wrong topology.
+5 = The topology matches the explanation goal exactly.
+3 = Mostly usable, but another topology would read better.
+1 = The topology is wrong for the task.
 
 ## 2. Reading Path
 
-5 = Reader instantly knows where to start and how to continue.
-3 = Main path visible but distracted.
-1 = Reading order unclear.
+5 = The reader instantly knows where to start and continue.
+3 = Main path exists, but secondary paths distract from it.
+1 = Reading order is unclear.
 
 ## 3. Spatial Rhythm
 
-5 = Comfortable spacing, no touching boundaries.
-3 = Some cramped areas.
-1 = Nodes or notes touch containers.
+5 = Tokens create comfortable spacing with no crowding.
+3 = Some cramped areas or weak rails.
+1 = Nodes, labels, or notes touch boundaries.
 
 ## 4. Component Quality
 
-5 = Node internals are slot-based and balanced.
-3 = Minor text imbalance.
-1 = Badge, title, or description collide.
+5 = Meta, title, and description slots are balanced and stable.
+3 = Minor imbalance, but still readable.
+1 = Node internals collide or drift.
 
 ## 5. Route Quality
 
-5 = Routes avoid content and use clear channels.
-3 = Some awkward bends.
-1 = Lines cross text or nodes.
+5 = Routes are disciplined, anchored, and semantically clear.
+3 = Some awkward bends or mixed channels.
+1 = Routes cut through content or ignore route vocabulary.
 
 ## 6. Label Quality
 
-5 = Labels use rails and chips with no overlap.
-3 = Some labels sit close to paths.
-1 = Labels block nodes or arrows.
+5 = Labels use clear rails and never cover key content.
+3 = Labels are legible but too close to paths or arrows.
+1 = Labels block nodes or arrowheads.
 
 ## 7. Semantic Consistency
 
-5 = Colors, sizes, and labels encode meaning consistently.
-3 = Mostly consistent.
-1 = Decorative and inconsistent.
+5 = Color, type, placement, and notation mean the same thing throughout.
+3 = Mostly consistent, with a few weak signals or an under-explained legend.
+1 = Styling or notation is decorative, inconsistent, or unexplained.
 
 ## 8. Mobile Readability
 
-5 = Readable at mobile width.
-3 = Small but usable.
-1 = Too dense or tiny.
+5 = Diagram remains readable at mobile width.
+3 = Small, but still usable.
+1 = Too dense or too tiny for mobile reading.

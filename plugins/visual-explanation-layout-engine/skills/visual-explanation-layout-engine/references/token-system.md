@@ -1,17 +1,14 @@
 # Token System For SVG Visual Explanations
 
-Use tokens to prevent visual drift and to make spacing rules auditable.
+This file is the single token reference for the plugin.
+
+Use tokens to prevent visual drift and to make spacing auditable.
 
 ## Minimal Token Template
 
 ```js
 const tokens = {
   canvas: { w: 1120, h: 770 },
-
-  card: {
-    radius: 18,
-    border: 1
-  },
 
   section: {
     x: 56,
@@ -93,7 +90,7 @@ const tokens = {
 
 ```text
 nodeBottom + innerBottomPad <= sectionBottom
-noteY >= sectionBottom + noteGap
+noteY >= sectionBottom + sectionToNoteGap
 mainRowNodeBottom + rowGap <= secondaryRowNodeTop
 labelBox does not intersect nodeBox
 labelBox does not cover arrowhead
@@ -108,4 +105,12 @@ dominant-baseline="middle"
 text-anchor="middle"
 ```
 
-Avoid aligning badge, title, and description by visual guesswork. Give each text role a stable Y slot.
+Use stable Y slots for badge, title, and description. Do not align text by visual guesswork.
+
+## Naming Rules
+
+- edge labels use `tokens.font.edgeLabel`
+- notes use `tokens.font.note`
+- label chip height uses `tokens.line.labelH`
+- label chip padding uses `tokens.line.labelPadX`
+- row and rail gaps use `tokens.spacing.*`

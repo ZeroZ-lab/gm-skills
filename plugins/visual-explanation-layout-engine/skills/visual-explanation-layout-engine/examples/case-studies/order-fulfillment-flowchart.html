@@ -1,0 +1,210 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Order Fulfillment Flowchart Example</title>
+<style>
+body{margin:0;background:#f5f7fa;font:16px/1.55 system-ui}
+main{max-width:1120px;margin:auto;padding:20px 16px}
+p{margin:0 0 12px;color:#475569}
+</style>
+</head>
+<body>
+<main>
+<p>This example uses flowchart topology to show a primary sequence with one retry branch and one escalation branch.</p>
+<order-fulfillment-flowchart></order-fulfillment-flowchart>
+</main>
+
+<script>
+class OrderFulfillmentFlowchart extends HTMLElement {
+  constructor(){ super(); this.attachShadow({mode:"open"}); }
+
+  get tokens(){
+    return {
+      canvas:{w:1120,h:820},
+      section:{x:56,y:140,w:1008,h:520,radius:16,pad:18,innerBottomPad:52,noteGap:28},
+      node:{w:182,h:96,radius:18,border:1.5,padX:18,padTop:18,padBottom:16,metaX:16,metaY:16,metaW:48,metaH:22,metaRadius:11,metaTextY:27,titleY:54,descY:76},
+      font:{title:31,sectionLabel:13,nodeTitle:17,nodeDesc:12,edgeLabel:11,note:13,meta:11},
+      line:{width:3,baseWidth:7,arrow:5,labelH:22,labelPadX:12},
+      spacing:{rowGap:70,colGap:44,laneGap:18,labelRailGap:28,sectionToNoteGap:28},
+      color:{paper:"#fff",ink:"#0f172a",muted:"#64748b",border:"#d8e0ea",faint:"#eef2f7",blue:"#2563eb",green:"#059669",orange:"#ea580c",red:"#dc2626",purple:"#7c3aed",gray:"#334155"}
+    };
+  }
+
+  get spec(){
+    return {
+      title:"Order Fulfillment Flowchart",
+      topology:"flowchart",
+      note:"Audit: the main path stays on the top row; retry and escalation use a separate branch row and explicit labels.",
+      legend:[
+        {tone:"blue",label:"main flow"},
+        {tone:"orange",label:"retry branch"},
+        {tone:"red",label:"escalation branch"}
+      ],
+      rows:{main:260,branch:470},
+      cols:{0:110,1:320,2:530,3:740,4:950},
+      nodes:[
+        {id:"start",title:"START",desc:"收到订单",tone:"blue",row:"main",col:0,meta:"步骤"},
+        {id:"reserve",title:"RESERVE",desc:"锁定库存",tone:"blue",row:"main",col:1,meta:"步骤"},
+        {id:"payment",title:"PAYMENT",desc:"确认支付",tone:"green",row:"main",col:2,meta:"检查"},
+        {id:"pack",title:"PACK",desc:"生成拣货单",tone:"purple",row:"main",col:3,meta:"步骤"},
+        {id:"ship",title:"SHIP",desc:"通知仓配",tone:"purple",row:"main",col:4,meta:"结果"},
+        {id:"retry",title:"RETRY",desc:"重新请求支付",tone:"orange",row:"branch",col:2,meta:"重试"},
+        {id:"escalate",title:"ESCALATE",desc:"人工处理",tone:"red",row:"branch",col:4,meta:"异常"}
+      ],
+      edges:[
+        {from:"start",to:"reserve",tone:"blue",route:"right-left",label:"创建履约"},
+        {from:"reserve",to:"payment",tone:"blue",route:"right-left",label:"进入支付检查"},
+        {from:"payment",to:"pack",tone:"green",route:"right-left",label:"支付通过"},
+        {from:"pack",to:"ship",tone:"purple",route:"right-left",label:"发起出库"},
+        {from:"payment",to:"retry",tone:"orange",route:"side-channel",label:"支付超时"},
+        {from:"retry",to:"escalate",tone:"red",route:"right-left",label:"重试失败"}
+      ]
+    };
+  }
+
+  connectedCallback(){ this.render(); }
+
+  render(){
+    const t=this.tokens;
+    const nodes=this.placeNodes(this.spec.nodes);
+    const byId=Object.fromEntries(nodes.map(n=>[n.id,n]));
+    const edges=this.placeLabels(this.spec.edges,byId);
+    const audit=this.audit(nodes,edges);
+    this.shadowRoot.innerHTML = `
+<style>
+svg{width:100%;height:auto;display:block;background:#fff;border:1px solid ${t.color.border};border-radius:18px}
+text{font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+.edge-bg,.edge{fill:none;stroke-linecap:round;stroke-linejoin:round}
+.edge{stroke-width:${t.line.width}}
+.audit{font-size:${t.font.note}px;fill:${audit.ok ? t.color.green : t.color.red}}
+</style>
+<svg viewBox="0 0 ${t.canvas.w} ${t.canvas.h}">
+${this.defs()}
+<rect width="${t.canvas.w}" height="${t.canvas.h}" fill="${t.color.paper}"/>
+<text x="56" y="54" fill="${t.color.ink}" font-size="${t.font.title}" font-weight="850">${this.spec.title}</text>
+<text x="56" y="82" fill="${t.color.muted}" font-size="${t.font.note}">Topology: ${this.spec.topology}. Main flow stays on the top row; branches drop into a separate channel.</text>
+${this.renderSection()}
+${this.renderLegend()}
+<g>${edges.map(e=>this.renderEdge(e,byId,true)).join("")}</g>
+<g>${edges.map(e=>this.renderEdge(e,byId,false)).join("")}</g>
+<g>${edges.map(e=>this.renderLabel(e)).join("")}</g>
+<g>${nodes.map(n=>this.renderNode(n)).join("")}</g>
+<text class="audit" x="56" y="770">${audit.message}</text>
+<text x="56" y="794" fill="${t.color.muted}" font-size="${t.font.note}">${this.spec.note}</text>
+</svg>`;
+  }
+
+  placeNodes(nodes){
+    const t=this.tokens;
+    return nodes.map(node=>({
+      ...node,
+      x:this.spec.cols[node.col],
+      y:this.spec.rows[node.row],
+      w:t.node.w,
+      h:t.node.h
+    }));
+  }
+
+  placeLabels(edges,byId){
+    return edges.map(edge=>{
+      const A=this.anchors(byId[edge.from]);
+      const B=this.anchors(byId[edge.to]);
+      if(edge.route==="side-channel"){
+        return {...edge,labelAt:{x:A.bottom.x+54,y:B.top.y-28}};
+      }
+      return {...edge,labelAt:{x:(A.right.x+B.left.x)/2,y:A.right.y-30}};
+    });
+  }
+
+  renderSection(){
+    const t=this.tokens;
+    return `<rect x="${t.section.x}" y="${t.section.y}" width="${t.section.w}" height="${t.section.h}" rx="${t.section.radius}" fill="#fff" stroke="${t.color.border}"/>
+<text x="${t.section.x+18}" y="228" fill="${t.color.muted}" font-size="${t.font.sectionLabel}" font-weight="700">main path</text>
+<text x="${t.section.x+18}" y="438" fill="${t.color.muted}" font-size="${t.font.sectionLabel}" font-weight="700">branch row</text>`;
+  }
+
+  renderLegend(){
+    const t=this.tokens;
+    return `<g transform="translate(846 54)">
+<rect width="226" height="68" rx="14" fill="#fff" stroke="${t.color.border}"/>
+<text x="16" y="20" fill="${t.color.muted}" font-size="${t.font.sectionLabel}" font-weight="700">Legend</text>
+${this.spec.legend.map((item,index)=>`
+<circle cx="${18+index*68}" cy="44" r="7" fill="${this.tone(item.tone).main}"/>
+<text x="${30+index*68}" y="48" fill="${t.color.muted}" font-size="${t.font.note}">${item.label}</text>`).join("")}
+</g>`;
+  }
+
+  renderNode(n){
+    const t=this.tokens, tone=this.tone(n.tone);
+    return `<g transform="translate(${n.x} ${n.y})">
+<rect width="${n.w}" height="${n.h}" rx="${t.node.radius}" fill="${tone.bg}" stroke="${tone.stroke}" stroke-width="${t.node.border}"/>
+<rect x="${t.node.metaX}" y="${t.node.metaY}" width="${t.node.metaW}" height="${t.node.metaH}" rx="${t.node.metaRadius}" fill="${tone.main}"/>
+<text x="${t.node.metaX+t.node.metaW/2}" y="${t.node.metaTextY}" text-anchor="middle" dominant-baseline="middle" fill="#fff" font-size="${t.font.meta}" font-weight="850">${n.meta}</text>
+<text x="${n.w/2}" y="${t.node.titleY}" text-anchor="middle" dominant-baseline="middle" fill="${t.color.ink}" font-size="${t.font.nodeTitle}" font-weight="850">${n.title}</text>
+<text x="${n.w/2}" y="${t.node.descY}" text-anchor="middle" dominant-baseline="middle" fill="${t.color.muted}" font-size="${t.font.nodeDesc}">${n.desc}</text>
+</g>`;
+  }
+
+  renderEdge(e,byId,base){
+    const t=this.tokens, tone=this.tone(e.tone), d=this.routePath(e,byId);
+    return base ? `<path class="edge-bg" d="${d}" stroke="${tone.base}" stroke-width="${t.line.baseWidth}"/>`
+                : `<path class="edge" d="${d}" stroke="${tone.main}" marker-end="url(#arrow-${e.tone})"/>`;
+  }
+
+  renderLabel(e){
+    const t=this.tokens, tone=this.tone(e.tone), p=e.labelAt, w=Math.max(72,e.label.length*12+t.line.labelPadX*2);
+    return `<rect x="${p.x-w/2}" y="${p.y-t.line.labelH/2}" width="${w}" height="${t.line.labelH}" rx="11" fill="#fff" stroke="${t.color.border}"/>
+<text x="${p.x}" y="${p.y}" text-anchor="middle" dominant-baseline="middle" fill="${tone.main}" font-size="${t.font.edgeLabel}" font-weight="800">${e.label}</text>`;
+  }
+
+  routePath(e,byId){
+    const A=this.anchors(byId[e.from]), B=this.anchors(byId[e.to]);
+    if(e.route==="side-channel"){
+      const railY=this.spec.rows.branch-32;
+      return `M${A.bottom.x} ${A.bottom.y} L${A.bottom.x} ${railY} L${B.top.x} ${railY} L${B.top.x} ${B.top.y}`;
+    }
+    return `M${A.right.x} ${A.right.y} L${B.left.x} ${B.left.y}`;
+  }
+
+  anchors(n){
+    return {
+      top:{x:n.x+n.w/2,y:n.y},
+      bottom:{x:n.x+n.w/2,y:n.y+n.h},
+      left:{x:n.x,y:n.y+n.h/2},
+      right:{x:n.x+n.w,y:n.y+n.h/2},
+      center:{x:n.x+n.w/2,y:n.y+n.h/2}
+    };
+  }
+
+  audit(nodes,edges){
+    const branchOk=edges.some(e=>e.route==="side-channel" && e.labelAt.y > 400);
+    const legendOk=this.spec.legend.length===3;
+    const titleOk=Boolean(this.spec.title);
+    return {ok:branchOk && legendOk && titleOk,message:branchOk && legendOk && titleOk ? "Audit: passed branch separation, title, and legend checks." : "Audit: failed branch separation, title, or legend checks."};
+  }
+
+  defs(){
+    const c=this.tokens.color;
+    return `<defs>${["blue","green","orange","red","purple","gray"].map(k=>`
+<marker id="arrow-${k}" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="5" markerHeight="5" orient="auto">
+<path d="M0 0 L10 5 L0 10 Z" fill="${c[k]}"/>
+</marker>`).join("")}</defs>`;
+  }
+
+  tone(k){
+    return {
+      blue:{main:"#2563eb",bg:"#dbeafe",stroke:"#bfdbfe",base:"#dbeafe"},
+      green:{main:"#059669",bg:"#dcfce7",stroke:"#bbf7d0",base:"#dcfce7"},
+      orange:{main:"#ea580c",bg:"#ffedd5",stroke:"#fed7aa",base:"#ffedd5"},
+      red:{main:"#dc2626",bg:"#fee2e2",stroke:"#fecaca",base:"#fee2e2"},
+      purple:{main:"#7c3aed",bg:"#ede9fe",stroke:"#ddd6fe",base:"#ede9fe"},
+      gray:{main:"#334155",bg:"#f1f5f9",stroke:"#cbd5e1",base:"#e2e8f0"}
+    }[k];
+  }
+}
+customElements.define("order-fulfillment-flowchart", OrderFulfillmentFlowchart);
+</script>
+</body>
+</html>

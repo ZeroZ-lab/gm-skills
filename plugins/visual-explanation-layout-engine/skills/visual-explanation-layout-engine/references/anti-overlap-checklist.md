@@ -1,36 +1,53 @@
 # Anti-Overlap Checklist
 
-## Node Internal
+Use this as the final pre-delivery audit.
 
-- Badge has its own row.
-- Title has its own row.
-- Description has its own row.
-- Description is not near the bottom edge.
-- Title does not collide with badge.
+## Data And Topology
 
-## Containers
+- The chosen topology matches the user's explanation goal.
+- The main reading path is obvious before color or animation.
+- `nodes[]` and `edges[]` still describe meaning, not only coordinates.
+
+## Node Internals
+
+- Badge or meta chip owns the meta row.
+- Title owns the title row.
+- Description owns the desc row.
+- Title does not collide with the badge.
+- Description does not sit near the bottom edge.
+
+## Containers And Spacing
 
 - Nodes do not touch section boundaries.
-- Bottom row has section bottom padding.
-- Section does not touch note or caption.
-- Caption has enough vertical gap.
+- Bottom row leaves `innerBottomPad`.
+- Note or caption area leaves `sectionToNoteGap`.
+- Main row and secondary row leave `rowGap`.
 
-## Edges
+## Routes
 
-- Edges use anchors, not centers.
-- Edges are drawn before nodes.
-- Exception and callback routes have their own channels.
-- Edge labels use `labelAt` or a label rail.
+- Routes start from anchors, not node centers.
+- `right-left`, `bottom-top`, `left-down`, `outer-right`, and `side-channel` are used consistently.
+- Exception and callback edges use their own channels.
+- Paths do not cross node text or node interiors.
 
 ## Labels
 
-- Labels have white background chips.
-- Labels do not sit on arrows.
+- Labels use white chips.
+- Labels sit on a rail or explicit `labelAt`.
 - Labels do not cover nodes.
-- Labels do not follow crowded bends blindly.
+- Labels do not cover arrowheads.
+- Labels do not cling to crowded bends.
+- Relationship labels are specific enough to stand alone.
 
-## Typography
+## Legend And Notation
 
-- Font sizes come from tokens.
-- Same-level nodes have identical typography.
-- SVG text uses `dominant-baseline` where appropriate.
+- Legend or key exists when color, chip, or route meaning is not obvious.
+- Legend does not compete with the primary reading path.
+- Legend stays outside the densest node and edge area.
+
+## Typography And Tokens
+
+- Font sizes come from `tokens.font`.
+- Edge labels use `tokens.font.edgeLabel`.
+- Same-level nodes use consistent typography and spacing.
+- SVG text uses `dominant-baseline="middle"` where appropriate.

@@ -1,0 +1,201 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Payment Swimlane Example</title>
+<style>
+body{margin:0;background:#f5f7fa;font:16px/1.55 system-ui}
+main{max-width:1120px;margin:auto;padding:20px 16px}
+p{margin:0 0 12px;color:#475569}
+</style>
+</head>
+<body>
+<main>
+<p>This example keeps the same node and edge schema as the state-machine template, but changes the topology to swimlane.</p>
+<payment-swimlane></payment-swimlane>
+</main>
+
+<script>
+class PaymentSwimlane extends HTMLElement {
+  constructor(){ super(); this.attachShadow({mode:"open"}); }
+
+  get tokens(){
+    return {
+      canvas:{w:1120,h:900},
+      section:{x:56,y:120,w:1008,h:660,radius:16,pad:18,innerBottomPad:52,noteGap:28},
+      node:{w:164,h:90,radius:18,border:1.5,padX:18,padTop:18,padBottom:16,metaX:16,metaY:16,metaW:42,metaH:22,metaRadius:11,metaTextY:27,titleY:52,descY:72},
+      font:{title:31,sectionLabel:13,nodeTitle:16,nodeDesc:12,edgeLabel:11,note:13,meta:11},
+      line:{width:3,baseWidth:7,arrow:5,labelH:22,labelPadX:12},
+      spacing:{rowGap:48,colGap:38,laneGap:24,labelRailGap:28,sectionToNoteGap:28},
+      color:{paper:"#fff",ink:"#0f172a",muted:"#64748b",border:"#d8e0ea",faint:"#eef2f7",blue:"#2563eb",green:"#059669",orange:"#ea580c",red:"#dc2626",purple:"#7c3aed",gray:"#334155"}
+    };
+  }
+
+  get spec(){
+    return {
+      title:"Payment Swimlane",
+      topology:"swimlane",
+      note:"Audit: rows express responsibility; the async callback uses an outer-right rail instead of mixing into the main lane.",
+      lanes:[
+        {id:"user",title:"User",y:170},
+        {id:"frontend",title:"Frontend",y:282},
+        {id:"backend",title:"Backend",y:394},
+        {id:"gateway",title:"Gateway",y:506},
+        {id:"fulfillment",title:"Fulfillment",y:618}
+      ],
+      cols:{0:160,1:360,2:560,3:760,4:920},
+      nodes:[
+        {id:"submit",title:"SUBMIT",desc:"发起支付",tone:"blue",lane:"user",col:0,meta:"步骤"},
+        {id:"create",title:"CREATE",desc:"创建订单",tone:"gray",lane:"backend",col:1,meta:"状态"},
+        {id:"pay",title:"PAY",desc:"前端拉起支付",tone:"blue",lane:"frontend",col:2,meta:"步骤"},
+        {id:"notify",title:"NOTIFY",desc:"网关异步通知",tone:"green",lane:"gateway",col:3,meta:"回调"},
+        {id:"confirm",title:"CONFIRM",desc:"后端确认",tone:"green",lane:"backend",col:4,meta:"状态"},
+        {id:"deliver",title:"FULFILL",desc:"触发履约",tone:"purple",lane:"fulfillment",col:4,meta:"结果"}
+      ],
+      edges:[
+        {from:"submit",to:"create",tone:"blue",route:"side-channel",label:"提交请求"},
+        {from:"create",to:"pay",tone:"blue",route:"side-channel",label:"返回支付参数"},
+        {from:"pay",to:"notify",tone:"blue",route:"side-channel",label:"发起支付"},
+        {from:"notify",to:"confirm",tone:"green",route:"outer-right",label:"异步回调"},
+        {from:"confirm",to:"deliver",tone:"purple",route:"side-channel",label:"完成确认"}
+      ]
+    };
+  }
+
+  connectedCallback(){ this.render(); }
+
+  render(){
+    const t=this.tokens;
+    const nodes=this.placeNodes(this.spec.nodes);
+    const byId=Object.fromEntries(nodes.map(n=>[n.id,n]));
+    const edges=this.placeLabels(this.spec.edges,byId);
+    const audit=this.audit(nodes,edges);
+    this.shadowRoot.innerHTML = `
+<style>
+svg{width:100%;height:auto;display:block;background:#fff;border:1px solid ${t.color.border};border-radius:18px}
+text{font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+.edge-bg,.edge{fill:none;stroke-linecap:round;stroke-linejoin:round}
+.edge{stroke-width:${t.line.width}}
+.audit{font-size:${t.font.note}px;fill:${audit.ok ? t.color.green : t.color.red}}
+</style>
+<svg viewBox="0 0 ${t.canvas.w} ${t.canvas.h}">
+${this.defs()}
+<rect width="${t.canvas.w}" height="${t.canvas.h}" fill="${t.color.paper}"/>
+<text x="56" y="54" fill="${t.color.ink}" font-size="${t.font.title}" font-weight="850">${this.spec.title}</text>
+<text x="56" y="82" fill="${t.color.muted}" font-size="${t.font.note}">Topology: ${this.spec.topology}. Callback uses the outer-right rail.</text>
+${this.renderLanes()}
+<g>${edges.map(e=>this.renderEdge(e,byId,true)).join("")}</g>
+<g>${edges.map(e=>this.renderEdge(e,byId,false)).join("")}</g>
+<g>${edges.map(e=>this.renderLabel(e)).join("")}</g>
+<g>${nodes.map(n=>this.renderNode(n)).join("")}</g>
+<text class="audit" x="56" y="828">${audit.message}</text>
+<text x="56" y="852" fill="${t.color.muted}" font-size="${t.font.note}">${this.spec.note}</text>
+</svg>`;
+  }
+
+  placeNodes(nodes){
+    const t=this.tokens;
+    const laneY=Object.fromEntries(this.spec.lanes.map(l=>[l.id,l.y]));
+    return nodes.map(node=>({
+      ...node,
+      x:this.spec.cols[node.col],
+      y:laneY[node.lane],
+      w:t.node.w,
+      h:t.node.h
+    }));
+  }
+
+  placeLabels(edges, byId){
+    return edges.map(edge=>{
+      const A=this.anchors(byId[edge.from]);
+      const B=this.anchors(byId[edge.to]);
+      if(edge.route==="outer-right"){
+        return {...edge,labelAt:{x:A.right.x+70,y:A.right.y-20}};
+      }
+      return {...edge,labelAt:{x:(A.center.x+B.center.x)/2,y:Math.min(A.center.y,B.center.y)-26}};
+    });
+  }
+
+  renderLanes(){
+    const t=this.tokens;
+    return `<rect x="${t.section.x}" y="${t.section.y}" width="${t.section.w}" height="${t.section.h}" rx="${t.section.radius}" fill="#fff" stroke="${t.color.border}"/>` +
+      this.spec.lanes.map((lane,index)=>`
+<g>
+<path d="M${t.section.x} ${lane.y-26} H${t.section.x+t.section.w}" stroke="${index===0 ? "transparent" : t.color.faint}"/>
+<text x="${t.section.x+18}" y="${lane.y+10}" fill="${t.color.muted}" font-size="${t.font.sectionLabel}" font-weight="700">${lane.title}</text>
+</g>`).join("");
+  }
+
+  renderNode(n){
+    const t=this.tokens, tone=this.tone(n.tone);
+    return `<g transform="translate(${n.x} ${n.y})">
+<rect width="${n.w}" height="${n.h}" rx="${t.node.radius}" fill="${tone.bg}" stroke="${tone.stroke}" stroke-width="${t.node.border}"/>
+<rect x="${t.node.metaX}" y="${t.node.metaY}" width="${t.node.metaW}" height="${t.node.metaH}" rx="${t.node.metaRadius}" fill="${tone.main}"/>
+<text x="${t.node.metaX+t.node.metaW/2}" y="${t.node.metaTextY}" text-anchor="middle" dominant-baseline="middle" fill="#fff" font-size="${t.font.meta}" font-weight="850">${n.meta}</text>
+<text x="${n.w/2}" y="${t.node.titleY}" text-anchor="middle" dominant-baseline="middle" fill="${t.color.ink}" font-size="${t.font.nodeTitle}" font-weight="850">${n.title}</text>
+<text x="${n.w/2}" y="${t.node.descY}" text-anchor="middle" dominant-baseline="middle" fill="${t.color.muted}" font-size="${t.font.nodeDesc}">${n.desc}</text>
+</g>`;
+  }
+
+  renderEdge(e,byId,base){
+    const t=this.tokens, tone=this.tone(e.tone), d=this.routePath(e,byId);
+    return base ? `<path class="edge-bg" d="${d}" stroke="${tone.base}" stroke-width="${t.line.baseWidth}"/>`
+                : `<path class="edge" d="${d}" stroke="${tone.main}" marker-end="url(#arrow-${e.tone})"/>`;
+  }
+
+  renderLabel(e){
+    const t=this.tokens, tone=this.tone(e.tone), p=e.labelAt, w=Math.max(72,e.label.length*12+t.line.labelPadX*2);
+    return `<rect x="${p.x-w/2}" y="${p.y-t.line.labelH/2}" width="${w}" height="${t.line.labelH}" rx="11" fill="#fff" stroke="${t.color.border}"/>
+<text x="${p.x}" y="${p.y}" text-anchor="middle" dominant-baseline="middle" fill="${tone.main}" font-size="${t.font.edgeLabel}" font-weight="800">${e.label}</text>`;
+  }
+
+  routePath(e,byId){
+    const A=this.anchors(byId[e.from]), B=this.anchors(byId[e.to]);
+    if(e.route==="outer-right"){
+      const railX=Math.max(A.right.x,B.right.x)+58;
+      return `M${A.right.x} ${A.right.y} L${railX} ${A.right.y} L${railX} ${B.left.y} L${B.left.x} ${B.left.y}`;
+    }
+    return `M${A.right.x} ${A.right.y} L${A.right.x+24} ${A.right.y} L${A.right.x+24} ${B.left.y} L${B.left.x} ${B.left.y}`;
+  }
+
+  anchors(n){
+    return {
+      top:{x:n.x+n.w/2,y:n.y},
+      bottom:{x:n.x+n.w/2,y:n.y+n.h},
+      left:{x:n.x,y:n.y+n.h/2},
+      right:{x:n.x+n.w,y:n.y+n.h/2},
+      center:{x:n.x+n.w/2,y:n.y+n.h/2}
+    };
+  }
+
+  audit(nodes,edges){
+    const sectionBottom=this.tokens.section.y+this.tokens.section.h;
+    const insideOk=nodes.every(n=>n.y+n.h+this.tokens.section.innerBottomPad<=sectionBottom);
+    const callbackOk=edges.some(e=>e.route==="outer-right" && e.labelAt.x > 900);
+    return {ok:insideOk && callbackOk,message:insideOk && callbackOk ? "Audit: passed lane spacing and callback-rail checks." : "Audit: failed lane spacing or callback-rail checks."};
+  }
+
+  defs(){
+    const c=this.tokens.color;
+    return `<defs>${["blue","green","orange","red","purple","gray"].map(k=>`
+<marker id="arrow-${k}" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="5" markerHeight="5" orient="auto">
+<path d="M0 0 L10 5 L0 10 Z" fill="${c[k]}"/>
+</marker>`).join("")}</defs>`;
+  }
+
+  tone(k){
+    return {
+      blue:{main:"#2563eb",bg:"#dbeafe",stroke:"#bfdbfe",base:"#dbeafe"},
+      green:{main:"#059669",bg:"#dcfce7",stroke:"#bbf7d0",base:"#dcfce7"},
+      orange:{main:"#ea580c",bg:"#ffedd5",stroke:"#fed7aa",base:"#ffedd5"},
+      red:{main:"#dc2626",bg:"#fee2e2",stroke:"#fecaca",base:"#fee2e2"},
+      purple:{main:"#7c3aed",bg:"#ede9fe",stroke:"#ddd6fe",base:"#ede9fe"},
+      gray:{main:"#334155",bg:"#f1f5f9",stroke:"#cbd5e1",base:"#e2e8f0"}
+    }[k];
+  }
+}
+customElements.define("payment-swimlane", PaymentSwimlane);
+</script>
+</body>
+</html>

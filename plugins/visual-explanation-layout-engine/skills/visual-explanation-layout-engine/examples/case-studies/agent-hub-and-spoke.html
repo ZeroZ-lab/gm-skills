@@ -1,0 +1,209 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Agent Hub And Spoke Example</title>
+<style>
+body{margin:0;background:#f5f7fa;font:16px/1.55 system-ui}
+main{max-width:1120px;margin:auto;padding:20px 16px}
+p{margin:0 0 12px;color:#475569}
+</style>
+</head>
+<body>
+<main>
+<p>This example uses hub-and-spoke topology to show a dominant coordinator and grouped surrounding capabilities.</p>
+<agent-hub-and-spoke></agent-hub-and-spoke>
+</main>
+
+<script>
+class AgentHubAndSpoke extends HTMLElement {
+  constructor(){ super(); this.attachShadow({mode:"open"}); }
+
+  get tokens(){
+    return {
+      canvas:{w:1120,h:860},
+      section:{x:56,y:130,w:1008,h:590,radius:16,pad:18,innerBottomPad:52,noteGap:28},
+      node:{w:184,h:92,radius:18,border:1.5,padX:18,padTop:18,padBottom:16,metaX:16,metaY:16,metaW:52,metaH:22,metaRadius:11,metaTextY:27,titleY:52,descY:74},
+      hub:{w:224,h:112,radius:22,border:1.5,metaX:20,metaY:18,metaW:62,metaH:24,metaRadius:12,metaTextY:30,titleY:62,descY:86},
+      font:{title:31,sectionLabel:13,nodeTitle:17,nodeDesc:12,edgeLabel:11,note:13,meta:11},
+      line:{width:3,baseWidth:7,arrow:5,labelH:22,labelPadX:12},
+      spacing:{rowGap:52,colGap:44,laneGap:18,labelRailGap:28,sectionToNoteGap:28},
+      color:{paper:"#fff",ink:"#0f172a",muted:"#64748b",border:"#d8e0ea",faint:"#eef2f7",blue:"#2563eb",green:"#059669",orange:"#ea580c",red:"#dc2626",purple:"#7c3aed",gray:"#334155"}
+    };
+  }
+
+  get spec(){
+    return {
+      title:"Agent Hub And Spoke",
+      topology:"hub-and-spoke",
+      note:"Audit: the orchestrator is the visual center; spokes are grouped, labeled specifically, and do not collapse into a web.",
+      legend:[
+        {tone:"purple",label:"orchestrator"},
+        {tone:"green",label:"execution spoke"},
+        {tone:"orange",label:"memory or policy spoke"},
+        {tone:"gray",label:"observation or guardrail spoke"}
+      ],
+      hub:{id:"hub",title:"ORCHESTRATOR",desc:"协调用户、工具与状态",tone:"purple",x:448,y:330,meta:"核心"},
+      nodes:[
+        {id:"user",title:"USER",desc:"触发任务",tone:"blue",x:152,y:346,meta:"入口"},
+        {id:"tools",title:"TOOLS",desc:"执行外部操作",tone:"green",x:816,y:214,meta:"执行"},
+        {id:"memory",title:"MEMORY",desc:"保存上下文",tone:"orange",x:816,y:360,meta:"状态"},
+        {id:"policy",title:"POLICY",desc:"控制权限",tone:"gray",x:816,y:506,meta:"约束"},
+        {id:"observe",title:"OBSERVE",desc:"记录行为",tone:"gray",x:448,y:570,meta:"追踪"}
+      ],
+      edges:[
+        {from:"user",to:"hub",tone:"blue",route:"right-left",label:"提交任务"},
+        {from:"hub",to:"tools",tone:"green",route:"right-left",label:"调度工具执行"},
+        {from:"hub",to:"memory",tone:"orange",route:"right-left",label:"读写上下文"},
+        {from:"hub",to:"policy",tone:"gray",route:"right-left",label:"读取权限约束"},
+        {from:"hub",to:"observe",tone:"gray",route:"bottom-top",label:"发送执行事件"}
+      ]
+    };
+  }
+
+  connectedCallback(){ this.render(); }
+
+  render(){
+    const t=this.tokens;
+    const hub={...this.spec.hub,w:t.hub.w,h:t.hub.h};
+    const nodes=this.spec.nodes.map(n=>({...n,w:t.node.w,h:t.node.h}));
+    const byId=Object.fromEntries([hub,...nodes].map(n=>[n.id,n]));
+    const edges=this.placeLabels(this.spec.edges,byId);
+    const audit=this.audit(edges);
+    this.shadowRoot.innerHTML = `
+<style>
+svg{width:100%;height:auto;display:block;background:#fff;border:1px solid ${t.color.border};border-radius:18px}
+text{font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+.edge-bg,.edge{fill:none;stroke-linecap:round;stroke-linejoin:round}
+.edge{stroke-width:${t.line.width}}
+.audit{font-size:${t.font.note}px;fill:${audit.ok ? t.color.green : t.color.red}}
+</style>
+<svg viewBox="0 0 ${t.canvas.w} ${t.canvas.h}">
+${this.defs()}
+<rect width="${t.canvas.w}" height="${t.canvas.h}" fill="${t.color.paper}"/>
+<text x="56" y="54" fill="${t.color.ink}" font-size="${t.font.title}" font-weight="850">${this.spec.title}</text>
+<text x="56" y="82" fill="${t.color.muted}" font-size="${t.font.note}">Topology: ${this.spec.topology}. The center node dominates and every spoke label is relationship-specific.</text>
+${this.renderSection()}
+${this.renderLegend()}
+<g>${edges.map(e=>this.renderEdge(e,byId,true)).join("")}</g>
+<g>${edges.map(e=>this.renderEdge(e,byId,false)).join("")}</g>
+<g>${edges.map(e=>this.renderLabel(e)).join("")}</g>
+<g>${this.renderHub(hub)}</g>
+<g>${nodes.map(n=>this.renderNode(n)).join("")}</g>
+<text class="audit" x="56" y="806">${audit.message}</text>
+<text x="56" y="830" fill="${t.color.muted}" font-size="${t.font.note}">${this.spec.note}</text>
+</svg>`;
+  }
+
+  placeLabels(edges,byId){
+    return edges.map(edge=>{
+      const A=this.anchors(byId[edge.from]);
+      const B=this.anchors(byId[edge.to]);
+      if(edge.route==="bottom-top"){
+        return {...edge,labelAt:{x:A.bottom.x+68,y:(A.bottom.y+B.top.y)/2}};
+      }
+      return {...edge,labelAt:{x:(A.right.x+B.left.x)/2,y:A.right.y-28}};
+    });
+  }
+
+  renderSection(){
+    const t=this.tokens;
+    return `<rect x="${t.section.x}" y="${t.section.y}" width="${t.section.w}" height="${t.section.h}" rx="${t.section.radius}" fill="#fff" stroke="${t.color.border}"/>
+<text x="${t.section.x+18}" y="${t.section.y+24}" fill="${t.color.muted}" font-size="${t.font.sectionLabel}" font-weight="700">hub</text>
+<text x="${t.section.x+804}" y="${t.section.y+24}" fill="${t.color.muted}" font-size="${t.font.sectionLabel}" font-weight="700">spokes</text>`;
+  }
+
+  renderLegend(){
+    const t=this.tokens;
+    return `<g transform="translate(726 50)">
+<rect width="346" height="74" rx="14" fill="#fff" stroke="${t.color.border}"/>
+<text x="16" y="20" fill="${t.color.muted}" font-size="${t.font.sectionLabel}" font-weight="700">Legend</text>
+${this.spec.legend.map((item,index)=>`
+<circle cx="${18 + (index%2)*162}" cy="${44 + Math.floor(index/2)*20}" r="7" fill="${this.tone(item.tone).main}"/>
+<text x="${30 + (index%2)*162}" y="${48 + Math.floor(index/2)*20}" fill="${t.color.muted}" font-size="${t.font.note}">${item.label}</text>`).join("")}
+</g>`;
+  }
+
+  renderHub(n){
+    const t=this.tokens, tone=this.tone(n.tone);
+    return `<g transform="translate(${n.x} ${n.y})">
+<rect width="${n.w}" height="${n.h}" rx="${t.hub.radius}" fill="${tone.bg}" stroke="${tone.stroke}" stroke-width="${t.hub.border}"/>
+<rect x="${t.hub.metaX}" y="${t.hub.metaY}" width="${t.hub.metaW}" height="${t.hub.metaH}" rx="${t.hub.metaRadius}" fill="${tone.main}"/>
+<text x="${t.hub.metaX+t.hub.metaW/2}" y="${t.hub.metaTextY}" text-anchor="middle" dominant-baseline="middle" fill="#fff" font-size="${t.font.meta}" font-weight="850">${n.meta}</text>
+<text x="${n.w/2}" y="${t.hub.titleY}" text-anchor="middle" dominant-baseline="middle" fill="${t.color.ink}" font-size="19" font-weight="850">${n.title}</text>
+<text x="${n.w/2}" y="${t.hub.descY}" text-anchor="middle" dominant-baseline="middle" fill="${t.color.muted}" font-size="${t.font.nodeDesc}">${n.desc}</text>
+</g>`;
+  }
+
+  renderNode(n){
+    const t=this.tokens, tone=this.tone(n.tone);
+    return `<g transform="translate(${n.x} ${n.y})">
+<rect width="${n.w}" height="${n.h}" rx="${t.node.radius}" fill="${tone.bg}" stroke="${tone.stroke}" stroke-width="${t.node.border}"/>
+<rect x="${t.node.metaX}" y="${t.node.metaY}" width="${t.node.metaW}" height="${t.node.metaH}" rx="${t.node.metaRadius}" fill="${tone.main}"/>
+<text x="${t.node.metaX+t.node.metaW/2}" y="${t.node.metaTextY}" text-anchor="middle" dominant-baseline="middle" fill="#fff" font-size="${t.font.meta}" font-weight="850">${n.meta}</text>
+<text x="${n.w/2}" y="${t.node.titleY}" text-anchor="middle" dominant-baseline="middle" fill="${t.color.ink}" font-size="${t.font.nodeTitle}" font-weight="850">${n.title}</text>
+<text x="${n.w/2}" y="${t.node.descY}" text-anchor="middle" dominant-baseline="middle" fill="${t.color.muted}" font-size="${t.font.nodeDesc}">${n.desc}</text>
+</g>`;
+  }
+
+  renderEdge(e,byId,base){
+    const t=this.tokens, tone=this.tone(e.tone), d=this.routePath(e,byId);
+    return base ? `<path class="edge-bg" d="${d}" stroke="${tone.base}" stroke-width="${t.line.baseWidth}"/>`
+                : `<path class="edge" d="${d}" stroke="${tone.main}" marker-end="url(#arrow-${e.tone})"/>`;
+  }
+
+  renderLabel(e){
+    const t=this.tokens, tone=this.tone(e.tone), p=e.labelAt, w=Math.max(72,e.label.length*12+t.line.labelPadX*2);
+    return `<rect x="${p.x-w/2}" y="${p.y-t.line.labelH/2}" width="${w}" height="${t.line.labelH}" rx="11" fill="#fff" stroke="${t.color.border}"/>
+<text x="${p.x}" y="${p.y}" text-anchor="middle" dominant-baseline="middle" fill="${tone.main}" font-size="${t.font.edgeLabel}" font-weight="800">${e.label}</text>`;
+  }
+
+  routePath(e,byId){
+    const A=this.anchors(byId[e.from]), B=this.anchors(byId[e.to]);
+    if(e.route==="bottom-top"){
+      return `M${A.bottom.x} ${A.bottom.y} L${A.bottom.x} ${B.top.y-18} L${B.top.x} ${B.top.y-18} L${B.top.x} ${B.top.y}`;
+    }
+    return `M${A.right.x} ${A.right.y} L${B.left.x} ${B.left.y}`;
+  }
+
+  anchors(n){
+    return {
+      top:{x:n.x+n.w/2,y:n.y},
+      bottom:{x:n.x+n.w/2,y:n.y+n.h},
+      left:{x:n.x,y:n.y+n.h/2},
+      right:{x:n.x+n.w,y:n.y+n.h/2},
+      center:{x:n.x+n.w/2,y:n.y+n.h/2}
+    };
+  }
+
+  audit(edges){
+    const specificLabels=edges.every(e=>e.label.length >= 4 && e.label !== "Uses");
+    const legendOk=this.spec.legend.length === 4;
+    const verticalSpoke=edges.some(e=>e.route==="bottom-top");
+    return {ok:specificLabels && legendOk && verticalSpoke,message:specificLabels && legendOk && verticalSpoke ? "Audit: passed legend, spoke labeling, and controlled route checks." : "Audit: failed legend, spoke labeling, or controlled route checks."};
+  }
+
+  defs(){
+    const c=this.tokens.color;
+    return `<defs>${["blue","green","orange","red","purple","gray"].map(k=>`
+<marker id="arrow-${k}" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="5" markerHeight="5" orient="auto">
+<path d="M0 0 L10 5 L0 10 Z" fill="${c[k]}"/>
+</marker>`).join("")}</defs>`;
+  }
+
+  tone(k){
+    return {
+      blue:{main:"#2563eb",bg:"#dbeafe",stroke:"#bfdbfe",base:"#dbeafe"},
+      green:{main:"#059669",bg:"#dcfce7",stroke:"#bbf7d0",base:"#dcfce7"},
+      orange:{main:"#ea580c",bg:"#ffedd5",stroke:"#fed7aa",base:"#ffedd5"},
+      red:{main:"#dc2626",bg:"#fee2e2",stroke:"#fecaca",base:"#fee2e2"},
+      purple:{main:"#7c3aed",bg:"#ede9fe",stroke:"#ddd6fe",base:"#ede9fe"},
+      gray:{main:"#334155",bg:"#f1f5f9",stroke:"#cbd5e1",base:"#e2e8f0"}
+    }[k];
+  }
+}
+customElements.define("agent-hub-and-spoke", AgentHubAndSpoke);
+</script>
+</body>
+</html>
