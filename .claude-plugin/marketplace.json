@@ -8,7 +8,7 @@
   "plugins": [
     {
       "name": "auto-skill-fit",
-      "description": "扫描项目技术栈，推荐并安装匹配的 agent skills 套装。Use when starting a new project, onboarding to a codebase, or when the user asks what skills should I install.",
+      "description": "扫描项目技术栈，推荐并安装匹配的 agent skills 套装。Use when starting a new project, onboarding to a codebase, or when the user asks \"what skills should I install\", \"recommend skills for this project\", \"auto setup skills\".",
       "homepage": "https://github.com/ZeroZ-lab/gm-skills/tree/main/plugins/auto-skill-fit",
       "source": "./plugins/auto-skill-fit"
     },
@@ -20,7 +20,7 @@
     },
     {
       "name": "gm-agent-docs",
-      "description": "为项目生成 CLAUDE.md 和 AGENTS.md，分析项目结构后输出命令优先、按任务分区的 agent 配置文件。",
+      "description": "为项目生成 CLAUDE.md 和 AGENTS.md，分析项目结构后输出命令优先、按任务分区的 agent 配置文件。Use when users want to create or improve CLAUDE.md, AGENTS.md, or agent instruction files for their project.",
       "homepage": "https://github.com/ZeroZ-lab/gm-skills/tree/main/plugins/gm-agent-docs",
       "source": "./plugins/gm-agent-docs"
     },
@@ -44,13 +44,13 @@
     },
     {
       "name": "gm-writing-topic-picker",
-      "description": "Use when there is one article idea that may or may not be worth writing, when choosing between several writing topics, or when a topic feels too ordinary and needs a sharper angle.",
+      "description": "判断写作选题值不值得写、找到更锋利的切入角度。Use when there is one article idea that may or may not be worth writing, when choosing between several writing topics, or when a topic feels too ordinary and needs a sharper angle.",
       "homepage": "https://github.com/ZeroZ-lab/gm-skills/tree/main/plugins/gm-writing-topic-picker",
       "source": "./plugins/gm-writing-topic-picker"
     },
     {
       "name": "gm-x-hook-writer",
-      "description": "Use when users need stronger X/Twitter hooks, first lines, or thread openers from a topic, draft, opinion, or observation without writing the full post.",
+      "description": "为 X/Twitter 推文生成更强的 hook 和首句，不负责写完整推文。Use when users need stronger X/Twitter hooks, first lines, or thread openers from a topic, draft, opinion, or observation without writing the full post.",
       "homepage": "https://github.com/ZeroZ-lab/gm-skills/tree/main/plugins/gm-x-hook-writer",
       "source": "./plugins/gm-x-hook-writer"
     },
