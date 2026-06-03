@@ -1,0 +1,20 @@
+{
+  "name": "visual-explanation-layout-engine",
+  "version": "1.1.0",
+  "description": "Turn complex ideas, workflows, systems, states, responsibilities, and causal structures into mobile-readable HTML + SVG visual explanations.",
+  "author": {
+    "name": "ZeroZ-lab",
+    "url": "https://github.com/ZeroZ-lab/gm-skills"
+  },
+  "homepage": "https://github.com/ZeroZ-lab/gm-skills/tree/main/plugins/visual-explanation-layout-engine",
+  "repository": "https://github.com/ZeroZ-lab/gm-skills.git",
+  "license": "MIT",
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "visual-explanation-layout-engine",
+    "shortDescription": "把复杂系统和流程转成可读的 HTML + SVG 解释图。",
+    "developerName": "ZeroZ-lab",
+    "category": "Productivity",
+    "websiteURL": "https://github.com/ZeroZ-lab/gm-skills/tree/main/plugins/visual-explanation-layout-engine"
+  }
+}

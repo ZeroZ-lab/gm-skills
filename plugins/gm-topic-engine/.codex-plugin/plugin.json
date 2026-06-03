@@ -1,0 +1,20 @@
+{
+  "name": "gm-topic-engine",
+  "version": "1.1.0",
+  "description": "从零散想法、笔记、评论、私信、收藏链接、草稿和亲身经历中提炼适合公众号与博客的可发布选题。补强切口、筛掉弱题、排序优先级，并输出结构化选题池。",
+  "author": {
+    "name": "ZeroZ-lab",
+    "url": "https://github.com/ZeroZ-lab/gm-skills"
+  },
+  "homepage": "https://github.com/ZeroZ-lab/gm-skills/tree/main/plugins/gm-topic-engine",
+  "repository": "https://github.com/ZeroZ-lab/gm-skills.git",
+  "license": "MIT",
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "gm-topic-engine",
+    "shortDescription": "把零散素材整理成可发布的长文选题池。",
+    "developerName": "ZeroZ-lab",
+    "category": "Productivity",
+    "websiteURL": "https://github.com/ZeroZ-lab/gm-skills/tree/main/plugins/gm-topic-engine"
+  }
+}

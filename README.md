@@ -4,122 +4,101 @@
 
 # gm-skills
 
-A curated collection of agent skills for development workflow, writing, visual explanation, and agent collaboration.
-
-This repository supports both Claude Code and Codex plugin layouts:
-
-- Claude Code reads `.claude-plugin/plugin.json`.
-- Codex reads `.codex-plugin/plugin.json`.
-- Both platforms share the same `skills/` directory.
+`gm-skills` is now a multi-plugin marketplace monorepo. Each plugin is independently installable from the same marketplace and owns its own skill source, manifests, and support files.
 
 ## Install
 
-### Claude Code 插件（推荐）
+### Claude Code
 
 ```bash
-# 添加 marketplace
-/plugin add-marketplace ZeroZ-lab/gm-skills
-
-# 安装插件
-/plugin install gm-skills@gm-skills
-
-# 或直接在 Discover 中搜索 gm-skills
-/plugin
+/plugin marketplace add ZeroZ-lab/gm-skills
+/plugin install gm-topic-engine@gm-skills
+/plugin install visual-explanation-layout-engine@gm-skills
 ```
 
-### npx skills（传统方式）
+You can install any listed plugin the same way:
 
-```bash
-npx skills add ZeroZ-lab/gm-skills
-```
+- `auto-skill-fit`
+- `cc-design`
+- `gm-agent-docs`
+- `gm-de-ai-article`
+- `gm-skill-quality`
+- `gm-topic-engine`
+- `gm-writing-topic-picker`
+- `gm-x-hook-writer`
+- `pngimg-download`
+- `ui-fork`
+- `visual-explanation-layout-engine`
 
-Install specific skills:
+### Codex
 
-```bash
-npx skills add ZeroZ-lab/gm-skills --skill auto-skill-fit
-npx skills add ZeroZ-lab/gm-skills --skill cc-design
-npx skills add ZeroZ-lab/gm-skills --skill gm-agent-docs
-npx skills add ZeroZ-lab/gm-skills --skill gm-de-ai-article
-npx skills add ZeroZ-lab/gm-skills --skill gm-skill-quality
-npx skills add ZeroZ-lab/gm-skills --skill gm-topic-engine
-npx skills add ZeroZ-lab/gm-skills --skill gm-writing-topic-picker
-npx skills add ZeroZ-lab/gm-skills --skill gm-x-hook-writer
-npx skills add ZeroZ-lab/gm-skills --skill pngimg-download
-npx skills add ZeroZ-lab/gm-skills --skill ui-fork
-npx skills add ZeroZ-lab/gm-skills --skill visual-explanation-layout-engine
-```
+Codex reads the marketplace from [.agents/plugins/marketplace.json](/Users/zhengjianqiao/workspace/gm-skills/.agents/plugins/marketplace.json). Add this repository as a marketplace, then install the specific plugin you want from `gm-skills`.
 
-Install to specific agents:
+## Plugins
 
-```bash
-npx skills add ZeroZ-lab/gm-skills -a claude-code
-npx skills add ZeroZ-lab/gm-skills -a kiro-cli -a cursor
-```
-
-List available skills without installing:
-
-```bash
-npx skills add ZeroZ-lab/gm-skills --list
-```
-
-## Skills
-
-| Skill | Description |
-|-------|-------------|
-| `auto-skill-fit` | 扫描项目技术栈，推荐并安装匹配的 agent skills 套装 |
-| `cc-design` | High-fidelity HTML design and prototype creation — slide decks, prototypes, landing pages, UI mockups |
-| `gm-agent-docs` | 分析项目结构，生成 CLAUDE.md 和 AGENTS.md |
-| `gm-de-ai-article` | 去除文章中的 AI 味，保住作者判断与表达控制权 |
-| `gm-skill-quality` | 审查 agent skills 质量，基于 6 轴体系对 SKILL.md 给出结构化审查报告和优化建议 |
-| `gm-topic-engine` | 从零散素材中提炼公众号/博客选题，排序优先级 |
-| `gm-writing-topic-picker` | 判断单个写作选题是否值得写，并给出更锋利的切入角度 |
-| `gm-x-hook-writer` | 为 X/Twitter 推文生成高停留率的开头 hook |
-| `pngimg-download` | Search and download free transparent PNG images from pngimg.com |
-| `ui-fork` | 从 UI 截图提炼产品级设计系统草案、design tokens 和后续 AI 延续设计约束 |
-| `visual-explanation-layout-engine` | 将复杂流程、系统、状态和责任结构转成移动端可读的 HTML + SVG 可视化解释图 |
-
-### auto-skill-fit
-
-扫描项目配置文件，识别技术栈，实时搜索 skills.sh，推荐最匹配的 skills 套装。在 Claude Code 中使用原生多选框：
-
-<img src="skills/auto-skill-fit/screenshot.png" width="500" alt="auto-skill-fit in Claude Code" />
-
-```bash
-npx skills add ZeroZ-lab/gm-skills --skill auto-skill-fit
-```
+| Plugin | Description |
+| --- | --- |
+| `auto-skill-fit` | 扫描项目技术栈，推荐并安装匹配的 agent skills 套装。 |
+| `cc-design` | High-fidelity HTML design and prototype creation for slides, prototypes, landing pages, and visual systems. |
+| `gm-agent-docs` | 为项目生成 CLAUDE.md 和 AGENTS.md，输出命令优先、按任务分区的 agent 配置文件。 |
+| `gm-de-ai-article` | 去除公众号、博客和 newsletter 草稿里的模板化 AI 写作痕迹，保住作者判断与表达控制权。 |
+| `gm-skill-quality` | 审查 agent skills 质量，对 SKILL.md 给出结构化审查报告和优化建议。 |
+| `gm-topic-engine` | 从零散想法、笔记和经历中提炼适合公众号与博客的可发布选题池。 |
+| `gm-writing-topic-picker` | 判断单个写作题目是否值得写，并给出更锋利的切入角度。 |
+| `gm-x-hook-writer` | 为 X/Twitter 推文和 thread 生成更强的开头 hook 和首句。 |
+| `pngimg-download` | Search and download free transparent PNG images from pngimg.com. |
+| `ui-fork` | 从 UI 截图提炼设计系统草案、组件规则、design tokens 和 AI 延续设计约束。 |
+| `visual-explanation-layout-engine` | Turn complex systems, flows, and state changes into mobile-readable HTML + SVG visual explanations. |
 
 ## Structure
 
-`cc-design` is vendored as a normal directory, not a submodule.
-
-```
+```text
 gm-skills/
+├── .agents/
+│   └── plugins/
+│       └── marketplace.json
 ├── .claude-plugin/
 │   ├── marketplace.json
-│   ├── plugin.json
 │   └── release.json
-├── .codex-plugin/
-│   └── plugin.json
-├── skills/
+├── plugins/
 │   ├── auto-skill-fit/
+│   │   ├── .claude-plugin/plugin.json
+│   │   ├── .codex-plugin/plugin.json
+│   │   └── skills/auto-skill-fit/
 │   ├── cc-design/
-│   ├── gm-agent-docs/
-│   ├── gm-de-ai-article/
-│   ├── gm-skill-quality/
-│   ├── gm-topic-engine/
-│   ├── gm-writing-topic-picker/
-│   ├── gm-x-hook-writer/
-│   ├── pngimg-download/
-│   ├── ui-fork/
-│   └── visual-explanation-layout-engine/
+│   │   ├── .claude-plugin/plugin.json
+│   │   ├── .codex-plugin/plugin.json
+│   │   └── skills/cc-design/
+│   └── ...
+├── scripts/
+│   ├── sync-plugin-package.mjs
+│   └── validate-plugin-package.mjs
 └── README.md
 ```
 
-## Recommended Skills
+## Development
 
-其他值得安装的高质量 skills：
+Each plugin is its own source of truth:
+
+- Edit skill content in `plugins/<plugin-name>/skills/<plugin-name>/`
+- Keep support files inside the same plugin package
+- Do not add cross-plugin relative dependencies
+
+Sync marketplace metadata and manifest versions:
 
 ```bash
-npx skills add garrytan/gstack              # Garry Tan 的全栈开发 skill（QA 测试、代码审查、设计检查）
-npx skills add remotion-dev/skills           # 用 React 编程式生成视频
+npm run plugin:sync
 ```
+
+Validate the whole monorepo:
+
+```bash
+npm run plugin:validate
+```
+
+## Release Model
+
+- Root `.claude-plugin/marketplace.json` is the Claude marketplace catalog.
+- Root `.agents/plugins/marketplace.json` is the Codex marketplace catalog.
+- Each `plugins/<plugin-name>/` directory is a self-contained published plugin.
+- The repository uses a single version from [package.json](/Users/zhengjianqiao/workspace/gm-skills/package.json); `npm run plugin:sync` propagates it to every plugin manifest.

@@ -1,0 +1,20 @@
+{
+  "name": "gm-de-ai-article",
+  "version": "1.1.0",
+  "description": "用于修改公众号文章、博客草稿、newsletter 与观点文中明显模板化、套话化、过度工整的 AI 写作痕迹，并保住作者判断、经历与表达控制权。",
+  "author": {
+    "name": "ZeroZ-lab",
+    "url": "https://github.com/ZeroZ-lab/gm-skills"
+  },
+  "homepage": "https://github.com/ZeroZ-lab/gm-skills/tree/main/plugins/gm-de-ai-article",
+  "repository": "https://github.com/ZeroZ-lab/gm-skills.git",
+  "license": "MIT",
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "gm-de-ai-article",
+    "shortDescription": "去除长文草稿里的模板化 AI 写作痕迹。",
+    "developerName": "ZeroZ-lab",
+    "category": "Productivity",
+    "websiteURL": "https://github.com/ZeroZ-lab/gm-skills/tree/main/plugins/gm-de-ai-article"
+  }
+}

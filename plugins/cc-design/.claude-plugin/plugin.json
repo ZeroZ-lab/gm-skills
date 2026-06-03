@@ -1,0 +1,26 @@
+{
+  "name": "cc-design",
+  "description": "High-fidelity HTML design skill with structured design planning, Iron Law guardrails, and verification-first delivery",
+  "version": "1.1.0",
+  "author": {
+    "name": "ZeroZ-lab",
+    "url": "https://github.com/ZeroZ-lab/gm-skills"
+  },
+  "homepage": "https://github.com/ZeroZ-lab/gm-skills/tree/main/plugins/cc-design",
+  "repository": "https://github.com/ZeroZ-lab/gm-skills.git",
+  "license": "MIT",
+  "compatibility": {
+    "claude-code": ">=1.0.0",
+    "codex": ">=0.1.0"
+  },
+  "skills": [
+    "./skills/cc-design"
+  ],
+  "interface": {
+    "displayName": "cc-design",
+    "shortDescription": "High-fidelity HTML design and prototype creation.",
+    "developerName": "ZeroZ-lab",
+    "category": "Productivity",
+    "websiteURL": "https://github.com/ZeroZ-lab/gm-skills/tree/main/plugins/cc-design"
+  }
+}

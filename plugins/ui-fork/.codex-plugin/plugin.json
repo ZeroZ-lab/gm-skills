@@ -1,0 +1,20 @@
+{
+  "name": "ui-fork",
+  "version": "1.1.0",
+  "description": "从一张或多张 UI 截图中提炼产品级设计系统草案、组件规则、design tokens 和后续 AI 延续设计约束。",
+  "author": {
+    "name": "ZeroZ-lab",
+    "url": "https://github.com/ZeroZ-lab/gm-skills"
+  },
+  "homepage": "https://github.com/ZeroZ-lab/gm-skills/tree/main/plugins/ui-fork",
+  "repository": "https://github.com/ZeroZ-lab/gm-skills.git",
+  "license": "MIT",
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "ui-fork",
+    "shortDescription": "从 UI 截图提炼设计系统草案和 AI 续写约束。",
+    "developerName": "ZeroZ-lab",
+    "category": "Productivity",
+    "websiteURL": "https://github.com/ZeroZ-lab/gm-skills/tree/main/plugins/ui-fork"
+  }
+}

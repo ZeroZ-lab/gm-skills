@@ -1,0 +1,140 @@
+{
+  "name": "gm-skills",
+  "interface": {
+    "displayName": "gm-skills Marketplace"
+  },
+  "plugins": [
+    {
+      "name": "auto-skill-fit",
+      "source": {
+        "source": "local",
+        "path": "./plugins/auto-skill-fit"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Productivity"
+    },
+    {
+      "name": "cc-design",
+      "source": {
+        "source": "local",
+        "path": "./plugins/cc-design"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Productivity"
+    },
+    {
+      "name": "gm-agent-docs",
+      "source": {
+        "source": "local",
+        "path": "./plugins/gm-agent-docs"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Productivity"
+    },
+    {
+      "name": "gm-de-ai-article",
+      "source": {
+        "source": "local",
+        "path": "./plugins/gm-de-ai-article"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Productivity"
+    },
+    {
+      "name": "gm-skill-quality",
+      "source": {
+        "source": "local",
+        "path": "./plugins/gm-skill-quality"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Productivity"
+    },
+    {
+      "name": "gm-topic-engine",
+      "source": {
+        "source": "local",
+        "path": "./plugins/gm-topic-engine"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Productivity"
+    },
+    {
+      "name": "gm-writing-topic-picker",
+      "source": {
+        "source": "local",
+        "path": "./plugins/gm-writing-topic-picker"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Productivity"
+    },
+    {
+      "name": "gm-x-hook-writer",
+      "source": {
+        "source": "local",
+        "path": "./plugins/gm-x-hook-writer"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Productivity"
+    },
+    {
+      "name": "pngimg-download",
+      "source": {
+        "source": "local",
+        "path": "./plugins/pngimg-download"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Productivity"
+    },
+    {
+      "name": "ui-fork",
+      "source": {
+        "source": "local",
+        "path": "./plugins/ui-fork"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Productivity"
+    },
+    {
+      "name": "visual-explanation-layout-engine",
+      "source": {
+        "source": "local",
+        "path": "./plugins/visual-explanation-layout-engine"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Productivity"
+    }
+  ]
+}

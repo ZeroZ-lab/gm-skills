@@ -1,0 +1,26 @@
+{
+  "name": "gm-writing-topic-picker",
+  "version": "1.1.0",
+  "description": "Use when there is one article idea that may or may not be worth writing, when choosing between several writing topics, or when a topic feels too ordinary and needs a sharper angle.",
+  "author": {
+    "name": "ZeroZ-lab",
+    "url": "https://github.com/ZeroZ-lab/gm-skills"
+  },
+  "homepage": "https://github.com/ZeroZ-lab/gm-skills/tree/main/plugins/gm-writing-topic-picker",
+  "repository": "https://github.com/ZeroZ-lab/gm-skills.git",
+  "license": "MIT",
+  "compatibility": {
+    "claude-code": ">=1.0.0",
+    "codex": ">=0.1.0"
+  },
+  "skills": [
+    "./skills/gm-writing-topic-picker"
+  ],
+  "interface": {
+    "displayName": "gm-writing-topic-picker",
+    "shortDescription": "判断一个写作选题值不值得写，并 sharpen 角度。",
+    "developerName": "ZeroZ-lab",
+    "category": "Productivity",
+    "websiteURL": "https://github.com/ZeroZ-lab/gm-skills/tree/main/plugins/gm-writing-topic-picker"
+  }
+}

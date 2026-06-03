@@ -1,0 +1,20 @@
+{
+  "name": "auto-skill-fit",
+  "version": "1.1.0",
+  "description": "扫描项目技术栈，推荐并安装匹配的 agent skills 套装。Use when starting a new project, onboarding to a codebase, or when the user asks what skills should I install.",
+  "author": {
+    "name": "ZeroZ-lab",
+    "url": "https://github.com/ZeroZ-lab/gm-skills"
+  },
+  "homepage": "https://github.com/ZeroZ-lab/gm-skills/tree/main/plugins/auto-skill-fit",
+  "repository": "https://github.com/ZeroZ-lab/gm-skills.git",
+  "license": "MIT",
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "auto-skill-fit",
+    "shortDescription": "扫描项目技术栈并推荐匹配的 agent skills。",
+    "developerName": "ZeroZ-lab",
+    "category": "Productivity",
+    "websiteURL": "https://github.com/ZeroZ-lab/gm-skills/tree/main/plugins/auto-skill-fit"
+  }
+}

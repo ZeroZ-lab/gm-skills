@@ -1,19 +1,76 @@
 {
   "name": "gm-skills",
-  "description": "Agent skills 集合 — 设计、写作、技能审查、技术栈推荐和可视化解释布局",
+  "description": "ZeroZ-lab agent plugin marketplace for design, writing, agent workflow, and visual explanation tools.",
   "owner": {
     "name": "ZeroZ-lab"
   },
   "homepage": "https://github.com/ZeroZ-lab/gm-skills",
   "plugins": [
     {
-      "name": "gm-skills",
-      "description": "Agent skills 集合 — cc-design 设计、gm-skill-quality 技能审查、auto-skill-fit 技术栈推荐、内容写作、agent 配置和可视化解释布局",
-      "homepage": "https://github.com/ZeroZ-lab/gm-skills",
-      "source": {
-        "source": "url",
-        "url": "https://github.com/ZeroZ-lab/gm-skills.git"
-      }
+      "name": "auto-skill-fit",
+      "description": "扫描项目技术栈，推荐并安装匹配的 agent skills 套装。Use when starting a new project, onboarding to a codebase, or when the user asks what skills should I install.",
+      "homepage": "https://github.com/ZeroZ-lab/gm-skills/tree/main/plugins/auto-skill-fit",
+      "source": "./plugins/auto-skill-fit"
+    },
+    {
+      "name": "cc-design",
+      "description": "High-fidelity HTML design skill with structured design planning, Iron Law guardrails, and verification-first delivery",
+      "homepage": "https://github.com/ZeroZ-lab/gm-skills/tree/main/plugins/cc-design",
+      "source": "./plugins/cc-design"
+    },
+    {
+      "name": "gm-agent-docs",
+      "description": "为项目生成 CLAUDE.md 和 AGENTS.md，分析项目结构后输出命令优先、按任务分区的 agent 配置文件。",
+      "homepage": "https://github.com/ZeroZ-lab/gm-skills/tree/main/plugins/gm-agent-docs",
+      "source": "./plugins/gm-agent-docs"
+    },
+    {
+      "name": "gm-de-ai-article",
+      "description": "用于修改公众号文章、博客草稿、newsletter 与观点文中明显模板化、套话化、过度工整的 AI 写作痕迹，并保住作者判断、经历与表达控制权。",
+      "homepage": "https://github.com/ZeroZ-lab/gm-skills/tree/main/plugins/gm-de-ai-article",
+      "source": "./plugins/gm-de-ai-article"
+    },
+    {
+      "name": "gm-skill-quality",
+      "description": "审查 agent skills 质量，对 SKILL.md 给出结构化审查报告和优化建议。",
+      "homepage": "https://github.com/ZeroZ-lab/gm-skills/tree/main/plugins/gm-skill-quality",
+      "source": "./plugins/gm-skill-quality"
+    },
+    {
+      "name": "gm-topic-engine",
+      "description": "从零散想法、笔记、评论、私信、收藏链接、草稿和亲身经历中提炼适合公众号与博客的可发布选题。补强切口、筛掉弱题、排序优先级，并输出结构化选题池。",
+      "homepage": "https://github.com/ZeroZ-lab/gm-skills/tree/main/plugins/gm-topic-engine",
+      "source": "./plugins/gm-topic-engine"
+    },
+    {
+      "name": "gm-writing-topic-picker",
+      "description": "Use when there is one article idea that may or may not be worth writing, when choosing between several writing topics, or when a topic feels too ordinary and needs a sharper angle.",
+      "homepage": "https://github.com/ZeroZ-lab/gm-skills/tree/main/plugins/gm-writing-topic-picker",
+      "source": "./plugins/gm-writing-topic-picker"
+    },
+    {
+      "name": "gm-x-hook-writer",
+      "description": "Use when users need stronger X/Twitter hooks, first lines, or thread openers from a topic, draft, opinion, or observation without writing the full post.",
+      "homepage": "https://github.com/ZeroZ-lab/gm-skills/tree/main/plugins/gm-x-hook-writer",
+      "source": "./plugins/gm-x-hook-writer"
+    },
+    {
+      "name": "pngimg-download",
+      "description": "Search and download free transparent PNG images from pngimg.com. Use when the user wants transparent backgrounds, clipart, or icons for design projects.",
+      "homepage": "https://github.com/ZeroZ-lab/gm-skills/tree/main/plugins/pngimg-download",
+      "source": "./plugins/pngimg-download"
+    },
+    {
+      "name": "ui-fork",
+      "description": "从一张或多张 UI 截图中提炼产品级设计系统草案、组件规则、design tokens 和后续 AI 延续设计约束。",
+      "homepage": "https://github.com/ZeroZ-lab/gm-skills/tree/main/plugins/ui-fork",
+      "source": "./plugins/ui-fork"
+    },
+    {
+      "name": "visual-explanation-layout-engine",
+      "description": "Turn complex ideas, workflows, systems, states, responsibilities, and causal structures into mobile-readable HTML + SVG visual explanations.",
+      "homepage": "https://github.com/ZeroZ-lab/gm-skills/tree/main/plugins/visual-explanation-layout-engine",
+      "source": "./plugins/visual-explanation-layout-engine"
     }
   ]
 }

@@ -1,46 +1,51 @@
 # gm-skills
 
-Agent skills 集合，`npx skills add ZeroZ-lab/gm-skills` 安装。Markdown + Shell，无构建步骤。
+`gm-skills` is a multi-plugin marketplace monorepo. The root of the repo owns marketplace metadata only; each plugin owns its own skill source and support files.
 
-## 常用命令
+## Layout
+
+- Claude marketplace: `.claude-plugin/marketplace.json`
+- Codex marketplace: `.agents/plugins/marketplace.json`
+- Plugin source of truth: `plugins/<plugin-name>/`
+- Canonical skill entrypoint: `plugins/<plugin-name>/skills/<plugin-name>/SKILL.md`
+
+## Common Commands
 
 ```bash
-npx skills add . --list                              # 验证所有 skill 可发现
-grep -rn '^name:\|^description:' skills/*/SKILL.md   # 检查 frontmatter
-cat .claude-plugin/plugin.json                       # 检查插件清单（版本号同步）
+npm run plugin:sync
+npm run plugin:validate
 ```
 
-## 写代码时
+Use `npm run plugin:sync` after adding or renaming plugins. It updates every plugin manifest version and regenerates both marketplace catalogs.
 
-- 新 skill 放 `skills/<skill-name>/SKILL.md`，`name` 与目录名一致
-- 所有 skill 都直接在本仓库维护，`cc-design` 也是普通目录
+Use `npm run plugin:validate` before commit. It verifies:
 
-```yaml
-# ✅
----
-name: my-skill
-description: 具体说明做什么、何时触发，包含关键词
----
+1. Every plugin has `.claude-plugin/plugin.json` and `.codex-plugin/plugin.json`
+2. Every plugin has `skills/<plugin-name>/SKILL.md`
+3. Claude marketplace and Codex marketplace both list every plugin
+4. All plugin manifest versions match `package.json`
+5. Referenced `references/`, `examples/`, `templates/`, and `assets/` stay inside each plugin
 
-# ❌
----
-name: My Skill
-description: A useful skill
----
-```
+## Adding A Plugin
 
-可选字段：`argument-hint`、`context: fork`、`allowed-tools`、`disable-model-invocation: true`
+1. Create `plugins/<plugin-name>/`
+2. Add `.claude-plugin/plugin.json`
+3. Add `.codex-plugin/plugin.json`
+4. Add `skills/<plugin-name>/SKILL.md`
+5. Keep all plugin-specific support files in that same plugin
+6. Run `npm run plugin:sync`
+7. Run `npm run plugin:validate`
 
-## 完成标准
+## Editing Rules
 
-1. `npx skills add . --list` 输出包含新 skill 名称
-2. `cat .claude-plugin/plugin.json` 的 version 字段与 package.json 一致
-3. README.md 的 Skills 表格、Install 命令、Structure 已同步更新
-4. commit message: `type(scope): description`
+- Do not reintroduce a root `skills/` source tree
+- Do not create a new aggregate plugin like `plugins/gm-skills/`
+- Do not point manifests at paths outside their plugin directory
+- If a skill uses `references/`, `examples/`, `templates/`, or `assets/`, keep those files inside the plugin package
 
-## 卡住时
+## Complete Criteria
 
-- npx skills 找不到 skill → 检查 SKILL.md frontmatter 是否有 `name` 和 `description`
-- ✅ 必须做：改完 skill 后跑 `npx skills add . --list` 验证
-- ⚠️ 先问：删除已有 skill、修改安装入口
-- 🚫 绝不：force push main
+1. The target plugin is independently installable from the root marketplace
+2. `npm run plugin:sync` is clean
+3. `npm run plugin:validate` passes
+4. README and marketplace descriptions match the new plugin or change
