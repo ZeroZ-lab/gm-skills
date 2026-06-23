@@ -1,0 +1,3 @@
+# Deliver identity and basic Actions before sync
+
+Stage 1 delivers Unified Inventory, Codex Plugin, Claude Code Plugin, and `npx skills` adapters, Identity Resolution, list, doctor, install, uninstall, enable, disable, Registry Verification, and Discovery Verification; ZCode is reported as unmanaged. Stage 2 adds Coverage Sync, Revision Sync, Format Alignment, Source Claim, Invocation Verification, and further Runtime adapters when stable Native Installer and verification evidence exist. Correct identity and native-operation coordination are prerequisites for safe synchronization and migration, so the later workflows must not drive shortcuts into the Stage 1 model.

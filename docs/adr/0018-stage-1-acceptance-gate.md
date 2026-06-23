@@ -1,0 +1,3 @@
+# Stage 1 acceptance gate
+
+Stage 1 is complete only when Codex Plugin, Claude Code Plugin, and `npx skills` produce Observed Evidence; matching Remote Source plus canonical `SKILL.md` path converges across all three formats; Capability, Package, and Runtime Views agree; install, uninstall, enable, disable, and repair use only Native Installers; doctor remains read-only; Duplicate Exposure, Revision drift, Unresolved Identity, and broken Installation are detected; Registry and Discovery Verification produce evidence; synthetic Inventory Fixtures pass; a real-machine smoke test is read-only; ZCode is reported as unmanaged; and Redacted Inventory exposes no local sensitive data.

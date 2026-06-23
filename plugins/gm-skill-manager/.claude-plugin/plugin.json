@@ -1,7 +1,7 @@
 {
   "name": "gm-skill-manager",
   "version": "1.1.2",
-  "description": "统一盘点、安装、卸载和整理一台电脑上的 Codex、Claude Code、ZCode skills 与 plugins。",
+  "description": "统一盘点和协调 Codex Plugin、Claude Code Plugin 与 npx skills，ZCode 仅报告为 unmanaged。",
   "author": {
     "name": "ZeroZ-lab",
     "url": "https://github.com/ZeroZ-lab/gm-skills"
@@ -18,7 +18,7 @@
   ],
   "interface": {
     "displayName": "gm-skill-manager",
-    "shortDescription": "统一管理本机 Codex、Claude Code 和 ZCode skills。",
+    "shortDescription": "协调 Codex、Claude Code 与 npx skills。",
     "developerName": "ZeroZ-lab",
     "category": "Productivity",
     "websiteURL": "https://github.com/ZeroZ-lab/gm-skills/tree/main/plugins/gm-skill-manager"

@@ -1,35 +1,24 @@
 ---
 name: gm-skill-manager
-description: 统一盘点、安装、卸载和整理一台电脑上的 Codex、Claude Code、ZCode skills 与 plugins。Use when the operator asks to list local skills, diagnose duplicate names or dead links, install one capability into multiple runtimes, remove an installation safely, or clean up a disorganized multi-runtime skill setup.
+description: 统一盘点和协调 Codex Plugin、Claude Code Plugin 与 npx skills。Use when the operator asks to list or diagnose installed skills, inspect duplicate exposures or revision drift, install or remove a remote skill package, enable or disable an exposure, or repair native installation records without creating a fourth installer.
 ---
 
 # GM Skill Manager
 
-管理本机多个 coding-agent runtime 的 skills 和 plugins。以 Source of Truth 判断能力身份；名称只用于展示，不能用于去重或删除决策。
+作为可执行协调者管理 Skills。Codex、Claude Code 与 `npx skills` 的 Native Installer 和原生记录始终权威；Manager 只生成当前 Unified Inventory、制定 Execution Plan、调用原生机制并验证结果。
 
-## 核心规则
+## 不可违反的规则
 
-1. 先盘点，后修改。任何 install 或 uninstall 前都运行只读 inventory。
-2. 按 Source of Truth 分组。同名但来源不同的条目保持分离。
-3. 优先使用 runtime 原生命令或 UI。不要直接修改 plugin registry、cache、SQLite 或 runtime 私有状态。
-4. loose skill 使用符号链接，不复制源目录，不覆盖已有路径。
-5. built-in skill 只报告，不安装、不卸载。
-6. 不执行 `rm -rf`。卸载 loose skill 时只删除已确认的符号链接，不删除链接目标。
-7. 对“整理一下”这类宽泛请求，只输出清理计划并等待确认；明确指定目标、runtime 和动作的安装请求可在预检后执行。
+1. 先 inventory，再 Action，Action 后重新 inventory。
+2. Capability Identity 只由 normalized Remote Source + canonical `SKILL.md` path 决定；Revision、名称、Runtime 和 Package Format 不参与身份。
+3. Runtime adapter 只产 Observed Evidence；只有 Identity Resolution 可以裁决相同 Capability。
+4. 不直接修改 plugin registry、cache、`skills-lock`、私有数据库或 Runtime links。
+5. 不复制本地目录模拟安装；普通安装只接受 GitHub/Git Remote Source。
+6. doctor 只读；repair 是独立 mutation Action。
+7. Facts、Findings、Recommendations、Execution Plan 分开输出。
+8. Stage 1 管理 Codex Plugin、Claude Code Plugin、`npx skills`；ZCode 仅报告 unmanaged。
 
-## 工作流
-
-### 1. 明确动作
-
-将请求归类为：
-
-- `list`：只读盘点、去重、找死链或冲突。
-- `install`：把一个已确认来源的 loose skill 或 plugin 安装到目标 runtime。
-- `uninstall`：移除指定 runtime 中的一个安装。
-
-若用户只给出名称但存在多个 Source of Truth，停止并展示候选来源，不猜。
-
-### 2. 运行 inventory
+## 生成 Unified Inventory
 
 从本 skill 目录运行：
 
@@ -37,94 +26,109 @@ description: 统一盘点、安装、卸载和整理一台电脑上的 Codex、C
 python3 scripts/inventory.py --json
 ```
 
-使用返回的 `entries` 和 `warnings`：
-
-- 以 `source.id` 聚合 capability。
-- 单独标出 `dead-link`、`missing-skill-md`、`missing-cache` 和 `cached-only`。
-- 不把 `cached-only` 当成已安装 plugin。
-- runtime 私有命令失败时保留 warning，并使用脚本提供的只读 fallback 结果。
-
-需要理解路径、scope、原生命令或 ZCode 限制时，读取 [references/runtime-map.md](references/runtime-map.md)。
-
-### 3. 生成变更计划
-
-在写操作前列出：
-
-- capability 的 Source of Truth；
-- 目标 runtime 和 packing mechanism；
-- 将创建、删除或由原生命令维护的路径；
-- 冲突、scope 和数据保留行为；
-- 验证命令。
-
-如果是批量整理、卸载、死链清理、跨多个 runtime 的同步，先获得 Operator 对这份精确计划的确认。
-
-### 4. 执行动作
-
-#### 安装 loose skill
-
-1. 确认源目录存在且包含 `SKILL.md`。
-2. 解析源目录真实路径和 git Source of Truth。
-3. 选择 runtime 的 loose-skill 根目录。
-4. 若目标不存在，创建父目录后建立绝对符号链接。
-5. 若目标已存在：
-   - 解析到同一 Source of Truth：报告 `already-installed`；
-   - 解析到其他来源：报告冲突并停止；
-   - 是普通目录：不要覆盖或移动。
-
-#### 安装 plugin
-
-- Codex：使用 `codex plugin marketplace ...` 和 `codex plugin add ... --json`。
-- Claude Code：使用 `claude plugin marketplace ...` 和 `claude plugin install ... --scope ...`；安装后提示 `/reload-plugins`。
-- ZCode：只使用 ZCode 的 plugin UI。没有可用 UI 自动化能力时，给出精确人工步骤并停止；不要写 `~/.zcode/cli/plugins`。
-
-#### 卸载 loose skill
-
-1. 再次确认 install path、链接目标和 Source of Truth。
-2. 目标是符号链接时，只删除该链接。
-3. 目标是死链时，仅在计划中明确列出后删除。
-4. 目标是普通目录时停止，除非 Operator 明确说明该目录本身就是要删除的 Source of Truth；这超出默认 MVP。
-
-#### 卸载 plugin
-
-- Codex：使用 `codex plugin remove <plugin>@<marketplace> --json`。
-- Claude Code：使用 `claude plugin uninstall <plugin>@<marketplace> --scope <scope> --keep-data`。只有 Operator 明确要求清除数据时才省略 `--keep-data`。
-- ZCode：只通过 ZCode plugin UI 卸载。
-
-### 5. 验证
-
-修改后重新运行：
+可选视图：
 
 ```bash
-python3 scripts/inventory.py --json
+python3 scripts/inventory.py --view capability
+python3 scripts/inventory.py --view package
+python3 scripts/inventory.py --view runtime
+python3 scripts/inventory.py --redact --json
+python3 scripts/inventory.py --project /explicit/project/root --json
 ```
 
-验证：
+默认使用 Capability View。机器可读输出的 `schema_version` 是契约版本，required field 的未知值显式写 `unknown`。
+Project scope 只在 Operator 通过 `--project` 明确给出根目录时读取；不得从当前工作目录推断。
 
-- 目标 runtime 中安装状态符合请求；
-- 没有新增 dead link；
-- 同名不同 Source of Truth 未被误合并；
-- plugin 原生命令成功，或 UI 状态已重新读取；
-- 未触碰未列入计划的 scope、目录或 runtime。
+Inventory 必须能够表达：
+
+- Installation Package、Package Format、Installation、Capability、Exposure；
+- Resolved / Unresolved Identity；
+- Installation State 与 Exposure State；
+- Revision Relation；
+- Registry / Discovery Verification；
+- Duplicate Exposure、Revision drift、broken Installation；
+- ZCode unmanaged。
+
+## Action 路由
+
+执行任何 mutation 前读取 [references/action-contract.md](references/action-contract.md)。需要 runtime 路径和命令时读取 [references/runtime-map.md](references/runtime-map.md)。
+
+### 只读 Action
+
+- `list`：生成三种视图。
+- `doctor`：报告 installer、identity、state、scope、manifest 与 exposure 问题。
+- Remote catalog / Package Impact：读取已知 Remote Source，不搜索未知仓库猜来源。
+
+### Mutation Action
+
+- `install`
+- `uninstall`
+- `enable`
+- `disable`
+- `repair`
+
+Mutation 必须：
+
+1. 明确 Capability 或 Installation Package。
+2. 明确目标 Runtime；不默认 Codex + Claude。
+3. 多 scope 可选时让 Operator 明确选择。
+4. 预览 Package Impact 和受影响 Capabilities。
+5. 选择目标 Runtime 最原生的 Package Format；没有时才使用 `npx skills`。
+6. 使用 Native Installer 或 Runtime 原生 Plugin UI。
+7. 每步后立即做 Registry Verification 和 Discovery Verification。
+8. 失败即停止，重新 inventory，报告 Partial Success；不自动回滚。
+
+明确请求已包含 Action、目标、Runtime 和 scope 时可视为 Action Authorization。若预检发现额外 Capability、可执行扩展、数据删除、project/local scope 或批量影响，必须再次确认。
+
+## Native Installer 选择
+
+```text
+Codex 有 codex-plugin format
+  → codex plugin / Codex Plugin UI
+
+Claude Code 有 claude-code-plugin format
+  → claude plugin
+
+目标 Runtime 无原生 Plugin format，但 npx skills 支持
+  → npx skills
+
+均不支持
+  → blocked: unsupported-format
+```
+
+一个 Capability 在同一 Runtime 同时由 Plugin 与 `npx skills` 暴露时，不推断加载优先级：标记 `ambiguous`，推荐保留原生 Plugin，但不自动删除。
+
+## 完成验证
+
+Action 完成必须同时满足：
+
+- Native Installer 返回成功；
+- 原生 registry / lock 反映目标状态；
+- Runtime 能可靠发现 Capability；
+- 没有新增 Duplicate Exposure 或 broken Installation；
+- 实际影响未超出已授权 Execution Plan。
+
+无法完成 Discovery Verification 时，Exposure State 保持 `unknown`，不得声称 active。
+安装目录中存在 `SKILL.md` 只证明文件/manifest evidence，不构成 Discovery Verification。
 
 ## 输出契约
 
-默认返回：
-
 ```markdown
-## Inventory
-- runtime、packing、name、scope、status、Source of Truth
+## Facts
+- 当前 Native Installer evidence 和 Unified Inventory 状态
 
 ## Findings
-- dead links、名称冲突、重复安装、无法解析来源
+- identity、revision、installation、exposure、scope 问题
 
-## Changes
-- 已执行的精确动作；list 请求写“无修改”
+## Recommendations
+- 非执行建议
+
+## Execution Plan
+- 仅在 Operator 选择 Action 后生成
 
 ## Verification
-- 运行的命令和结果
+- Registry / Discovery evidence
 
 ## Risks
-- fallback 结果、未验证 UI、未知 registry 版本或保留数据
+- unknown、unmanaged、partial success、未验证内容
 ```
-
-明确区分事实、推断和建议。不要把 cache 存在推断为 plugin 已安装。

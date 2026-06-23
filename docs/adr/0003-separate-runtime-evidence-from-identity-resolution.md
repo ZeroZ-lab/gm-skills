@@ -1,0 +1,3 @@
+# Separate Runtime Evidence from Identity Resolution
+
+Runtime adapters report the Observed Evidence they can verify, while a dedicated Source of Truth resolution module produces Identity Resolution. Inventory retains both: evidence explains what the runtime exposed, and identity records whether a Capability Identity was resolved. Equality, deduplication, version-drift, and sync decisions use only Identity Resolution; they never compare raw evidence or names directly. This separation keeps runtime-specific discovery behind its adapters, centralizes identity rules, and makes the final inventory result the shared test surface.

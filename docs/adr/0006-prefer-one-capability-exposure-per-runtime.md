@@ -1,0 +1,3 @@
+# Prefer one Capability Exposure per Runtime
+
+The same Capability may have independent Codex Plugin, Claude Code Plugin, and `npx skills` Installations, and each Installation keeps its own update and removal lifecycle. Within one Runtime, however, the Manager should prefer one effective Exposure: use the Runtime's native Plugin format when available and use `npx skills` as the fallback for standalone skills without a native Plugin. If Plugin and `npx skills`, or global and project `npx skills` Installations, expose the same Capability in one Runtime, the Manager must not infer runtime load precedence; it marks the Exposure State `ambiguous`, reports Duplicate Exposure and any Revision drift, recommends consolidation, and never removes either Installation automatically.

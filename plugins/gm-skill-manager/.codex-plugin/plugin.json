@@ -1,7 +1,7 @@
 {
   "name": "gm-skill-manager",
   "version": "1.1.2",
-  "description": "统一盘点、安装、卸载和整理一台电脑上的 Codex、Claude Code、ZCode skills 与 plugins。",
+  "description": "统一盘点和协调 Codex Plugin、Claude Code Plugin 与 npx skills，ZCode 仅报告为 unmanaged。",
   "author": {
     "name": "ZeroZ-lab",
     "url": "https://github.com/ZeroZ-lab/gm-skills"
@@ -12,8 +12,8 @@
   "skills": "./skills/",
   "interface": {
     "displayName": "gm-skill-manager",
-    "shortDescription": "统一管理本机 Codex、Claude Code 和 ZCode skills。",
-    "longDescription": "盘点本机多个 coding-agent runtime 的 loose skills、built-ins 和 plugins，按 Source of Truth 识别重复、死链与冲突，并通过安全的 runtime 原生操作完成安装或卸载。",
+    "shortDescription": "协调 Codex、Claude Code 与 npx skills。",
+    "longDescription": "生成当前 Unified Inventory，识别重复 exposure、revision drift 与 broken installation，并通过各 runtime 的原生 installer 执行获授权的变更。",
     "developerName": "ZeroZ-lab",
     "category": "Productivity",
     "capabilities": [
@@ -23,7 +23,7 @@
     "websiteURL": "https://github.com/ZeroZ-lab/gm-skills/tree/main/plugins/gm-skill-manager",
     "defaultPrompt": [
       "盘点这台电脑上的 skills，找出死链、重复来源和冲突。",
-      "把指定 skill 安全安装到 Codex、Claude Code 和 ZCode。",
+      "把指定 remote skill package 安全安装到用户选择的 runtime。",
       "生成一份最小风险的 skills 清理计划。"
     ]
   }

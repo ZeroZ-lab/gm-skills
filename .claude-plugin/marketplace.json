@@ -32,7 +32,7 @@
     },
     {
       "name": "gm-skill-manager",
-      "description": "统一盘点、安装、卸载和整理一台电脑上的 Codex、Claude Code、ZCode skills 与 plugins。",
+      "description": "统一盘点和协调 Codex Plugin、Claude Code Plugin 与 npx skills，ZCode 仅报告为 unmanaged。",
       "homepage": "https://github.com/ZeroZ-lab/gm-skills/tree/main/plugins/gm-skill-manager",
       "source": "./plugins/gm-skill-manager"
     },

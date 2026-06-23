@@ -54,7 +54,7 @@ If you already added this marketplace before the multi-plugin split, refresh the
 | `cc-design` | High-fidelity HTML design and prototype creation for slides, prototypes, landing pages, and visual systems. |
 | `gm-agent-docs` | 为项目生成 CLAUDE.md 和 AGENTS.md，输出命令优先、按任务分区的 agent 配置文件。 |
 | `gm-de-ai-article` | 去除公众号、博客和 newsletter 草稿里的模板化 AI 写作痕迹，保住作者判断与表达控制权。 |
-| `gm-skill-manager` | 统一盘点、安装、卸载和整理本机 Codex、Claude Code、ZCode skills 与 plugins。 |
+| `gm-skill-manager` | 统一盘点和协调 Codex Plugin、Claude Code Plugin 与 npx skills；ZCode 仅报告为 unmanaged。 |
 | `gm-skill-quality` | 审查 agent skills 质量，对 SKILL.md 给出结构化审查报告和优化建议。 |
 | `gm-topic-engine` | 从零散想法、笔记和经历中提炼适合公众号与博客的可发布选题池。 |
 | `gm-writing-topic-picker` | 判断单个写作题目是否值得写，并给出更锋利的切入角度。 |
