@@ -31,6 +31,12 @@
       "source": "./plugins/gm-de-ai-article"
     },
     {
+      "name": "gm-skill-manager",
+      "description": "统一盘点、安装、卸载和整理一台电脑上的 Codex、Claude Code、ZCode skills 与 plugins。",
+      "homepage": "https://github.com/ZeroZ-lab/gm-skills/tree/main/plugins/gm-skill-manager",
+      "source": "./plugins/gm-skill-manager"
+    },
+    {
       "name": "gm-skill-quality",
       "description": "审查 agent skills 质量，对 SKILL.md 给出结构化审查报告和优化建议。",
       "homepage": "https://github.com/ZeroZ-lab/gm-skills/tree/main/plugins/gm-skill-quality",

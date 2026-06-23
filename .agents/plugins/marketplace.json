@@ -53,6 +53,18 @@
       "category": "Productivity"
     },
     {
+      "name": "gm-skill-manager",
+      "source": {
+        "source": "local",
+        "path": "./plugins/gm-skill-manager"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Productivity"
+    },
+    {
       "name": "gm-skill-quality",
       "source": {
         "source": "local",

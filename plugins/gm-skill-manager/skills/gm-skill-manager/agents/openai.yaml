@@ -1,0 +1,4 @@
+interface:
+  display_name: "GM Skill Manager"
+  short_description: "统一盘点和管理本机多 runtime skills"
+  default_prompt: "Use $gm-skill-manager to inventory skills on this computer and propose the smallest safe cleanup."
