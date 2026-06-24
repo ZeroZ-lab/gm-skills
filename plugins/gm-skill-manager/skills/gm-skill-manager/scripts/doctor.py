@@ -9,5 +9,5 @@ def doctor_report(inventory: dict) -> dict:
         "facts": inventory["diagnostics"]["facts"],
         "findings": inventory["diagnostics"]["findings"],
         "recommendations": inventory["diagnostics"]["recommendations"],
-        "warnings": inventory["diagnostics"]["warnings"],
+        "collection_findings": inventory["diagnostics"]["collection_findings"],
     }

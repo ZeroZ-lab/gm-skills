@@ -3,10 +3,23 @@ from __future__ import annotations
 import json
 import re
 import subprocess
+from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
 
 UNKNOWN = "unknown"
+
+
+@dataclass(frozen=True)
+class InventoryContext:
+    home: Path
+    project: Path | None = None
+    use_native_commands: bool = True
+    fixtures: dict[str, Any] = field(default_factory=dict)
+
+
+def adapter_result(facts: list[dict] | None = None, findings: list[dict] | None = None) -> dict:
+    return {"facts": facts or [], "findings": findings or []}
 
 
 def run(command: list[str], timeout: int = 15, cwd: Path | None = None) -> subprocess.CompletedProcess[str] | None:

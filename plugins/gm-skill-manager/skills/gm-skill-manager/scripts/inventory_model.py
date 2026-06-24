@@ -9,28 +9,7 @@ from typing import Any
 
 from identity import UNKNOWN, resolve_capability, resolve_package, revision_relation
 
-SCHEMA_VERSION = "1.0"
-REQUIRED_EVIDENCE_FIELDS = {
-    "runtime": UNKNOWN,
-    "package_format": UNKNOWN,
-    "installation_channel": UNKNOWN,
-    "scope": UNKNOWN,
-    "installation_state": UNKNOWN,
-    "exposure_state": UNKNOWN,
-    "installer_available": UNKNOWN,
-    "installer_compatible": UNKNOWN,
-    "remote_source": UNKNOWN,
-    "package_path": UNKNOWN,
-    "package_name": UNKNOWN,
-    "revision": UNKNOWN,
-    "install_path": UNKNOWN,
-    "project_path": UNKNOWN,
-    "development_local": False,
-    "capabilities": [],
-    "verification": {"registry": UNKNOWN, "discovery": UNKNOWN},
-    "aliases": [],
-    "notes": [],
-}
+SCHEMA_VERSION = "2.0"
 
 
 def stable_id(prefix: str, *parts: Any) -> str:
@@ -38,40 +17,24 @@ def stable_id(prefix: str, *parts: Any) -> str:
     return f"{prefix}-{hashlib.sha256(raw.encode()).hexdigest()[:16]}"
 
 
-def normalize_evidence(item: dict) -> dict:
-    normalized = dict(REQUIRED_EVIDENCE_FIELDS)
-    normalized.update(item)
-    normalized["verification"] = {
-        **REQUIRED_EVIDENCE_FIELDS["verification"],
-        **(item.get("verification") or {}),
-    }
-    normalized["capabilities"] = [
-        {
-            "name": capability.get("name") or UNKNOWN,
-            "skill_path": capability.get("skill_path") or UNKNOWN,
-            "aliases": capability.get("aliases") or [],
-        }
-        for capability in normalized["capabilities"]
-    ]
-    normalized["evidence_id"] = item.get("evidence_id") or stable_id(
-        "evidence",
-        normalized["runtime"],
-        normalized["package_format"],
-        normalized["scope"],
-        normalized["install_path"],
-        normalized["package_name"],
-    )
-    return normalized
-
-
-def build_inventory(home: Path, raw_evidence: list[dict], warnings: list[str]) -> dict:
-    evidence = [normalize_evidence(item) for item in raw_evidence]
+def build_inventory(
+    home: Path,
+    evidence: list[dict],
+    collection_findings: list[dict] | None = None,
+) -> dict:
+    collection_findings = collection_findings or []
     packages: dict[str, dict] = {}
     installations: dict[str, dict] = {}
     capability_groups: dict[str, list[dict]] = defaultdict(list)
-    unresolved_capabilities: list[dict] = []
+    unresolved_capabilities: dict[tuple[str, str, str], list[dict]] = defaultdict(list)
+    runtime_detections: list[dict] = []
 
     for item in evidence:
+        if item["subject"] == "runtime-detection":
+            runtime_detections.append(item)
+            continue
+        if item["validity"] != "valid":
+            continue
         package_identity = resolve_package(item)
         package_key = package_identity["key"]
         if package_key == UNKNOWN:
@@ -90,31 +53,26 @@ def build_inventory(home: Path, raw_evidence: list[dict], warnings: list[str]) -
         if item["package_format"] not in package["formats"]:
             package["formats"].append(item["package_format"])
 
-        installation_key = item.get("installation_key")
-        installation_id = (
-            stable_id("installation", installation_key)
-            if installation_key
-            else stable_id(
-                "installation",
-                item["runtime"],
-                item["package_format"],
-                item["scope"],
-                item["install_path"],
-                item["evidence_id"],
-            )
+        installation_id = stable_id(
+            "installation",
+            item["runtime"],
+            item["package_format"],
+            item["scope"],
+            item["evidence_id"],
         )
+        exposure_facts = item.get("exposure_facts") or []
         installation = installations.setdefault(
             installation_id,
             {
                 "installation_id": installation_id,
                 "package_id": package_id,
                 "runtime": item["runtime"],
-                "target_runtimes": [],
+                "target_runtimes": sorted({row["runtime"] for row in exposure_facts}),
                 "package_format": item["package_format"],
                 "installation_channel": item["installation_channel"],
                 "scope": item["scope"],
                 "installation_state": item["installation_state"],
-                "exposure_state": item["exposure_state"],
+                "exposure_state": _installation_exposure_state(exposure_facts),
                 "installer": {
                     "available": item["installer_available"],
                     "compatible": item["installer_compatible"],
@@ -130,28 +88,40 @@ def build_inventory(home: Path, raw_evidence: list[dict], warnings: list[str]) -
                 "capability_ids": [],
             },
         )
-        if item["runtime"] not in installation["target_runtimes"]:
-            installation["target_runtimes"].append(item["runtime"])
         if item["evidence_id"] not in installation["evidence_ids"]:
             installation["evidence_ids"].append(item["evidence_id"])
 
         for candidate in item["capabilities"]:
             identity = resolve_capability(item, candidate)
-            record = {
-                "identity": identity,
-                "candidate": candidate,
-                "installation_id": installation_id,
-                "package_id": package_id,
-                "runtime": item["runtime"],
-                "scope": item["scope"],
-                "project_path": item["project_path"],
-                "revision": item["revision"],
-                "exposure_state": item["exposure_state"],
-            }
-            if identity["status"] == "resolved":
-                capability_groups[identity["key"]].append(record)
-            else:
-                unresolved_capabilities.append(record)
+            for exposure_fact in exposure_facts or [
+                {
+                    "runtime": item["runtime"],
+                    "scope": item["scope"],
+                    "project_path": item["project_path"],
+                    "state": UNKNOWN,
+                }
+            ]:
+                record = {
+                    "identity": identity,
+                    "candidate": candidate,
+                    "installation_id": installation_id,
+                    "package_id": package_id,
+                    "runtime": exposure_fact["runtime"],
+                    "scope": exposure_fact["scope"],
+                    "project_path": exposure_fact["project_path"],
+                    "revision": item["revision"],
+                    "exposure_state": exposure_fact["state"],
+                }
+                if identity["status"] == "resolved":
+                    capability_groups[identity["key"]].append(record)
+                else:
+                    unresolved_capabilities[
+                        (
+                            installation_id,
+                            candidate["skill_path"],
+                            candidate["name"],
+                        )
+                    ].append(record)
 
     capabilities: list[dict] = []
     for identity_key, records in sorted(capability_groups.items()):
@@ -192,24 +162,29 @@ def build_inventory(home: Path, raw_evidence: list[dict], warnings: list[str]) -
             }
         )
 
-    for record in unresolved_capabilities:
-        capability_id = stable_id("unresolved-capability", record["installation_id"], record["candidate"]["skill_path"])
-        exposure = {
-            "exposure_id": stable_id(
-                "exposure",
-                capability_id,
-                record["installation_id"],
-                record["runtime"],
-                record["scope"],
-                record["project_path"],
-            ),
-            "installation_id": record["installation_id"],
-            "runtime": record["runtime"],
-            "scope": record["scope"],
-            "project_path": record["project_path"],
-            "state": record["exposure_state"],
-            "revision": record["revision"],
-        }
+    for unresolved_key, records in sorted(unresolved_capabilities.items()):
+        record = records[0]
+        capability_id = stable_id("unresolved-capability", *unresolved_key)
+        exposures = [
+            {
+                "exposure_id": stable_id(
+                    "exposure",
+                    capability_id,
+                    row["installation_id"],
+                    row["runtime"],
+                    row["scope"],
+                    row["project_path"],
+                ),
+                "installation_id": row["installation_id"],
+                "runtime": row["runtime"],
+                "scope": row["scope"],
+                "project_path": row["project_path"],
+                "state": row["exposure_state"],
+                "revision": row["revision"],
+            }
+            for row in records
+        ]
+        _mark_duplicate_exposures(exposures)
         capabilities.append(
             {
                 "capability_id": capability_id,
@@ -217,10 +192,11 @@ def build_inventory(home: Path, raw_evidence: list[dict], warnings: list[str]) -
                 "name": record["candidate"]["name"],
                 "aliases": record["candidate"]["aliases"],
                 "revision_relation": "unknown",
-                "exposures": [exposure],
+                "exposures": exposures,
             }
         )
-        _attach_capability(installations, packages, record, capability_id)
+        for row in records:
+            _attach_capability(installations, packages, row, capability_id)
 
     installation_rows = list(installations.values())
     for installation in installation_rows:
@@ -230,7 +206,7 @@ def build_inventory(home: Path, raw_evidence: list[dict], warnings: list[str]) -
     for package in packages.values():
         package["formats"].sort()
         package["capability_ids"].sort()
-    findings = derive_findings(capabilities, installation_rows)
+    findings = derive_findings(capabilities, installation_rows, evidence, runtime_detections)
     payload = {
         "schema_version": SCHEMA_VERSION,
         "generated_from": str(home),
@@ -250,13 +226,20 @@ def build_inventory(home: Path, raw_evidence: list[dict], warnings: list[str]) -
             },
             "findings": findings,
             "recommendations": recommendations_for(findings),
-            "warnings": warnings,
+            "collection_findings": collection_findings,
         },
     }
     from views import build_views
 
     payload["views"] = build_views(payload)
     return payload
+
+
+def _installation_exposure_state(exposure_facts: list[dict]) -> str:
+    states = {row["state"] for row in exposure_facts}
+    if len(states) == 1:
+        return next(iter(states))
+    return UNKNOWN
 
 
 def _attach_capability(
@@ -295,8 +278,32 @@ def _mark_duplicate_exposures(exposures: list[dict]) -> None:
                 row["state"] = "ambiguous"
 
 
-def derive_findings(capabilities: list[dict], installations: list[dict]) -> list[dict]:
+def derive_findings(
+    capabilities: list[dict],
+    installations: list[dict],
+    evidence: list[dict],
+    runtime_detections: list[dict],
+) -> list[dict]:
     findings = []
+    for item in evidence:
+        if item["validity"] == "invalid":
+            findings.append({"code": "invalid-evidence", "evidence_id": item["evidence_id"]})
+        for finding in item.get("findings") or []:
+            findings.append(
+                {
+                    "code": "evidence-finding",
+                    "evidence_id": item["evidence_id"],
+                    "detail": finding["code"],
+                }
+            )
+    for item in runtime_detections:
+        findings.append(
+            {
+                "code": "unmanaged-runtime",
+                "runtime": item["runtime"],
+                "evidence_id": item["evidence_id"],
+            }
+        )
     for capability in capabilities:
         if capability["identity"]["status"] == "unresolved":
             findings.append({"code": "unresolved-identity", "capability_id": capability["capability_id"]})
@@ -316,6 +323,9 @@ def recommendations_for(findings: list[dict]) -> list[dict]:
         "revision-drift": "Compare explicit revisions before requesting Revision Sync.",
         "duplicate-exposure": "Keep the runtime-native Plugin exposure unless the Operator chooses otherwise.",
         "broken-installation": "Run doctor, then authorize a Native Installer repair.",
+        "invalid-evidence": "Inspect the native record and repair it through its Native Installer.",
+        "evidence-finding": "Inspect the evidence provenance and native record.",
+        "unmanaged-runtime": "No Stage 1 mutation adapter is available for this Runtime.",
     }
     return [{"finding": finding["code"], "message": messages[finding["code"]]} for finding in findings]
 

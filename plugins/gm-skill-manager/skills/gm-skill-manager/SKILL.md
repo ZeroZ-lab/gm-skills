@@ -11,7 +11,7 @@ description: 统一盘点和协调 Codex Plugin、Claude Code Plugin 与 npx ski
 
 1. 先 inventory，再 Action，Action 后重新 inventory。
 2. Capability Identity 只由 normalized Remote Source + canonical `SKILL.md` path 决定；Revision、名称、Runtime 和 Package Format 不参与身份。
-3. Runtime adapter 只产 Observed Evidence；只有 Identity Resolution 可以裁决相同 Capability。
+3. Runtime Adapter 只产 Runtime Facts；Observed Evidence module 负责标准化与验证；只有 Identity Resolution 可以裁决相同 Capability。
 4. 不直接修改 plugin registry、cache、`skills-lock`、私有数据库或 Runtime links。
 5. 不复制本地目录模拟安装；普通安装只接受 GitHub/Git Remote Source。
 6. doctor 只读；repair 是独立 mutation Action。
@@ -36,18 +36,22 @@ python3 scripts/inventory.py --redact --json
 python3 scripts/inventory.py --project /explicit/project/root --json
 ```
 
-默认使用 Capability View。机器可读输出的 `schema_version` 是契约版本，required field 的未知值显式写 `unknown`。
+默认使用 Capability View。机器可读输出当前使用 `schema_version: "2.0"`；required field 的未知值显式写 `unknown`。
 Project scope 只在 Operator 通过 `--project` 明确给出根目录时读取；不得从当前工作目录推断。
 
 Inventory 必须能够表达：
 
 - Installation Package、Package Format、Installation、Capability、Exposure；
+- Runtime Facts 经标准化后的 Observed Evidence；
+- Evidence Subject、Validity、Provenance 与 Evidence Findings；
 - Resolved / Unresolved Identity；
 - Installation State 与 Exposure State；
 - Revision Relation；
 - Registry / Discovery Verification；
 - Duplicate Exposure、Revision drift、broken Installation；
 - ZCode unmanaged。
+
+无效 evidence 必须保留并显示 finding，但不得产生 Installation、Capability、Exposure 或 Execution Plan。ZCode detection 只进入 Runtime View，不创建虚假的 Installation Package。
 
 ## Action 路由
 

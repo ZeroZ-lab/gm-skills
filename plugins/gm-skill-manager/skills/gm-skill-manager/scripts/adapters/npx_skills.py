@@ -1,4 +1,4 @@
-"""npx skills evidence adapter: lock proves Installation, list proves Exposure."""
+"""npx skills Runtime Facts adapter."""
 
 from __future__ import annotations
 
@@ -6,7 +6,7 @@ import json
 import shutil
 from pathlib import Path
 
-from adapters.common import UNKNOWN, load_json, run
+from adapters.common import InventoryContext, UNKNOWN, adapter_result, load_json, run
 
 AGENT_RUNTIME_NAMES = {
     "Codex": "codex",
@@ -14,45 +14,38 @@ AGENT_RUNTIME_NAMES = {
 }
 
 
-def collect_npx_evidence(
-    home: Path,
-    warnings: list[str],
-    *,
-    project: Path | None = None,
-    use_native_commands: bool = True,
-    list_payload: list[dict] | None = None,
-    project_list_payload: list[dict] | None = None,
-) -> list[dict]:
-    rows = collect_scope(
-        home / ".agents" / ".skill-lock.json",
+def collect(context: InventoryContext) -> dict:
+    findings = []
+    facts = collect_scope(
+        context.home / ".agents" / ".skill-lock.json",
         "global",
         UNKNOWN,
-        warnings,
-        use_native_commands=use_native_commands,
-        list_payload=list_payload,
+        findings,
+        use_native_commands=context.use_native_commands,
+        list_payload=context.fixtures.get("npx-global"),
         command_cwd=None,
     )
-    if project is not None:
-        project = project.expanduser().resolve()
-        rows.extend(
+    if context.project is not None:
+        project = context.project.expanduser().resolve()
+        facts.extend(
             collect_scope(
                 project / "skills-lock.json",
                 "project",
                 str(project),
-                warnings,
-                use_native_commands=use_native_commands,
-                list_payload=project_list_payload,
+                findings,
+                use_native_commands=context.use_native_commands,
+                list_payload=context.fixtures.get("npx-project"),
                 command_cwd=project,
             )
         )
-    return rows
+    return adapter_result(facts, findings)
 
 
 def collect_scope(
     lock_path: Path,
     scope: str,
     project_path: str,
-    warnings: list[str],
+    findings: list[dict],
     *,
     use_native_commands: bool,
     list_payload: list[dict] | None,
@@ -73,57 +66,65 @@ def collect_scope(
             try:
                 listed = json.loads(result.stdout)
             except ValueError:
-                warnings.append(f"npx skills {scope} list returned invalid JSON.")
+                findings.append({"runtime": "npx-skills", "code": "invalid-native-json", "source": f"{scope}-list"})
         else:
-            warnings.append(f"npx skills {scope} list failed; exposures may be unknown.")
+            findings.append({"runtime": "npx-skills", "code": "native-command-failed", "source": f"{scope}-list"})
+    elif list_payload is None and use_native_commands and not executable:
+        findings.append({"runtime": "npx-skills", "code": "installer-unavailable", "source": f"{scope}-list"})
     listed_by_name = {item.get("name"): item for item in listed if isinstance(item, dict)}
     rows = []
     for name, record in sorted(lock_skills.items()):
         if not isinstance(record, dict):
+            rows.append(
+                {
+                    "fact_type": "npx-skill",
+                    "runtime": "npx-skills",
+                    "native_record_id": f"{scope}:{name}",
+                    "scope": scope,
+                    "malformed": True,
+                    "provenance": {
+                        "source_kind": "lock",
+                        "source_id": f"{scope}-skill:{name}",
+                        "collection": "success",
+                    },
+                }
+            )
             continue
         remote, skill_path, revision = remote_fields(record)
         listing = listed_by_name.pop(name, None)
         runtimes = listed_runtimes(listing)
-        if not runtimes:
-            runtimes = [UNKNOWN]
-        for runtime in runtimes:
-            installed_path = (listing or {}).get("path") or record.get("canonicalPath") or UNKNOWN
-            rows.append(
-                evidence_row(
-                    name=name,
-                    runtime=runtime,
-                    remote=remote,
-                    skill_path=skill_path,
-                    revision=revision,
-                    install_path=installed_path,
-                    installation_state="installed",
-                    exposure_state="active" if runtime != UNKNOWN else "inactive",
-                    installer_available=executable is not None,
-                    managed=True,
-                    scope=scope,
-                    project_path=project_path,
-                    installation_key=f"{scope}:{lock_path}:{name}",
-                )
+        installed_path = (listing or {}).get("path") or record.get("canonicalPath") or UNKNOWN
+        rows.append(
+            fact_row(
+                name=name,
+                runtimes=runtimes,
+                remote=remote,
+                skill_path=skill_path,
+                revision=revision,
+                install_path=installed_path,
+                installer_available=executable is not None,
+                managed=True,
+                scope=scope,
+                project_path=project_path,
+                native_record_id=f"{scope}:{name}",
             )
+        )
     for name, listing in sorted(listed_by_name.items()):
-        for runtime in listed_runtimes(listing) or [UNKNOWN]:
-            rows.append(
-                evidence_row(
-                    name=name,
-                    runtime=runtime,
-                    remote=UNKNOWN,
-                    skill_path=UNKNOWN,
-                    revision=UNKNOWN,
-                    install_path=listing.get("path") or UNKNOWN,
-                    installation_state="broken",
-                    exposure_state="active" if runtime != UNKNOWN else "unknown",
-                    installer_available=executable is not None,
-                    managed=False,
-                    scope=scope,
-                    project_path=project_path,
-                    installation_key=f"unmanaged:{scope}:{listing.get('path') or name}",
-                )
+        rows.append(
+            fact_row(
+                name=name,
+                runtimes=listed_runtimes(listing),
+                remote=UNKNOWN,
+                skill_path=UNKNOWN,
+                revision=UNKNOWN,
+                install_path=listing.get("path") or UNKNOWN,
+                installer_available=executable is not None,
+                managed=False,
+                scope=scope,
+                project_path=project_path,
+                native_record_id=f"unmanaged:{scope}:{listing.get('path') or name}",
             )
+        )
     return rows
 
 
@@ -158,46 +159,38 @@ def listed_runtimes(listing: dict | None) -> list[str]:
     return sorted({AGENT_RUNTIME_NAMES[name] for name in listing.get("agents", []) if name in AGENT_RUNTIME_NAMES})
 
 
-def evidence_row(
+def fact_row(
     *,
     name: str,
-    runtime: str,
+    runtimes: list[str],
     remote: str,
     skill_path: str,
     revision: str,
     install_path: str,
-    installation_state: str,
-    exposure_state: str,
     installer_available: bool,
     managed: bool,
     scope: str,
     project_path: str,
-    installation_key: str,
+    native_record_id: str,
 ) -> dict:
-    package_path = str(Path(skill_path).parent) if skill_path != UNKNOWN else UNKNOWN
     return {
-        "runtime": runtime,
-        "package_format": "npx-skills",
-        "installation_channel": "npx-skills",
+        "fact_type": "npx-skill",
+        "runtime": "npx-skills",
+        "native_record_id": native_record_id,
         "scope": scope,
-        "installation_state": installation_state,
-        "exposure_state": exposure_state,
         "installer_available": installer_available,
         "installer_compatible": True if installer_available else UNKNOWN,
         "remote_source": remote,
-        "package_path": package_path,
         "package_name": name,
+        "skill_path": skill_path,
         "revision": revision,
         "install_path": install_path,
         "project_path": project_path,
-        "development_local": False,
-        "capabilities": [{"name": name, "skill_path": skill_path, "aliases": []}],
-        "verification": {
-            "registry": "verified" if managed else "missing",
-            "discovery": "verified" if exposure_state == "active" else "unknown",
+        "managed": managed,
+        "runtimes": runtimes,
+        "provenance": {
+            "source_kind": "lock" if managed else "native-command",
+            "source_id": f"{scope}-skill:{name}",
+            "collection": "success",
         },
-        "aliases": [],
-        "notes": [] if managed else ["unmanaged-exposure"],
-        "identity_gap": "npx-lock-missing-remote-evidence",
-        "installation_key": installation_key,
     }

@@ -9,25 +9,24 @@ SCRIPT_DIR = Path(__file__).parents[1] / "scripts"
 sys.path.insert(0, str(SCRIPT_DIR))
 
 from inventory_model import build_inventory
+from observed_evidence import normalize_runtime_fact
 from views import redact_inventory
 
 
 class ViewsDoctorTests(unittest.TestCase):
     def test_views_are_derived_from_same_entities(self):
-        payload = build_inventory(Path("/Users/test"), [], ["ZCode detected but unmanaged."])
+        payload = build_inventory(Path("/Users/test"), [], [])
         self.assertEqual(0, payload["diagnostics"]["facts"]["capability_count"])
         self.assertEqual([], payload["views"]["capability"])
         self.assertEqual([], payload["views"]["package"])
         self.assertEqual([], payload["views"]["runtime"])
 
     def test_nonempty_views_reference_the_same_inventory_entities(self):
-        row = {
+        row = normalize_runtime_fact({
+            "fact_type": "codex-plugin",
             "runtime": "codex",
-            "package_format": "codex-plugin",
-            "installation_channel": "codex-plugin",
+            "native_record_id": "demo@gm",
             "scope": "user",
-            "installation_state": "installed",
-            "exposure_state": "unknown",
             "installer_available": True,
             "installer_compatible": True,
             "remote_source": "https://github.com/acme/repo.git",
@@ -35,13 +34,15 @@ class ViewsDoctorTests(unittest.TestCase):
             "package_name": "demo",
             "revision": "abc",
             "install_path": "/cache/demo",
+            "install_exists": True,
             "project_path": "unknown",
             "development_local": False,
+            "enabled": True,
             "capabilities": [{"name": "demo", "skill_path": "plugins/demo/skills/demo/SKILL.md", "aliases": []}],
-            "verification": {"registry": "verified", "discovery": "unknown"},
             "aliases": [],
             "notes": [],
-        }
+            "provenance": {"source_kind": "fixture", "source_id": "demo", "collection": "success"},
+        })
         payload = build_inventory(Path("/Users/test"), [row], [])
         capability_id = payload["capabilities"][0]["capability_id"]
         package_id = payload["packages"][0]["package_id"]

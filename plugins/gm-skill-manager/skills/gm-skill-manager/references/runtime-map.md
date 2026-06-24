@@ -76,7 +76,7 @@ Project lock 仅在 inventory 收到显式 `--project <root>` 时读取；不得
 
 ## ZCode
 
-Stage 1 只检测 `~/.zcode` 是否存在并报告 `unmanaged`。不读取私有 cache/data 作为权威状态，不执行 mutation。
+Stage 1 的 ZCode Runtime Adapter 只检测 `~/.zcode` 是否存在，并产出 `runtime-detection` Runtime Facts。Unified Inventory 报告 `unmanaged`，但不创建 Installation Package，不读取私有 cache/data 作为权威状态，也不执行 mutation。
 
 ## Sources
 

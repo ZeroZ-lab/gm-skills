@@ -12,6 +12,14 @@ _Avoid_: agent, tool (too generic)
 The stable identity of a Runtime product, independent of its installed version, such as `codex`, `claude-code`, or `zcode`.
 _Avoid_: runtime version, executable path
 
+**Runtime Adapter**:
+The Manager module that collects Runtime Facts and collection findings for one Runtime behind the common inventory orchestration seam. A Runtime Adapter owns native acquisition and parsing but does not normalize Observed Evidence or decide Capability Identity.
+_Avoid_: Native Installer, Observed Evidence module
+
+**Fact Collection Finding**:
+A failure or limitation encountered while collecting Runtime Facts that cannot be attributed to one native record, such as an unavailable command or unreadable registry. It remains visible in Unified Inventory diagnostics without manufacturing an Observed Evidence record.
+_Avoid_: Evidence Finding, Installation State
+
 **Installation Channel**:
 The mechanism that placed a capability into a Runtime: Codex Plugin, Claude Code Plugin, `npx skills`, or a Runtime built-in. Installation Channel describes delivery and is not part of Capability Identity.
 _Avoid_: capability type, source
@@ -84,9 +92,33 @@ _Avoid_: probable match, inferred match
 An installed entry whose evidence is insufficient to establish a Capability Identity. It remains independently visible and actionable but cannot be merged, deduplicated, or synced by identity.
 _Avoid_: unknown capability, same-name match
 
+**Runtime Facts**:
+The runtime-specific facts a Runtime adapter can directly verify from native commands, registries, manifests, and files. Each Runtime may use its own fact shape; facts are incomplete by design and become Observed Evidence only after the Manager applies required fields, Unknown Value rules, validation, and stable evidence identity.
+_Avoid_: Observed Evidence, Capability Identity
+
 **Observed Evidence**:
-The runtime facts available for an installed entry, such as marketplace label, name, path, scope, or Revision. Evidence may describe an entry without being sufficient to resolve its Capability Identity.
-_Avoid_: identity
+The Manager-normalized evidence record produced from Runtime Facts. It has the versioned required shape needed by Unified Inventory, but may still be insufficient to resolve Capability Identity.
+_Avoid_: Runtime Facts, identity
+
+**Evidence Subject**:
+What one Observed Evidence record describes: an `installation` native record or a `runtime-detection`. Only valid installation evidence may produce an Installation, Capability, or Exposure; runtime detection contributes Runtime presence and managed/unmanaged diagnostics without inventing a package.
+_Avoid_: Package Format, Installation State
+
+**Evidence Validity**:
+Whether one native record satisfied the Observed Evidence contract: `valid` or `invalid`. Missing identity evidence normally produces an Unresolved Identity rather than invalid evidence; invalid means the native record itself cannot be interpreted reliably. Invalid evidence remains visible with Unknown Values and Evidence Findings, but cannot participate in Identity Resolution, deduplication, drift analysis, or mutation planning.
+_Avoid_: Identity Resolution, Installation State
+
+**Evidence Identity**:
+The stable identity of one Observed Evidence record, derived from Runtime Identity, provenance source, native record identity, and Installation Scope. It does not depend on mutable state, Revision, discovered Capability Set, or display names.
+_Avoid_: Capability Identity, Installation Identity
+
+**Evidence Provenance**:
+The share-safe summary of where Observed Evidence came from, including source kind, source identifier, and collection result. Unified Inventory retains Evidence Provenance but not complete native registry, command, manifest, or filesystem payloads.
+_Avoid_: Runtime Facts payload, Registry
+
+**Evidence Finding**:
+A machine-readable explanation of why Observed Evidence is invalid, incomplete, or lower-confidence. Evidence Findings belong to one evidence record and do not by themselves describe Installation or Exposure conflicts across records.
+_Avoid_: Inventory Finding, warning string
 
 **Identity Resolution**:
 The Manager's explicit result of evaluating Observed Evidence. It contains either a Resolved Identity or an Unresolved Identity and is the only basis for equality, deduplication, version-drift, and sync decisions.
@@ -168,7 +200,7 @@ A shareable Unified Inventory rendering that replaces home paths, reduces projec
 _Avoid_: authoritative inventory, credential export
 
 **Inventory Fixture**:
-A synthetic temporary home and Native Installer output used to test adapters, Identity Resolution, Exposures, and the versioned Unified Inventory deterministically. Real-machine inventory is a smoke test, not the primary test surface.
+A synthetic collection of Runtime Facts, native outputs, and temporary files that drives the public inventory entrypoint deterministically. Inventory Fixtures primarily assert the versioned Unified Inventory result; direct Runtime Adapter tests are reserved for acquisition and parsing edge cases.
 _Avoid_: production snapshot, helper-unit test
 
 **Capability View**:
@@ -268,7 +300,7 @@ An explicitly authorized mutation plan derived from doctor findings and executed
 _Avoid_: automatic doctor fix
 
 **Installation State**:
-Whether one Installation is `installed`, `absent`, or `broken`, based on its Native Installer's authoritative record and required files.
+Whether one Installation is `installed`, `absent`, or `broken`, derived while normalizing Runtime Facts from its Native Installer's authoritative record and required files.
 _Avoid_: exposure state, enabled state
 
 **Native Record Inconsistency**:
@@ -276,7 +308,7 @@ A conflict between a Native Installer record and required on-disk or discovery e
 _Avoid_: absent installation, stale inventory
 
 **Exposure State**:
-Whether one installed Capability is `active`, `inactive`, `ambiguous`, or `unknown` in a Runtime. `ambiguous` means duplicate Exposures exist and the Manager cannot prove which one the Runtime will load. Exposure State is evaluated separately from Installation State.
+Whether one installed Capability is `active`, `inactive`, `ambiguous`, or `unknown` in a Runtime. Observed Evidence may establish `active`, `inactive`, or `unknown`; only Unified Inventory may derive `ambiguous` by comparing multiple Exposures. Exposure State is evaluated separately from Installation State.
 _Avoid_: installation state
 
 **Disable Action**:
@@ -294,7 +326,9 @@ _Avoid_: duplicate capability
 ## Resolved decisions
 
 - **Identity = Source of Truth without Revision** (ADR-0001). Same capability ⟺ same source location; Revision differences are version drift.
-- **Evidence and Identity stay separate** (ADR-0003). Runtime adapters report Observed Evidence; identity decisions consume Identity Resolution.
+- **Runtime Facts, Observed Evidence, and Identity stay separate** (ADR-0003). Runtime adapters report Runtime Facts; the Manager normalizes them into Observed Evidence; identity decisions consume Identity Resolution.
+- **Runtime adapters share orchestration, not fact schemas** (ADR-0019). Every Runtime Adapter returns Runtime Facts plus collection findings through one seam while retaining its Runtime-specific fact shape.
+- **Observed Evidence schema 2.0 replaces 1.0** (ADR-0015). Evidence Subject, Validity, Provenance, and Findings become explicit; invalid and runtime-detection evidence cannot manufacture installation entities.
 - **Installation Channel is not identity** (ADR-0004). Codex Plugin, Claude Code Plugin, and `npx skills` installs converge when their Remote Source and canonical `SKILL.md` path match.
 - **Package and Capability are separate** (ADR-0005). One Installation Package can expose several Capabilities through different Package Formats.
 - **One preferred Exposure per Runtime** (ADR-0006). Prefer native Plugin format; use `npx skills` when no native Plugin exists.

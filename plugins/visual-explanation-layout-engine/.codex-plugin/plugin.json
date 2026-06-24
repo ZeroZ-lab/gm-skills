@@ -1,6 +1,6 @@
 {
   "name": "visual-explanation-layout-engine",
-  "version": "1.1.2",
+  "version": "1.2.0",
   "description": "Turn complex workflows, states, responsibilities, and system relationships into mobile-readable HTML + SVG diagrams with disciplined topology, routing, and audit.",
   "author": {
     "name": "ZeroZ-lab",

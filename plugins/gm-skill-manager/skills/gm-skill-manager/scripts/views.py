@@ -34,6 +34,12 @@ def build_views(payload: dict) -> dict[str, list[dict]]:
     ]
     runtime_rows = {}
     installation_ids_by_runtime = {}
+    for evidence in payload["evidence"]:
+        if evidence["subject"] == "runtime-detection":
+            runtime_rows.setdefault(
+                evidence["runtime"],
+                {"runtime": evidence["runtime"], "installation_count": 0, "capability_ids": set(), "states": set()},
+            )["states"].add("unmanaged")
     for installation in payload["installations"]:
         for runtime in installation.get("target_runtimes") or [installation["runtime"]]:
             row = runtime_rows.setdefault(

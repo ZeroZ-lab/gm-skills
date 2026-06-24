@@ -13,7 +13,7 @@ sys.path.insert(0, str(SCRIPT_DIR))
 
 from doctor import doctor_report
 from inventory import inventory
-from inventory_model import REQUIRED_EVIDENCE_FIELDS
+from observed_evidence import REQUIRED_FIELDS
 
 
 def tree_hash(root: Path) -> str:
@@ -41,15 +41,17 @@ class Stage1AcceptanceTests(unittest.TestCase):
             self.assertEqual(before, after)
             self.assertEqual(payload["diagnostics"]["facts"], report["facts"])
             zcode = next(row for row in payload["evidence"] if row["runtime"] == "zcode")
-            self.assertEqual("unknown", zcode["installation_state"])
+            self.assertEqual("runtime-detection", zcode["subject"])
             self.assertIn("unmanaged-runtime", zcode["notes"])
-            self.assertTrue(any("unmanaged" in warning for warning in report["warnings"]))
+            self.assertTrue(any(row["code"] == "unmanaged-runtime" for row in report["findings"]))
+            self.assertFalse(any(row["name"] == "zcode-unmanaged" for row in payload["packages"]))
 
     def test_evidence_contract_has_explicit_required_fields(self):
         with tempfile.TemporaryDirectory() as temp:
             payload = inventory(Path(temp), use_native_commands=False)
             for item in payload["evidence"]:
-                self.assertTrue(REQUIRED_EVIDENCE_FIELDS.keys() <= item.keys())
+                self.assertTrue(REQUIRED_FIELDS.keys() <= item.keys())
+                self.assertIn(item["validity"], {"valid", "invalid"})
 
     def test_action_contract_keeps_mutation_with_native_installers(self):
         skill_text = (SKILL_DIR / "SKILL.md").read_text(encoding="utf-8")

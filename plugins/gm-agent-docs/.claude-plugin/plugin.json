@@ -1,6 +1,6 @@
 {
   "name": "gm-agent-docs",
-  "version": "1.1.2",
+  "version": "1.2.0",
   "description": "为项目生成 CLAUDE.md 和 AGENTS.md，分析项目结构后输出命令优先、按任务分区的 agent 配置文件。Use when users want to create or improve CLAUDE.md, AGENTS.md, or agent instruction files for their project.",
   "author": {
     "name": "ZeroZ-lab",

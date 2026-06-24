@@ -1,0 +1,3 @@
+# Runtime adapters share orchestration, not fact schemas
+
+Every Runtime Adapter participates in one inventory orchestration seam and returns Runtime Facts plus Fact Collection Findings, but each Runtime retains its own fact shape. The Manager does not force Codex, Claude Code, `npx skills`, or unmanaged ZCode evidence into a shared adapter dictionary; the Observed Evidence module owns that normalization. Native and fixture acquisition remain private adapters inside each Runtime Adapter so inventory orchestration does not know runtime-specific commands, files, fallback rules, or test payload parameters.

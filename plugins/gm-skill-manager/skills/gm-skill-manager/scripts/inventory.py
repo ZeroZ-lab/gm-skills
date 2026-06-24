@@ -8,48 +8,29 @@ import json
 import sys
 from pathlib import Path
 
-from adapters.claude import collect_claude_evidence
-from adapters.codex import collect_codex_evidence
-from adapters.npx_skills import collect_npx_evidence
+from adapters import collect_runtime_facts
+from adapters.common import InventoryContext
 from inventory_model import build_inventory, render_table
+from observed_evidence import normalize_runtime_facts
 from views import redact_inventory
 
 
-def inventory(home: Path, *, project: Path | None = None, use_native_commands: bool = True) -> dict:
-    evidence = []
-    warnings: list[str] = []
-    evidence.extend(collect_codex_evidence(home, warnings, use_native_commands=use_native_commands))
-    evidence.extend(collect_claude_evidence(home, warnings))
-    evidence.extend(
-        collect_npx_evidence(home, warnings, project=project, use_native_commands=use_native_commands)
+def inventory(
+    home: Path,
+    *,
+    project: Path | None = None,
+    use_native_commands: bool = True,
+    fixtures: dict | None = None,
+) -> dict:
+    context = InventoryContext(
+        home=home,
+        project=project,
+        use_native_commands=use_native_commands,
+        fixtures=fixtures or {},
     )
-    if (home / ".zcode").exists():
-        evidence.append(
-            {
-                "runtime": "zcode",
-                "package_format": "unknown",
-                "installation_channel": "unknown",
-                "scope": "unknown",
-                "installation_state": "unknown",
-                "exposure_state": "unknown",
-                "installer_available": "unknown",
-                "installer_compatible": "unknown",
-                "remote_source": "unknown",
-                "package_path": "unknown",
-                "package_name": "zcode-unmanaged",
-                "revision": "unknown",
-                "install_path": str(home / ".zcode"),
-                "project_path": "unknown",
-                "development_local": False,
-                "capabilities": [],
-                "verification": {"registry": "unknown", "discovery": "unknown"},
-                "aliases": [],
-                "notes": ["unmanaged-runtime"],
-                "identity_gap": "runtime-not-managed-in-stage-1",
-            }
-        )
-        warnings.append("ZCode detected but is unmanaged in Stage 1.")
-    return build_inventory(home, evidence, warnings)
+    collected = collect_runtime_facts(context)
+    evidence = normalize_runtime_facts(collected["facts"])
+    return build_inventory(home, evidence, collected["findings"])
 
 
 def main() -> int:
@@ -83,8 +64,8 @@ def main() -> int:
         sys.stdout.write("\n")
     else:
         print(render_table(payload, args.view))
-        for warning in payload["diagnostics"]["warnings"]:
-            print(f"warning: {warning}", file=sys.stderr)
+        for finding in payload["diagnostics"]["collection_findings"]:
+            print(f"warning: {finding['runtime']} {finding['code']}", file=sys.stderr)
     return 0
 
 

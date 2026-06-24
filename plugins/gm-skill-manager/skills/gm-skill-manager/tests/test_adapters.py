@@ -5,13 +5,15 @@ import sys
 import tempfile
 import unittest
 from pathlib import Path
+from unittest.mock import patch
 
 SCRIPT_DIR = Path(__file__).parents[1] / "scripts"
 sys.path.insert(0, str(SCRIPT_DIR))
 
-from adapters.claude import collect_claude_evidence
-from adapters.codex import collect_codex_evidence
-from adapters.npx_skills import collect_npx_evidence
+from adapters.claude import collect as collect_claude
+from adapters.codex import collect as collect_codex
+from adapters.common import InventoryContext
+from adapters.npx_skills import collect as collect_npx
 
 
 def write_json(path: Path, value) -> None:
@@ -53,13 +55,15 @@ last_revision = "abc"
                     }
                 ]
             }
-            rows = collect_codex_evidence(home, [], use_native_commands=False, native_payload=payload)
-            plugin_row = next(row for row in rows if row["package_format"] == "codex-plugin")
-            builtin_row = next(row for row in rows if row["package_format"] == "built-in")
+            rows = collect_codex(
+                InventoryContext(home=home, use_native_commands=False, fixtures={"codex": payload})
+            )["facts"]
+            plugin_row = next(row for row in rows if row["fact_type"] == "codex-plugin")
+            builtin_row = next(row for row in rows if row["fact_type"] == "codex-built-in")
             self.assertEqual("plugins/demo/skills/demo/SKILL.md", plugin_row["capabilities"][0]["skill_path"])
             self.assertEqual(".system/creator/SKILL.md", builtin_row["capabilities"][0]["skill_path"])
-            self.assertEqual("unknown", plugin_row["exposure_state"])
-            self.assertEqual("unknown", plugin_row["verification"]["discovery"])
+            self.assertNotIn("validity", plugin_row)
+            self.assertNotIn("verification", plugin_row)
 
     def test_claude_scopes_and_broken_installation(self):
         with tempfile.TemporaryDirectory() as temp:
@@ -96,11 +100,10 @@ last_revision = "abc"
                     }
                 },
             )
-            rows = collect_claude_evidence(home, [])
-            self.assertEqual({"installed", "broken"}, {row["installation_state"] for row in rows})
+            rows = collect_claude(InventoryContext(home=home, use_native_commands=False))["facts"]
+            self.assertEqual({True, False}, {row["install_exists"] for row in rows})
             self.assertEqual({"user", "project"}, {row["scope"] for row in rows})
-            self.assertTrue(all(row["exposure_state"] == "unknown" for row in rows))
-            self.assertTrue(all(row["verification"]["discovery"] == "unknown" for row in rows))
+            self.assertTrue(all("validity" not in row for row in rows))
 
     def test_npx_lock_and_exposure_are_separate(self):
         with tempfile.TemporaryDirectory() as temp:
@@ -136,14 +139,16 @@ last_revision = "abc"
                     "agents": ["Codex"],
                 },
             ]
-            rows = collect_npx_evidence(home, [], use_native_commands=False, list_payload=listed)
+            rows = collect_npx(
+                InventoryContext(home=home, use_native_commands=False, fixtures={"npx-global": listed})
+            )["facts"]
             demo = [row for row in rows if row["package_name"] == "demo"]
             inactive = next(row for row in rows if row["package_name"] == "inactive")
             orphan = next(row for row in rows if row["package_name"] == "orphan")
-            self.assertEqual({"codex", "claude-code"}, {row["runtime"] for row in demo})
-            self.assertEqual(1, len({row["installation_key"] for row in demo}))
-            self.assertEqual("inactive", inactive["exposure_state"])
-            self.assertEqual("broken", orphan["installation_state"])
+            self.assertEqual(1, len(demo))
+            self.assertEqual(["claude-code", "codex"], demo[0]["runtimes"])
+            self.assertEqual([], inactive["runtimes"])
+            self.assertFalse(orphan["managed"])
 
     def test_npx_project_scope_requires_explicit_project(self):
         with tempfile.TemporaryDirectory() as temp:
@@ -169,39 +174,43 @@ last_revision = "abc"
                     "agents": ["Codex"],
                 }
             ]
-            without_project = collect_npx_evidence(home, [], use_native_commands=False)
-            with_project = collect_npx_evidence(
-                home,
-                [],
-                project=project,
-                use_native_commands=False,
-                project_list_payload=listed,
-            )
+            without_project = collect_npx(InventoryContext(home=home, use_native_commands=False))["facts"]
+            with_project = collect_npx(
+                InventoryContext(
+                    home=home,
+                    project=project,
+                    use_native_commands=False,
+                    fixtures={"npx-project": listed},
+                )
+            )["facts"]
             self.assertEqual([], without_project)
             self.assertEqual("project", with_project[0]["scope"])
             self.assertEqual(str(project.resolve()), with_project[0]["project_path"])
 
     def test_missing_plugin_install_paths_do_not_scan_the_working_directory(self):
-        codex_rows = collect_codex_evidence(
-            Path("/missing-home"),
-            [],
-            use_native_commands=False,
-            native_payload={
-                "installed": [
-                    {
-                        "name": "missing",
-                        "enabled": True,
-                        "source": {},
-                        "marketplaceSource": {
-                            "sourceType": "git",
-                            "source": "https://github.com/acme/repo.git",
-                        },
+        codex_rows = collect_codex(
+            InventoryContext(
+                home=Path("/missing-home"),
+                use_native_commands=False,
+                fixtures={
+                    "codex": {
+                        "installed": [
+                            {
+                                "name": "missing",
+                                "enabled": True,
+                                "source": {},
+                                "marketplaceSource": {
+                                    "sourceType": "git",
+                                    "source": "https://github.com/acme/repo.git",
+                                },
+                            }
+                        ]
                     }
-                ]
-            },
-        )
-        self.assertEqual("broken", codex_rows[0]["installation_state"])
-        self.assertEqual("unknown", codex_rows[0]["capabilities"][0]["skill_path"])
+                },
+            )
+        )["facts"]
+        self.assertFalse(codex_rows[0]["install_exists"])
+        self.assertEqual([], codex_rows[0]["capabilities"])
 
         with tempfile.TemporaryDirectory() as temp:
             home = Path(temp)
@@ -213,9 +222,14 @@ last_revision = "abc"
                 home / ".claude/plugins/known_marketplaces.json",
                 {"acme": {"source": {"source": "github", "repo": "acme/repo"}}},
             )
-            claude_rows = collect_claude_evidence(home, [])
-            self.assertEqual("broken", claude_rows[0]["installation_state"])
-            self.assertEqual("unknown", claude_rows[0]["capabilities"][0]["skill_path"])
+            claude_rows = collect_claude(InventoryContext(home=home, use_native_commands=False))["facts"]
+            self.assertFalse(claude_rows[0]["install_exists"])
+            self.assertEqual([], claude_rows[0]["capabilities"])
+
+    def test_npx_unavailable_is_a_collection_finding(self):
+        with tempfile.TemporaryDirectory() as temp, patch("adapters.npx_skills.shutil.which", return_value=None):
+            result = collect_npx(InventoryContext(home=Path(temp), use_native_commands=True))
+            self.assertTrue(any(row["code"] == "installer-unavailable" for row in result["findings"]))
 
 
 if __name__ == "__main__":

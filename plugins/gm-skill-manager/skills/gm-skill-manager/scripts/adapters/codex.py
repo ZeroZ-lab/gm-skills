@@ -1,11 +1,11 @@
-"""Codex Plugin and built-in evidence adapter."""
+"""Codex Runtime Facts adapter."""
 
 from __future__ import annotations
 
 import shutil
 from pathlib import Path
 
-from adapters.common import UNKNOWN, discover_skills, load_json, run
+from adapters.common import InventoryContext, UNKNOWN, adapter_result, discover_skills, run
 
 try:
     import tomllib
@@ -13,18 +13,13 @@ except ModuleNotFoundError:  # pragma: no cover
     tomllib = None
 
 
-def collect_codex_evidence(
-    home: Path,
-    warnings: list[str],
-    *,
-    use_native_commands: bool = True,
-    native_payload: dict | None = None,
-) -> list[dict]:
-    config = load_config(home / ".codex" / "config.toml", warnings)
-    evidence = []
-    payload = native_payload
+def collect(context: InventoryContext) -> dict:
+    findings = []
+    config = load_config(context.home / ".codex" / "config.toml", findings)
+    facts = []
+    payload = context.fixtures.get("codex")
     executable = shutil.which("codex")
-    native_allowed = use_native_commands and home == Path.home().resolve()
+    native_allowed = context.use_native_commands and context.home == Path.home().resolve()
     if payload is None and executable and native_allowed:
         result = run([executable, "plugin", "list", "--json"])
         if result and result.returncode == 0:
@@ -33,31 +28,39 @@ def collect_codex_evidence(
 
                 payload = json.loads(result.stdout)
             except ValueError:
-                warnings.append("Codex plugin list returned invalid JSON.")
+                findings.append({"runtime": "codex", "code": "invalid-native-json", "source": "plugin-list"})
         else:
-            warnings.append("Codex plugin list failed; using config fallback.")
+            findings.append({"runtime": "codex", "code": "native-command-failed", "source": "plugin-list"})
     if isinstance(payload, dict):
-        evidence.extend(from_native(payload, config, executable is not None))
+        native_facts, native_findings = from_native(payload, config, executable is not None)
+        facts.extend(native_facts)
+        findings.extend(native_findings)
     else:
-        evidence.extend(from_config(config, executable is not None))
-    evidence.extend(builtins(home, executable is not None))
-    return evidence
+        config_facts, config_findings = from_config(config, executable is not None)
+        facts.extend(config_facts)
+        findings.extend(config_findings)
+    facts.extend(builtins(context.home, executable is not None))
+    return adapter_result(facts, findings)
 
 
-def load_config(path: Path, warnings: list[str]) -> dict:
+def load_config(path: Path, findings: list[dict]) -> dict:
     if not path.is_file() or tomllib is None:
         return {}
     try:
         return tomllib.loads(path.read_text(encoding="utf-8"))
     except (OSError, ValueError):
-        warnings.append("Could not parse Codex config.toml.")
+        findings.append({"runtime": "codex", "code": "registry-parse-failed", "source": "config"})
         return {}
 
 
-def from_native(payload: dict, config: dict, installer_available: bool) -> list[dict]:
+def from_native(payload: dict, config: dict, installer_available: bool) -> tuple[list[dict], list[dict]]:
     rows = []
+    findings = []
     marketplaces = config.get("marketplaces", {})
     for item in payload.get("installed", []):
+        if not isinstance(item, dict) or not (item.get("pluginId") or item.get("name")):
+            findings.append({"runtime": "codex", "code": "unlocatable-native-record", "source": "plugin-list"})
+            continue
         marketplace_name = item.get("marketplaceName") or UNKNOWN
         marketplace = marketplaces.get(marketplace_name, {})
         source_info = item.get("marketplaceSource") or {}
@@ -68,61 +71,87 @@ def from_native(payload: dict, config: dict, installer_available: bool) -> list[
         package_path = relative_package_path(plugin_root, remote) if plugin_root else UNKNOWN
         development_local = source_type == "local"
         capabilities = discover_skills(plugin_root, package_path) if plugin_root else []
+        name = item.get("name") or UNKNOWN
         rows.append(
-            evidence_row(
-                runtime="codex",
-                package_format="codex-plugin",
-                channel="codex-plugin",
-                scope="user",
-                installation_state="installed" if plugin_root and plugin_root.exists() else "broken",
-                exposure_state="unknown" if item.get("enabled", False) else "inactive",
-                installer_available=installer_available,
-                remote_source=remote if not development_local else UNKNOWN,
-                package_path=package_path,
-                package_name=item.get("name") or UNKNOWN,
-                revision=marketplace.get("last_revision") or item.get("version") or UNKNOWN,
-                install_path=str(plugin_root) if plugin_root else UNKNOWN,
-                development_local=development_local,
-                capabilities=capabilities or unresolved_capability(item.get("name")),
-                registry="verified",
-                discovery="unknown",
-                notes=[] if capabilities else ["capability-set-unresolved"],
-            )
+            {
+                "fact_type": "codex-plugin",
+                "runtime": "codex",
+                "native_record_id": item.get("pluginId") or f"{name}@{marketplace_name}",
+                "scope": "user",
+                "enabled": item.get("enabled"),
+                "installer_available": installer_available,
+                "installer_compatible": True if installer_available else UNKNOWN,
+                "remote_source": remote if not development_local else UNKNOWN,
+                "package_path": package_path,
+                "package_name": name,
+                "revision": marketplace.get("last_revision") or item.get("version") or UNKNOWN,
+                "install_path": str(plugin_root) if plugin_root else UNKNOWN,
+                "install_exists": bool(plugin_root and plugin_root.exists()),
+                "development_local": development_local,
+                "capabilities": capabilities,
+                "notes": [] if capabilities else ["capability-set-unresolved"],
+                "provenance": {
+                    "source_kind": "native-command",
+                    "source_id": f"plugin:{name}@{marketplace_name}",
+                    "collection": "success",
+                },
+            }
         )
-    return rows
+    return rows, findings
 
 
-def from_config(config: dict, installer_available: bool) -> list[dict]:
+def from_config(config: dict, installer_available: bool) -> tuple[list[dict], list[dict]]:
     rows = []
+    findings = []
     marketplaces = config.get("marketplaces", {})
     for selector, settings in sorted(config.get("plugins", {}).items()):
+        if not isinstance(settings, dict):
+            rows.append(
+                {
+                    "fact_type": "codex-plugin",
+                    "runtime": "codex",
+                    "native_record_id": selector,
+                    "scope": "user",
+                    "malformed": True,
+                    "provenance": {
+                        "source_kind": "registry",
+                        "source_id": f"config-plugin:{selector}",
+                        "collection": "success",
+                    },
+                }
+            )
+            continue
         name, _, marketplace_name = selector.partition("@")
         marketplace = marketplaces.get(marketplace_name, {})
         source_type = marketplace.get("source_type", UNKNOWN)
         remote = marketplace.get("source", UNKNOWN)
         development_local = source_type == "local"
         rows.append(
-            evidence_row(
-                runtime="codex",
-                package_format="codex-plugin",
-                channel="codex-plugin",
-                scope="user",
-                installation_state="installed",
-                exposure_state="unknown" if settings.get("enabled", True) else "inactive",
-                installer_available=installer_available,
-                remote_source=remote if not development_local else UNKNOWN,
-                package_path=f"plugins/{name}" if not development_local else UNKNOWN,
-                package_name=name,
-                revision=marketplace.get("last_revision", UNKNOWN),
-                install_path=UNKNOWN,
-                development_local=development_local,
-                capabilities=unresolved_capability(name),
-                registry="verified",
-                discovery="unknown",
-                notes=["config-fallback"],
-            )
+            {
+                "fact_type": "codex-plugin",
+                "runtime": "codex",
+                "native_record_id": selector,
+                "scope": "user",
+                "enabled": settings.get("enabled", True),
+                "installer_available": installer_available,
+                "installer_compatible": True if installer_available else UNKNOWN,
+                "remote_source": remote if not development_local else UNKNOWN,
+                "package_path": f"plugins/{name}" if not development_local else UNKNOWN,
+                "package_name": name,
+                "revision": marketplace.get("last_revision", UNKNOWN),
+                "install_path": UNKNOWN,
+                "install_exists": True,
+                "development_local": development_local,
+                "capabilities": [],
+                "notes": ["config-fallback"],
+                "provenance": {
+                    "source_kind": "registry",
+                    "source_id": f"config-plugin:{selector}",
+                    "collection": "success",
+                },
+            }
         )
-    return rows
+    return rows, findings
 
 
 def builtins(home: Path, installer_available: bool) -> list[dict]:
@@ -143,25 +172,22 @@ def builtins(home: Path, installer_available: bool) -> list[dict]:
         capabilities = discover_skills(child, f".system/{child.name}")
         capability = capabilities[0] if capabilities else None
         rows.append(
-            evidence_row(
-                runtime="codex",
-                package_format="built-in",
-                channel="built-in",
-                scope="system",
-                installation_state="installed",
-                exposure_state="unknown",
-                installer_available=installer_available,
-                remote_source=UNKNOWN,
-                package_path=UNKNOWN,
-                package_name="codex-built-ins",
-                revision=version,
-                install_path=str(child),
-                development_local=False,
-                capabilities=[capability] if capability else unresolved_capability(child.name),
-                registry="verified",
-                discovery="unknown",
-                notes=[],
-            )
+            {
+                "fact_type": "codex-built-in",
+                "runtime": "codex",
+                "native_record_id": f"built-in:{child.name}",
+                "scope": "system",
+                "installer_available": installer_available,
+                "installer_compatible": True if installer_available else UNKNOWN,
+                "revision": version,
+                "install_path": str(child),
+                "capabilities": [capability] if capability else [],
+                "provenance": {
+                    "source_kind": "filesystem",
+                    "source_id": f"built-in:{child.name}",
+                    "collection": "success",
+                },
+            }
         )
     return rows
 
@@ -176,32 +202,3 @@ def relative_package_path(plugin_root: Path, marketplace_source: str) -> str:
             index = len(parts) - 1 - list(reversed(parts)).index("plugins")
             return Path(*parts[index:]).as_posix()
         return UNKNOWN
-
-
-def unresolved_capability(name: str | None) -> list[dict]:
-    return [{"name": name or UNKNOWN, "skill_path": UNKNOWN, "aliases": []}]
-
-
-def evidence_row(**values) -> dict:
-    return {
-        "runtime": values["runtime"],
-        "package_format": values["package_format"],
-        "installation_channel": values["channel"],
-        "scope": values["scope"],
-        "installation_state": values["installation_state"],
-        "exposure_state": values["exposure_state"],
-        "installer_available": values["installer_available"],
-        "installer_compatible": True if values["installer_available"] else UNKNOWN,
-        "remote_source": values["remote_source"],
-        "package_path": values["package_path"],
-        "package_name": values["package_name"],
-        "revision": values["revision"],
-        "install_path": values["install_path"],
-        "project_path": UNKNOWN,
-        "development_local": values["development_local"],
-        "capabilities": values["capabilities"],
-        "verification": {"registry": values["registry"], "discovery": values["discovery"]},
-        "aliases": [],
-        "notes": values["notes"],
-        "identity_gap": "missing-remote-or-skill-path",
-    }
