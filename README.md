@@ -19,7 +19,6 @@
 You can install any listed plugin the same way:
 
 - `auto-skill-fit`
-- `cc-design`
 - `gm-agent-docs`
 - `gm-de-ai-article`
 - `gm-skill-manager`
@@ -28,6 +27,7 @@ You can install any listed plugin the same way:
 - `gm-writing-topic-picker`
 - `gm-x-hook-writer`
 - `mattpocock-skills` (upstream-maintained, see [External / upstream plugins](#external--upstream-plugins))
+- `cc-design` (upstream-maintained, see [External / upstream plugins](#external--upstream-plugins))
 - `pngimg-download`
 - `ui-fork`
 - `visual-explanation-layout-engine`
@@ -52,7 +52,6 @@ If you already added this marketplace before the multi-plugin split, refresh the
 | Plugin | Description |
 | --- | --- |
 | `auto-skill-fit` | 扫描项目技术栈，推荐并安装匹配的 agent skills 套装。 |
-| `cc-design` | High-fidelity HTML design and prototype creation for slides, prototypes, landing pages, and visual systems. |
 | `gm-agent-docs` | 为项目生成 CLAUDE.md 和 AGENTS.md，输出命令优先、按任务分区的 agent 配置文件。 |
 | `gm-de-ai-article` | 去除公众号、博客和 newsletter 草稿里的模板化 AI 写作痕迹，保住作者判断与表达控制权。 |
 | `gm-skill-manager` | 统一盘点和协调 Codex Plugin、Claude Code Plugin 与 npx skills；ZCode 仅报告为 unmanaged。 |
@@ -64,23 +63,28 @@ If you already added this marketplace before the multi-plugin split, refresh the
 | `ui-fork` | 从 UI 截图提炼设计系统草案、组件规则、design tokens 和 AI 延续设计约束。 |
 | `visual-explanation-layout-engine` | Turn complex systems, flows, and state changes into mobile-readable HTML + SVG visual explanations. |
 | `mattpocock-skills` *(upstream)* | Matt Pocock 的工程类 agent skills 合集（TDD、code review、triage、debugging 等，共 20 个）。代码由上游 [`mattpocock/skills`](https://github.com/mattpocock/skills) 维护，本仓库只登记目录条目。 |
+| `cc-design` *(upstream)* | High-fidelity HTML design skill。代码由上游 [`ZeroZ-lab/cc-design`](https://github.com/ZeroZ-lab/cc-design) 维护，本仓库只登记目录条目。 |
 
 ## External / upstream plugins
 
 Some plugins are **not** developed in this repo. We only register a marketplace entry pointing at their upstream GitHub repo, so the upstream author keeps maintaining the code while users install through this marketplace.
 
-- `mattpocock-skills` ← [`github.com/mattpocock/skills`](https://github.com/mattpocock/skills)
+| Plugin | Upstream repo | Claude | Codex |
+| --- | --- | :-: | :-: |
+| `mattpocock-skills` | [`mattpocock/skills`](https://github.com/mattpocock/skills) | ✅ | — (上游无 codex manifest) |
+| `cc-design` | [`ZeroZ-lab/cc-design`](https://github.com/ZeroZ-lab/cc-design) | ✅ | — (本仓库主动下架，走上游 Claude) |
 
-Install:
+Install via Claude Code:
 
 ```bash
 /plugin marketplace add ZeroZ-lab/gm-skills
 /plugin install mattpocock-skills@gm-skills
+/plugin install cc-design@gm-skills
 ```
 
-By default the plugin tracks the upstream default branch (new skills and fixes flow in automatically on reinstall/refresh). To pin a version, edit the entry in [`.claude-plugin/external-plugins.json`](.claude-plugin/external-plugins.json) and add a `ref` or `sha`.
+Each entry is declared in [`.claude-plugin/external-plugins.json`](.claude-plugin/external-plugins.json) with a `markets` field (`["claude"]` and/or `["codex"]`) controlling which marketplace lists it. By default entries track the upstream default branch (new skills and fixes flow in automatically on reinstall/refresh). To pin a version, add a `ref` or `sha` to the entry.
 
-> Codex does **not** support these external plugins, because the upstream repos ship no `.codex-plugin/plugin.json`. They are Claude Code–only.
+> **Updating an upstream plugin:** Claude Code does not auto-refresh in the background. After the upstream ships a change, users need to `/plugin marketplace refresh gm-skills` and `/plugin update <name>@gm-skills` (or reinstall) to pull the latest.
 
 ## Structure
 

@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.4.0 (2026-07-06)
+
+- feat: convert `cc-design` to an upstream plugin — remove local `plugins/cc-design/` (209 files) and register it from `github:ZeroZ-lab/cc-design` instead
+- feat: external plugins now support a `markets` field (`["claude"]`/`["codex"]`) so a single entry can target one or both marketplaces
+- feat: `plugin:sync` writes external entries into the Claude and/or Codex marketplace based on `markets`; `plugin:validate` checks counts per-market and verifies Codex external entries too
+- breaking: `cc-design` is removed from the Codex marketplace (now Claude-only via upstream)
+
 ## 1.3.0 (2026-07-06)
 
 - feat: support external/upstream plugins — register `mattpocock-skills` from `github:mattpocock/skills` in the Claude marketplace without copying source

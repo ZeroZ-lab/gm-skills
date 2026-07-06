@@ -26,8 +26,8 @@ async function listPluginNames() {
 }
 
 // External (upstream-maintained) plugins are registered in a separate manifest.
-// They only appear in the Claude marketplace; Codex stays local-only.
-// Each entry is passed through as { name, description, homepage, source } where
+// Each entry has an optional `markets` array ("claude" and/or "codex") controlling
+// which marketplace lists it. Omitting `markets` defaults to ["claude"].
 // `source` uses the official object form (e.g. { source: "github", repo: "owner/repo" }).
 async function readExternalPlugins() {
   try {
@@ -35,6 +35,11 @@ async function readExternalPlugins() {
   } catch {
     return [];
   }
+}
+
+function inMarket(plugin, market) {
+  const markets = Array.isArray(plugin.markets) ? plugin.markets : ["claude"];
+  return markets.includes(market);
 }
 
 function pluginHomepage(pluginName) {
@@ -72,13 +77,28 @@ for (const pluginName of pluginNames) {
   });
 }
 
-// Local plugins first, then external (upstream-maintained) entries.
-const externalClaudeEntries = externalPlugins.map((plugin) => ({
-  name: plugin.name,
-  description: plugin.description,
-  homepage: plugin.homepage,
-  source: plugin.source
-}));
+// Local plugins first, then external (upstream-maintained) entries for each market.
+const externalClaudeEntries = externalPlugins
+  .filter((plugin) => inMarket(plugin, "claude"))
+  .map((plugin) => ({
+    name: plugin.name,
+    description: plugin.description,
+    homepage: plugin.homepage,
+    source: plugin.source
+  }));
+
+// Codex external entries need a policy/category wrapper to match the local shape.
+const externalCodexEntries = externalPlugins
+  .filter((plugin) => inMarket(plugin, "codex"))
+  .map((plugin) => ({
+    name: plugin.name,
+    source: plugin.source,
+    policy: {
+      installation: "AVAILABLE",
+      authentication: "ON_INSTALL"
+    },
+    category: plugin.category || "Productivity"
+  }));
 
 await writeJson(".claude-plugin/marketplace.json", {
   name: "gm-skills",
@@ -103,20 +123,25 @@ await writeJson(".agents/plugins/marketplace.json", {
   interface: {
     displayName: "gm-skills Marketplace"
   },
-  plugins: marketplaceEntries.map((plugin) => ({
-    name: plugin.name,
-    source: {
-      source: "local",
-      path: `./plugins/${plugin.name}`
-    },
-    policy: {
-      installation: "AVAILABLE",
-      authentication: "ON_INSTALL"
-    },
-    category: plugin.category
-  }))
+  plugins: [
+    ...marketplaceEntries.map((plugin) => ({
+      name: plugin.name,
+      source: {
+        source: "local",
+        path: `./plugins/${plugin.name}`
+      },
+      policy: {
+        installation: "AVAILABLE",
+        authentication: "ON_INSTALL"
+      },
+      category: plugin.category
+    })),
+    ...externalCodexEntries
+  ]
 });
 
+const claudeExternal = externalPlugins.filter((p) => inMarket(p, "claude")).length;
+const codexExternal = externalPlugins.filter((p) => inMarket(p, "codex")).length;
 console.log(
-  `Synced ${pluginNames.length} local plugin(s) and ${externalPlugins.length} external plugin(s) into marketplaces.`
+  `Synced ${pluginNames.length} local plugin(s), ${claudeExternal} Claude external, ${codexExternal} Codex external into marketplaces.`
 );

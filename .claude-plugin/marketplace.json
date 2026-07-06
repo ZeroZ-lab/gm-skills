@@ -13,12 +13,6 @@
       "source": "./plugins/auto-skill-fit"
     },
     {
-      "name": "cc-design",
-      "description": "High-fidelity HTML design skill with structured design planning, Iron Law guardrails, and verification-first delivery",
-      "homepage": "https://github.com/ZeroZ-lab/gm-skills/tree/main/plugins/cc-design",
-      "source": "./plugins/cc-design"
-    },
-    {
       "name": "gm-agent-docs",
       "description": "为项目生成 CLAUDE.md 和 AGENTS.md，分析项目结构后输出命令优先、按任务分区的 agent 配置文件。Use when users want to create or improve CLAUDE.md, AGENTS.md, or agent instruction files for their project.",
       "homepage": "https://github.com/ZeroZ-lab/gm-skills/tree/main/plugins/gm-agent-docs",
@@ -85,6 +79,15 @@
       "source": {
         "source": "github",
         "repo": "mattpocock/skills"
+      }
+    },
+    {
+      "name": "cc-design",
+      "description": "High-fidelity HTML design skill with structured design planning, Iron Law guardrails, and verification-first delivery. 由上游 ZeroZ-lab/cc-design 维护，本仓库不再保留本地副本。",
+      "homepage": "https://github.com/ZeroZ-lab/cc-design",
+      "source": {
+        "source": "github",
+        "repo": "ZeroZ-lab/cc-design"
       }
     }
   ]

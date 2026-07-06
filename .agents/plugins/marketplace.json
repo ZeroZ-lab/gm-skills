@@ -17,18 +17,6 @@
       "category": "Productivity"
     },
     {
-      "name": "cc-design",
-      "source": {
-        "source": "local",
-        "path": "./plugins/cc-design"
-      },
-      "policy": {
-        "installation": "AVAILABLE",
-        "authentication": "ON_INSTALL"
-      },
-      "category": "Productivity"
-    },
-    {
       "name": "gm-agent-docs",
       "source": {
         "source": "local",

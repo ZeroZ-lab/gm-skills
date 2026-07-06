@@ -70,7 +70,8 @@ const claudeMarketplace = await readJson(".claude-plugin/marketplace.json");
 const codexMarketplace = await readJson(".agents/plugins/marketplace.json");
 const pluginNames = await listPluginNames();
 
-// External (upstream-maintained) plugins appear only in the Claude marketplace.
+// External (upstream-maintained) plugins. Each entry opts into markets via `markets`
+// (["claude"], ["codex"], or both); omitting `markets` defaults to ["claude"].
 let externalPlugins = [];
 try {
   externalPlugins = await readJson(".claude-plugin/external-plugins.json");
@@ -78,25 +79,27 @@ try {
   externalPlugins = [];
 }
 
+function inMarket(plugin, market) {
+  const markets = Array.isArray(plugin.markets) ? plugin.markets : ["claude"];
+  return markets.includes(market);
+}
+
+const claudeExternal = externalPlugins.filter((p) => inMarket(p, "claude"));
+const codexExternal = externalPlugins.filter((p) => inMarket(p, "codex"));
+
 assert(Array.isArray(claudeMarketplace.plugins), "Claude marketplace plugins must be an array");
 assert(Array.isArray(codexMarketplace.plugins), "Codex marketplace plugins must be an array");
 assert(Array.isArray(externalPlugins), "external-plugins.json must be an array");
 assert(
-  claudeMarketplace.plugins?.length === pluginNames.length + externalPlugins.length,
-  "Claude marketplace plugin count matches local plugins + external plugins"
+  claudeMarketplace.plugins?.length === pluginNames.length + claudeExternal.length,
+  "Claude marketplace plugin count matches local plugins + Claude external plugins"
 );
 assert(
-  codexMarketplace.plugins?.length === pluginNames.length,
-  "Codex marketplace plugin count matches local plugins only"
+  codexMarketplace.plugins?.length === pluginNames.length + codexExternal.length,
+  "Codex marketplace plugin count matches local plugins + Codex external plugins"
 );
 
-for (const external of externalPlugins) {
-  const label = `External plugin ${external.name}`;
-  assert(typeof external.name === "string" && external.name.length > 0, `${label} has a name`);
-  assert(!pluginNames.includes(external.name), `${label} must not collide with a local plugin name`);
-  assert(typeof external.description === "string", `${label} has a description`);
-
-  const source = external.source;
+function assertValidSource(source, label) {
   assert(
     typeof source === "object" && source !== null,
     `${label} source must be an object (github/url/git-subdir)`
@@ -116,13 +119,31 @@ for (const external of externalPlugins) {
   } else {
     assert(false, `${label} source.source "${source.source}" is unsupported`);
   }
+}
 
-  const claudeEntry = claudeMarketplace.plugins?.find((plugin) => plugin.name === external.name);
-  assert(Boolean(claudeEntry), `${label} exists in Claude marketplace`);
-  assert(
-    JSON.stringify(claudeEntry?.source) === JSON.stringify(external.source),
-    `${label} Claude marketplace source matches external-plugins.json`
-  );
+for (const external of externalPlugins) {
+  const label = `External plugin ${external.name}`;
+  assert(typeof external.name === "string" && external.name.length > 0, `${label} has a name`);
+  assert(!pluginNames.includes(external.name), `${label} must not collide with a local plugin name`);
+  assert(typeof external.description === "string", `${label} has a description`);
+  assertValidSource(external.source, label);
+
+  if (inMarket(external, "claude")) {
+    const claudeEntry = claudeMarketplace.plugins?.find((plugin) => plugin.name === external.name);
+    assert(Boolean(claudeEntry), `${label} exists in Claude marketplace`);
+    assert(
+      JSON.stringify(claudeEntry?.source) === JSON.stringify(external.source),
+      `${label} Claude marketplace source matches external-plugins.json`
+    );
+  }
+  if (inMarket(external, "codex")) {
+    const codexEntry = codexMarketplace.plugins?.find((plugin) => plugin.name === external.name);
+    assert(Boolean(codexEntry), `${label} exists in Codex marketplace`);
+    assert(
+      JSON.stringify(codexEntry?.source) === JSON.stringify(external.source),
+      `${label} Codex marketplace source matches external-plugins.json`
+    );
+  }
 }
 
 for (const pluginName of pluginNames) {
@@ -185,5 +206,5 @@ if (failures.length > 0) {
 }
 
 console.log(
-  `Plugin package validation passed for ${pluginNames.length} local + ${externalPlugins.length} external plugin(s).`
+  `Plugin package validation passed for ${pluginNames.length} local + ${claudeExternal.length} Claude external + ${codexExternal.length} Codex external plugin(s).`
 );

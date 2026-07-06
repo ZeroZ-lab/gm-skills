@@ -6,6 +6,17 @@
     "source": {
       "source": "github",
       "repo": "mattpocock/skills"
-    }
+    },
+    "markets": ["claude"]
+  },
+  {
+    "name": "cc-design",
+    "description": "High-fidelity HTML design skill with structured design planning, Iron Law guardrails, and verification-first delivery. 由上游 ZeroZ-lab/cc-design 维护，本仓库不再保留本地副本。",
+    "homepage": "https://github.com/ZeroZ-lab/cc-design",
+    "source": {
+      "source": "github",
+      "repo": "ZeroZ-lab/cc-design"
+    },
+    "markets": ["claude"]
   }
 ]
