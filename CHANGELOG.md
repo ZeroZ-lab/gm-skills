@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.3.0 (2026-07-06)
+
+- feat: support external/upstream plugins — register `mattpocock-skills` from `github:mattpocock/skills` in the Claude marketplace without copying source
+- feat: add `.claude-plugin/external-plugins.json` registry; `plugin:sync` merges external entries into the Claude marketplace only (Codex stays local-only)
+- feat: `plugin:validate` now recognizes external plugins and verifies their object-form `source` and name uniqueness
+- docs: document external/upstream plugin workflow in README and CLAUDE.md
+
 ## 1.2.0 (2026-06-24)
 
 - feat: implement the Observed Evidence deepening, Runtime Facts seam, schema 2.0, fail-visible validation, and non-synthetic ZCode detection

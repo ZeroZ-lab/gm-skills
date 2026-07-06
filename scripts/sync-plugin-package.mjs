@@ -25,6 +25,18 @@ async function listPluginNames() {
     .sort();
 }
 
+// External (upstream-maintained) plugins are registered in a separate manifest.
+// They only appear in the Claude marketplace; Codex stays local-only.
+// Each entry is passed through as { name, description, homepage, source } where
+// `source` uses the official object form (e.g. { source: "github", repo: "owner/repo" }).
+async function readExternalPlugins() {
+  try {
+    return await readJson(".claude-plugin/external-plugins.json");
+  } catch {
+    return [];
+  }
+}
+
 function pluginHomepage(pluginName) {
   return `${repoUrl}/tree/main/plugins/${pluginName}`;
 }
@@ -35,6 +47,7 @@ function codexCategory(manifest) {
 
 const pkg = await readJson("package.json");
 const pluginNames = await listPluginNames();
+const externalPlugins = await readExternalPlugins();
 const marketplaceEntries = [];
 
 for (const pluginName of pluginNames) {
@@ -59,6 +72,14 @@ for (const pluginName of pluginNames) {
   });
 }
 
+// Local plugins first, then external (upstream-maintained) entries.
+const externalClaudeEntries = externalPlugins.map((plugin) => ({
+  name: plugin.name,
+  description: plugin.description,
+  homepage: plugin.homepage,
+  source: plugin.source
+}));
+
 await writeJson(".claude-plugin/marketplace.json", {
   name: "gm-skills",
   description: "ZeroZ-lab agent plugin marketplace for design, writing, agent workflow, and visual explanation tools.",
@@ -66,12 +87,15 @@ await writeJson(".claude-plugin/marketplace.json", {
     name: "ZeroZ-lab"
   },
   homepage: repoUrl,
-  plugins: marketplaceEntries.map((plugin) => ({
-    name: plugin.name,
-    description: plugin.description,
-    homepage: plugin.homepage,
-    source: `./plugins/${plugin.name}`
-  }))
+  plugins: [
+    ...marketplaceEntries.map((plugin) => ({
+      name: plugin.name,
+      description: plugin.description,
+      homepage: plugin.homepage,
+      source: `./plugins/${plugin.name}`
+    })),
+    ...externalClaudeEntries
+  ]
 });
 
 await writeJson(".agents/plugins/marketplace.json", {
@@ -93,4 +117,6 @@ await writeJson(".agents/plugins/marketplace.json", {
   }))
 });
 
-console.log(`Synced ${pluginNames.length} plugin manifests and marketplaces.`);
+console.log(
+  `Synced ${pluginNames.length} local plugin(s) and ${externalPlugins.length} external plugin(s) into marketplaces.`
+);

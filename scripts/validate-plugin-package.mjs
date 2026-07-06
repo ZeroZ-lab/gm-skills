@@ -70,16 +70,60 @@ const claudeMarketplace = await readJson(".claude-plugin/marketplace.json");
 const codexMarketplace = await readJson(".agents/plugins/marketplace.json");
 const pluginNames = await listPluginNames();
 
+// External (upstream-maintained) plugins appear only in the Claude marketplace.
+let externalPlugins = [];
+try {
+  externalPlugins = await readJson(".claude-plugin/external-plugins.json");
+} catch {
+  externalPlugins = [];
+}
+
 assert(Array.isArray(claudeMarketplace.plugins), "Claude marketplace plugins must be an array");
 assert(Array.isArray(codexMarketplace.plugins), "Codex marketplace plugins must be an array");
+assert(Array.isArray(externalPlugins), "external-plugins.json must be an array");
 assert(
-  claudeMarketplace.plugins?.length === pluginNames.length,
-  "Claude marketplace plugin count matches plugins directory"
+  claudeMarketplace.plugins?.length === pluginNames.length + externalPlugins.length,
+  "Claude marketplace plugin count matches local plugins + external plugins"
 );
 assert(
   codexMarketplace.plugins?.length === pluginNames.length,
-  "Codex marketplace plugin count matches plugins directory"
+  "Codex marketplace plugin count matches local plugins only"
 );
+
+for (const external of externalPlugins) {
+  const label = `External plugin ${external.name}`;
+  assert(typeof external.name === "string" && external.name.length > 0, `${label} has a name`);
+  assert(!pluginNames.includes(external.name), `${label} must not collide with a local plugin name`);
+  assert(typeof external.description === "string", `${label} has a description`);
+
+  const source = external.source;
+  assert(
+    typeof source === "object" && source !== null,
+    `${label} source must be an object (github/url/git-subdir)`
+  );
+  assert(
+    typeof source.source === "string" && source.source.length > 0,
+    `${label} source.source must be a non-empty string`
+  );
+  // GitHub sources require an owner/repo string; url/git-subdir require a url.
+  if (source.source === "github") {
+    assert(
+      typeof source.repo === "string" && /^[^/]+\/[^/]+$/.test(source.repo),
+      `${label} github source.repo must be in owner/repo form`
+    );
+  } else if (source.source === "url" || source.source === "git-subdir") {
+    assert(typeof source.url === "string", `${label} ${source.source} source.url is required`);
+  } else {
+    assert(false, `${label} source.source "${source.source}" is unsupported`);
+  }
+
+  const claudeEntry = claudeMarketplace.plugins?.find((plugin) => plugin.name === external.name);
+  assert(Boolean(claudeEntry), `${label} exists in Claude marketplace`);
+  assert(
+    JSON.stringify(claudeEntry?.source) === JSON.stringify(external.source),
+    `${label} Claude marketplace source matches external-plugins.json`
+  );
+}
 
 for (const pluginName of pluginNames) {
   const pluginDir = `plugins/${pluginName}`;
@@ -140,4 +184,6 @@ if (failures.length > 0) {
   process.exit(1);
 }
 
-console.log(`Plugin package validation passed for ${pluginNames.length} plugins.`);
+console.log(
+  `Plugin package validation passed for ${pluginNames.length} local + ${externalPlugins.length} external plugin(s).`
+);

@@ -27,6 +27,7 @@ You can install any listed plugin the same way:
 - `gm-topic-engine`
 - `gm-writing-topic-picker`
 - `gm-x-hook-writer`
+- `mattpocock-skills` (upstream-maintained, see [External / upstream plugins](#external--upstream-plugins))
 - `pngimg-download`
 - `ui-fork`
 - `visual-explanation-layout-engine`
@@ -62,6 +63,24 @@ If you already added this marketplace before the multi-plugin split, refresh the
 | `pngimg-download` | Search and download free transparent PNG images from pngimg.com. |
 | `ui-fork` | 从 UI 截图提炼设计系统草案、组件规则、design tokens 和 AI 延续设计约束。 |
 | `visual-explanation-layout-engine` | Turn complex systems, flows, and state changes into mobile-readable HTML + SVG visual explanations. |
+| `mattpocock-skills` *(upstream)* | Matt Pocock 的工程类 agent skills 合集（TDD、code review、triage、debugging 等，共 20 个）。代码由上游 [`mattpocock/skills`](https://github.com/mattpocock/skills) 维护，本仓库只登记目录条目。 |
+
+## External / upstream plugins
+
+Some plugins are **not** developed in this repo. We only register a marketplace entry pointing at their upstream GitHub repo, so the upstream author keeps maintaining the code while users install through this marketplace.
+
+- `mattpocock-skills` ← [`github.com/mattpocock/skills`](https://github.com/mattpocock/skills)
+
+Install:
+
+```bash
+/plugin marketplace add ZeroZ-lab/gm-skills
+/plugin install mattpocock-skills@gm-skills
+```
+
+By default the plugin tracks the upstream default branch (new skills and fixes flow in automatically on reinstall/refresh). To pin a version, edit the entry in [`.claude-plugin/external-plugins.json`](.claude-plugin/external-plugins.json) and add a `ref` or `sha`.
+
+> Codex does **not** support these external plugins, because the upstream repos ship no `.codex-plugin/plugin.json`. They are Claude Code–only.
 
 ## Structure
 
@@ -71,6 +90,7 @@ gm-skills/
 │   └── plugins/
 │       └── marketplace.json
 ├── .claude-plugin/
+│   ├── external-plugins.json
 │   ├── marketplace.json
 │   └── release.json
 ├── plugins/

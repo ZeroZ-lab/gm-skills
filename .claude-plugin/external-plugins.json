@@ -1,0 +1,11 @@
+[
+  {
+    "name": "mattpocock-skills",
+    "description": "Matt Pocock 的工程类 agent skills 合集：TDD、code review、triage、debugging、domain modeling 等，共 20 个。由上游 mattpocock/skills 维护，本 marketplace 仅登记目录条目。",
+    "homepage": "https://github.com/mattpocock/skills",
+    "source": {
+      "source": "github",
+      "repo": "mattpocock/skills"
+    }
+  }
+]
