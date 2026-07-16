@@ -1,6 +1,6 @@
 {
   "name": "gm-skill-manager",
-  "version": "1.5.0",
+  "version": "1.6.0",
   "description": "统一盘点和协调 Codex Plugin、Claude Code Plugin 与 npx skills，ZCode 仅报告为 unmanaged。",
   "author": {
     "name": "ZeroZ-lab",

@@ -1,6 +1,6 @@
 {
   "name": "vs-story",
-  "version": "1.5.0",
+  "version": "1.6.0",
   "description": "Build object-driven, scroll-driven explanatory webpages with Three.js + Anime.js. Objects, relationships, and states change as the user scrolls so the visuals — not paragraphs — carry the explanation.",
   "author": {
     "name": "ZeroZ-lab",

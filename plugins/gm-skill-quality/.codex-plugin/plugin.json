@@ -1,6 +1,6 @@
 {
   "name": "gm-skill-quality",
-  "version": "1.5.0",
+  "version": "1.6.0",
   "description": "审查 agent skills 质量，对 SKILL.md 给出结构化审查报告和优化建议。",
   "author": {
     "name": "ZeroZ-lab",

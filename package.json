@@ -1,6 +1,6 @@
 {
   "name": "gm-skills",
-  "version": "1.5.0",
+  "version": "1.6.0",
   "description": "Marketplace monorepo for ZeroZ-lab agent plugins.",
   "private": true,
   "license": "MIT",
