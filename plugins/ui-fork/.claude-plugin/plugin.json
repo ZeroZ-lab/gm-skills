@@ -1,6 +1,6 @@
 {
   "name": "ui-fork",
-  "version": "1.4.0",
+  "version": "1.5.0",
   "description": "从一张或多张 UI 截图中提炼产品级设计系统草案、组件规则、design tokens 和后续 AI 延续设计约束。",
   "author": {
     "name": "ZeroZ-lab",
