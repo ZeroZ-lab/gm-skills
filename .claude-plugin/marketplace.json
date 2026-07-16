@@ -73,6 +73,12 @@
       "source": "./plugins/visual-explanation-layout-engine"
     },
     {
+      "name": "vs-story",
+      "description": "Build object-driven, scroll-driven explanatory webpages with Three.js + Anime.js. Objects, relationships, and states change as the user scrolls so the visuals — not paragraphs — carry the explanation.",
+      "homepage": "https://github.com/ZeroZ-lab/gm-skills/tree/main/plugins/vs-story",
+      "source": "./plugins/vs-story"
+    },
+    {
       "name": "mattpocock-skills",
       "description": "Matt Pocock 的工程类 agent skills 合集：TDD、code review、triage、debugging、domain modeling 等，共 20 个。由上游 mattpocock/skills 维护，本 marketplace 仅登记目录条目。",
       "homepage": "https://github.com/mattpocock/skills",

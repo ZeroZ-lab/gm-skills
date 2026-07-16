@@ -1,0 +1,20 @@
+{
+  "name": "vs-story",
+  "version": "1.4.0",
+  "description": "Build object-driven, scroll-driven explanatory webpages with Three.js + Anime.js. Objects, relationships, and states change as the user scrolls so the visuals — not paragraphs — carry the explanation.",
+  "author": {
+    "name": "ZeroZ-lab",
+    "url": "https://github.com/ZeroZ-lab/gm-skills"
+  },
+  "homepage": "https://github.com/ZeroZ-lab/gm-skills/tree/main/plugins/vs-story",
+  "repository": "https://github.com/ZeroZ-lab/gm-skills.git",
+  "license": "MIT",
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "vs-story",
+    "shortDescription": "用 Three.js + Anime.js 把概念、流程、系统做成对象驱动的滚动叙事网页。",
+    "developerName": "ZeroZ-lab",
+    "category": "Productivity",
+    "websiteURL": "https://github.com/ZeroZ-lab/gm-skills/tree/main/plugins/vs-story"
+  }
+}

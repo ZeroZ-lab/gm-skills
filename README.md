@@ -30,6 +30,7 @@ You can install any listed plugin the same way:
 - `cc-design` (upstream-maintained, see [External / upstream plugins](#external--upstream-plugins))
 - `pngimg-download`
 - `ui-fork`
+- `vs-story`
 - `visual-explanation-layout-engine`
 
 ### Codex
@@ -61,6 +62,7 @@ If you already added this marketplace before the multi-plugin split, refresh the
 | `gm-x-hook-writer` | 为 X/Twitter 推文和 thread 生成更强的开头 hook 和首句。 |
 | `pngimg-download` | Search and download free transparent PNG images from pngimg.com. |
 | `ui-fork` | 从 UI 截图提炼设计系统草案、组件规则、design tokens 和 AI 延续设计约束。 |
+| `vs-story` | 用 Three.js + Anime.js 把概念、流程、系统做成对象驱动的滚动叙事网页，视觉而非文字承担解释。 |
 | `visual-explanation-layout-engine` | Turn complex systems, flows, and state changes into mobile-readable HTML + SVG visual explanations. |
 | `mattpocock-skills` *(upstream)* | Matt Pocock 的工程类 agent skills 合集（TDD、code review、triage、debugging 等，共 20 个）。代码由上游 [`mattpocock/skills`](https://github.com/mattpocock/skills) 维护，本仓库只登记目录条目。 |
 | `cc-design` *(upstream)* | High-fidelity HTML design skill。代码由上游 [`ZeroZ-lab/cc-design`](https://github.com/ZeroZ-lab/cc-design) 维护，本仓库只登记目录条目。 |
