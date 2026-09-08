@@ -104,11 +104,11 @@ gm-skills/
 ├── plugins/
 │   ├── auto-skill-fit/
 │   │   ├── .claude-plugin/plugin.json
-│   │   ├── .codex-plugin/plugin.json
+│   │   ├── .codex-plugin/plugin.json   # only for plugins listed in the Codex marketplace
 │   │   └── skills/auto-skill-fit/
 │   ├── cc-design/
 │   │   ├── .claude-plugin/plugin.json
-│   │   ├── .codex-plugin/plugin.json
+│   │   ├── .codex-plugin/plugin.json   # only for plugins listed in the Codex marketplace
 │   │   └── skills/cc-design/
 │   └── ...
 ├── scripts/
@@ -142,4 +142,5 @@ npm run plugin:validate
 - Root `.claude-plugin/marketplace.json` is the Claude marketplace catalog.
 - Root `.agents/plugins/marketplace.json` is the Codex marketplace catalog.
 - Each `plugins/<plugin-name>/` directory is a self-contained published plugin.
+- Local plugins choose their marketplaces with an optional `markets` array in `.claude-plugin/plugin.json` (e.g. `"markets": ["claude"]`); omitting it lists the plugin in both marketplaces, and a Codex-listed plugin needs `.codex-plugin/plugin.json`.
 - The repository uses a single version from [package.json](/Users/zhengjianqiao/workspace/gm-skills/package.json); `npm run plugin:sync` propagates it to every plugin manifest.

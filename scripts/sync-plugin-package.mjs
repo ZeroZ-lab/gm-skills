@@ -50,31 +50,56 @@ function codexCategory(manifest) {
   return manifest.interface?.category || "Productivity";
 }
 
+// Local plugins opt into markets via an optional `markets` array in their Claude
+// manifest (["claude"], ["codex"], or both); omitting it defaults to both, which
+// keeps every pre-existing plugin dual-market without manifest changes.
+function localMarkets(claudeManifest) {
+  return Array.isArray(claudeManifest.markets) ? claudeManifest.markets : ["claude", "codex"];
+}
+
 const pkg = await readJson("package.json");
 const pluginNames = await listPluginNames();
 const externalPlugins = await readExternalPlugins();
-const marketplaceEntries = [];
+const claudeLocalEntries = [];
+const codexLocalEntries = [];
 
 for (const pluginName of pluginNames) {
   const claudePath = `plugins/${pluginName}/.claude-plugin/plugin.json`;
   const codexPath = `plugins/${pluginName}/.codex-plugin/plugin.json`;
   const claudeManifest = await readJson(claudePath);
-  const codexManifest = await readJson(codexPath);
+  const markets = localMarkets(claudeManifest);
+  const inClaude = markets.includes("claude");
+  const inCodex = markets.includes("codex");
 
   claudeManifest.name = pluginName;
   claudeManifest.version = pkg.version;
-  codexManifest.name = pluginName;
-  codexManifest.version = pkg.version;
-
   await writeJson(claudePath, claudeManifest);
-  await writeJson(codexPath, codexManifest);
 
-  marketplaceEntries.push({
-    name: pluginName,
-    description: claudeManifest.description || codexManifest.description || pluginName,
-    homepage: claudeManifest.homepage || pluginHomepage(pluginName),
-    category: codexCategory(codexManifest)
-  });
+  let codexManifest = null;
+  if (inCodex) {
+    const codexManifestExists = await fs
+      .access(path.join(rootDir, codexPath))
+      .then(() => true)
+      .catch(() => false);
+    if (!codexManifestExists) {
+      throw new Error(`${pluginName} lists "codex" in markets but ${codexPath} is missing`);
+    }
+    codexManifest = await readJson(codexPath);
+    codexManifest.name = pluginName;
+    codexManifest.version = pkg.version;
+    await writeJson(codexPath, codexManifest);
+  }
+
+  if (inClaude) {
+    claudeLocalEntries.push({
+      name: pluginName,
+      description: claudeManifest.description || codexManifest?.description || pluginName,
+      homepage: claudeManifest.homepage || pluginHomepage(pluginName)
+    });
+  }
+  if (inCodex) {
+    codexLocalEntries.push({ name: pluginName, category: codexCategory(codexManifest) });
+  }
 }
 
 // Local plugins first, then external (upstream-maintained) entries for each market.
@@ -108,7 +133,7 @@ await writeJson(".claude-plugin/marketplace.json", {
   },
   homepage: repoUrl,
   plugins: [
-    ...marketplaceEntries.map((plugin) => ({
+    ...claudeLocalEntries.map((plugin) => ({
       name: plugin.name,
       description: plugin.description,
       homepage: plugin.homepage,
@@ -124,7 +149,7 @@ await writeJson(".agents/plugins/marketplace.json", {
     displayName: "gm-skills Marketplace"
   },
   plugins: [
-    ...marketplaceEntries.map((plugin) => ({
+    ...codexLocalEntries.map((plugin) => ({
       name: plugin.name,
       source: {
         source: "local",
@@ -143,5 +168,5 @@ await writeJson(".agents/plugins/marketplace.json", {
 const claudeExternal = externalPlugins.filter((p) => inMarket(p, "claude")).length;
 const codexExternal = externalPlugins.filter((p) => inMarket(p, "codex")).length;
 console.log(
-  `Synced ${pluginNames.length} local plugin(s), ${claudeExternal} Claude external, ${codexExternal} Codex external into marketplaces.`
+  `Synced ${claudeLocalEntries.length} Claude local, ${codexLocalEntries.length} Codex local, ${claudeExternal} Claude external, ${codexExternal} Codex external plugin(s) into marketplaces.`
 );

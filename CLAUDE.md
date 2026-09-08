@@ -21,9 +21,9 @@ Use `npm run plugin:sync` after adding or renaming plugins. It updates every plu
 
 Use `npm run plugin:validate` before commit. It verifies:
 
-1. Every plugin has `.claude-plugin/plugin.json` and `.codex-plugin/plugin.json`
+1. Every plugin has `.claude-plugin/plugin.json`; plugins listed for Codex (per the manifest's optional `markets` array, default both) also have `.codex-plugin/plugin.json`
 2. Every plugin has `skills/<plugin-name>/SKILL.md`
-3. Claude marketplace lists every local plugin plus every Claude external plugin; Codex marketplace lists every local plugin plus every Codex external plugin
+3. Claude marketplace lists every Claude-local plugin plus every Claude external plugin; Codex marketplace lists every Codex-local plugin plus every Codex external plugin (local membership per plugin comes from `markets`)
 4. All plugin manifest versions match `package.json`
 5. Referenced `references/`, `examples/`, `templates/`, and `assets/` stay inside each plugin
 6. Every external plugin in `.claude-plugin/external-plugins.json` has a matching entry in the Claude marketplace with a valid object-form `source` (e.g. `{ "source": "github", "repo": "owner/repo" }`) and a name that does not collide with a local plugin
@@ -31,8 +31,8 @@ Use `npm run plugin:validate` before commit. It verifies:
 ## Adding A Plugin
 
 1. Create `plugins/<plugin-name>/`
-2. Add `.claude-plugin/plugin.json`
-3. Add `.codex-plugin/plugin.json`
+2. Add `.claude-plugin/plugin.json` — set `"markets": ["claude"]` here to publish Claude-only
+3. Add `.codex-plugin/plugin.json` (skip when Claude-only)
 4. Add `skills/<plugin-name>/SKILL.md`
 5. Keep all plugin-specific support files in that same plugin
 6. Run `npm run plugin:sync`
