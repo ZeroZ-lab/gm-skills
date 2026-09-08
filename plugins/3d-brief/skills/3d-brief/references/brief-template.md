@@ -2,7 +2,7 @@
 
 替换所有双花括号占位符。按产品/空间分支填 DOMAIN，按用途定 RUBRIC，读取 [评审模板](review-template.md) 并把固定评审正文嵌入 REVIEW_PROTOCOL（包括输入、输出与冻结规则）；输出须可独立交接。示例中的机器、预算和设计值不能作为用户事实。
 
-RUNTIME 写工具、资产政策、制作授权、时间/付费上限；尚未授权制作时明确执行前配置项。SLUG 为安全的项目目录名。DOMAIN 含事实台账、逐项资产数量与单位、结构、材质、灯光、相机、失败条件；空间另含区域与动线表。PLAN_FILE 为该项目需维护的结构/空间规划文件说明。CYCLES 写最小/最大完整评审轮数及提前耗尽预算的处理，常规建议 3/5，严格 Skyline 至少 4 轮。REVIEWERS 写职责及维度分工。
+RUNTIME 写工具、资产政策、制作授权、时间/付费上限；尚未授权制作时明确执行前配置项。SLUG 为安全的项目目录名。DOMAIN 含事实台账、逐项资产数量与单位、结构、材质、灯光、相机、失败条件；空间另含区域与动线表。PLAN_FILE 为 `_work/PROJECT.md` 中结构/空间规划章节的内容要求。CYCLES 写最小/最大完整评审轮数及提前耗尽预算的处理，常规建议 3/5，严格 Skyline 至少 4 轮。REVIEWERS 写职责及维度分工。
 
 ---
 
@@ -24,7 +24,30 @@ RUNTIME 写工具、资产政策、制作授权、时间/付费上限；尚未�
 
 ## 02 / PROTOCOL — 恢复与证据
 
-项目目录：`{{SLUG}}/`。保留已有无关文件。维护 ART_DIRECTION.md（方向与理由）、ASSET_INVENTORY.md（资产 ID、数量、来源、许可、状态、证据）、TASK_STATE.md（状态、授权、预算已用/剩余、最后成功命令、评分、问题、下一步）、checkpoints/（稳定阶段场景）。{{PLAN_FILE}}
+项目目录：`{{SLUG}}/`。保留已有无关文件。维护 `_work/PROJECT.md`，用固定章节集中记录美术方向、资产清单（ID、数量、来源、许可、状态、证据）、任务状态（授权、预算已用/剩余、最后成功命令、评分、问题、下一步）及结构/空间规划。稳定阶段场景保存到 `_work/checkpoints/`；同一有效场景可被多个阶段引用，无需重复复制。{{PLAN_FILE}}
+
+制作项目采用以下布局，所有路径相对项目根目录；目录在首次写入实际产物时创建：
+
+```text
+{{SLUG}}/
+  {{SLUG}}_brief.md
+  {{SLUG}}_final.blend
+  README.md
+  renders/                 # 最终 PNG、contact_sheet.jpg、manifest.json
+  assets/                  # 未打包的必要资源，按需创建
+  _work/
+    PROJECT.md             # 方向、资产、状态、规划、简报检查
+    scripts/               # 实际使用的生成与重渲脚本
+    checkpoints/           # 有效阶段场景
+    reviews/
+      REVIEW_PROTOCOL.md   # 冻结的评审协议
+      round_<n>/           # 本轮原图、contact sheet、review.md、日志
+    validation/            # 冷启动验证图片与日志
+```
+
+顶层仅放交付入口和成品；临时脚本、日志、备份及派生图集中到 `_work/` 的对应子目录。每轮问题、分数、回归和各评审员证据合并到一个 `review.md`，保留职责和更正记录。简报检查写入 PROJECT.md 的“简报检查”章节；已有独立检查文件可直接引用，避免复制同份记录。工作文档原位更新，重大合同/协议修订才保留明确版本。成品依赖放入 `assets/` 或打包到场景；README 的重渲命令可引用 `_work/scripts/`，明确其为复现所需，不能把 `_work/` 当成可随意删除的缓存。保留必要评审证据与恢复点，不为每次试验另建项目目录或复制整套工程。
+
+继续旧项目时沿用已有路径，并在 README 中记录实际位置；不为符合新布局自动搬移、删除或复制旧成果。用户明确要求整理旧项目时，更新脚本、资源与证据引用并验证后再完成迁移。用户指定的布局优先，简报内须记录实际路径映射。
 
 恢复时重读 brief 与状态，打开最近有效检查点，延续总预算，不盲目重建。采用 BRIEF_READY → PREFLIGHT → BUILDING → REVIEWING → VALIDATING → COMPLETE；未达标到限为 PARTIAL，关键依赖不可用为 BLOCKED。
 
@@ -42,7 +65,7 @@ RUNTIME 写工具、资产政策、制作授权、时间/付费上限；尚未�
 
 {{CYCLES}}
 
-构建/修改 → 渲染全部固定相机 → 检查原图与 contact sheet → 诊断 → 修复 → 同机位重渲。每条问题记录资产/区域 ID、文件、严重度、根因与修正。保留 `renders/round_<n>/`、`reviews/round_<n>/` 和对应场景版本；每轮标记 improved / unchanged / regressed，首轮 baseline。相机变化时建立新基线，不能冒充同机位比较。
+构建/修改 → 渲染全部固定相机 → 检查原图与 contact sheet → 诊断 → 修复 → 同机位重渲。每条问题记录资产/区域 ID、文件、严重度、根因与修正。将本轮原图、contact sheet、日志和合并评审 `review.md` 保留在 `_work/reviews/round_<n>/`，引用 `_work/checkpoints/` 中的对应场景版本；每轮标记 improved / unchanged / regressed，首轮 baseline。相机变化时建立新基线，不能冒充同机位比较。
 
 视觉评分基于实际像素；技术评分检查场景、依赖、脚本与日志。每项必需资产在至少一个中景/特写中可辨认；不足则补拍，固定集是证据下限。原图保留，缩放/裁切派生图注明来源；看不到的内容标为未验证。
 
@@ -64,9 +87,9 @@ RUNTIME 写工具、资产政策、制作授权、时间/付费上限；尚未�
 
 ## 06 / VALIDATION — 冷启动
 
-冻结最终 `{{SLUG}}_final.blend`，将场景哈希、实际 Blender 版本、相机、设置、命令、退出状态、输出路径和尺寸记录到 `renders/final/manifest.json`。全套最终图来自这个版本；修改场景后重新生成整套最终图。
+冻结最终 `{{SLUG}}_final.blend`，将场景哈希、实际 Blender 版本、相机、设置、命令、退出状态、输出路径和尺寸记录到 `renders/manifest.json`。全套最终图来自这个版本；修改场景后重新生成整套最终图。
 
-保存并关闭工作进程，以 README 记载的命令在新 Blender 进程打开交付文件，至少重渲 hero 到 validation/，检查实际图像、尺寸、退出状态及缺失依赖。外部资源打包或使用相对路径，检查字体、缓存与链接库。可行时移动目录复验；未做则注明，不声称跨机器验证通过。
+保存并关闭工作进程，以 README 记载的命令在新 Blender 进程打开交付文件，至少重渲 hero 到 `_work/validation/`，检查实际图像、尺寸、退出状态及缺失依赖。外部资源打包或使用相对路径，检查字体、缓存与链接库。可行时移动目录复验；未做则注明，不声称跨机器验证通过。
 
 最终输出实际路径、成品状态、证据评分、执行过与未执行的验证、剩余限制。未实际制作不生成成功日志或虚构分数。
 
@@ -76,4 +99,4 @@ RUNTIME 写工具、资产政策、制作授权、时间/付费上限；尚未�
 
 ### 交付物
 
-项目内包含最终可编辑场景、README.md（实际版本/依赖/各机位重渲命令）、scripts/（使用过的生成与重渲程序）、textures/（如使用）、工作文档、checkpoints/、各轮图片与评审、renders/final/ 全套 PNG 及 manifest.json、renders/contact_sheet.jpg、validation/ 冷启动图片与日志。保留有用的修改器、实例和集合，命名表达用途，避免全部压成不可编辑单网格。
+按 02 节布局交付：顶层的最终可编辑场景、brief、README.md（实际版本/依赖/各机位重渲命令与工作资料入口），renders/ 中的全套最终 PNG、manifest.json 与 contact_sheet.jpg，以及按需创建的 assets/。过程文档、脚本、检查点、各轮图片与评审、冷启动图片与日志统一保存在 `_work/`。保留有用的修改器、实例和集合，命名表达用途，避免全部压成不可编辑单网格。

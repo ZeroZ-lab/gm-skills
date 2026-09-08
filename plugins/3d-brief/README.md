@@ -32,6 +32,22 @@ claude --plugin-dir ./3d-brief
 
 支持最完整的路径是 Blender 产品资产与空间静态场景。动画、游戏运行时和网页交互可做简报，但需要额外的执行/验收设计。本包不自带 Blender、模型或渲染服务，也不自动购买资源。
 
+## 输出结构
+
+仅写简报时输出 `<slug>_brief.md` 与 `<slug>_brief_check.md`，不创建制作目录。授权制作后，采用聚合结构：
+
+```text
+<slug>/
+  <slug>_brief.md
+  <slug>_final.blend
+  README.md
+  renders/       # 最终图片、总览图和生成清单
+  assets/        # 必要外部资源，按需创建
+  _work/         # 合并工作记录、脚本、检查点、逐轮评审和验证证据
+```
+
+美术方向、资产清单、任务状态、规划与简报检查合并在 `_work/PROJECT.md`；每轮图片、评审及日志集中到 `_work/reviews/round_<n>/`。目录按需创建，质量门与证据要求保持不变。`_work/` 包含恢复和复现资料，应随完整工程保留。旧项目沿用已有路径，用户指定的布局优先。
+
 ## 八层生产契约
 
 Goal 定义成果；Environment 声明能力与预算；Protocol 保存状态；Build Order 按阶段验证；Domain Spec 明确数量与功能；Review Loop 使用固定证据；Rubric 防止高分抵消缺项；Validation 检查真正保存的成果。
@@ -53,7 +69,7 @@ Goal 定义成果；Environment 声明能力与预算；Protocol 保存状态；
 
 ## 验证与发布
 
-在 gm-skills 仓库运行 `npm run plugin:sync`、`npm run plugin:validate`；本地插件可运行 `claude plugin validate ./plugins/3d-brief`。本修订版本为 1.8.0；本仓库采用统一版本，发布时由根 package.json 同步全部插件清单。
+在 gm-skills 仓库运行 `npm run plugin:sync`、`npm run plugin:validate`；本地插件可运行 `claude plugin validate ./plugins/3d-brief`。本修订版本为 1.8.1；本仓库采用统一版本，发布时由根 package.json 同步全部插件清单。
 
 核对规范日期：2026-09-08。[Claude Code Skills](https://code.claude.com/docs/en/skills) 和 [插件规范](https://code.claude.com/docs/en/plugins-reference) 是安装与格式依据。SKILL.md 使用 name/description，辅助内容留在插件内；没有 context: fork，用户交互留在主会话。
 
