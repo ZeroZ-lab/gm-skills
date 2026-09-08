@@ -1,6 +1,6 @@
 # 3d-brief
 
-把自然语言 3D 需求转为创意方向和可执行生产合同；用户明确要求成品后，继续指导 Agent 完成 Blender 建模、渲染评审与验收。一个入口，按阶段读取支持文件。
+把自然语言 3D 需求转为创意方向和可执行生产合同；用户明确要求成品后，继续指导 Agent 完成 Blender 建模、渲染评审与验收。根据任务配置执行环境、Agent 分工、证据评分和条件式返工；一个入口，按阶段读取支持文件。
 
 ## 安装与调用
 
@@ -52,11 +52,12 @@ claude --plugin-dir ./3d-brief
 
 Goal 定义成果；Environment 声明能力与预算；Protocol 保存状态；Build Order 按阶段验证；Domain Spec 明确数量与功能；Review Loop 使用固定证据；Rubric 防止高分抵消缺项；Validation 检查真正保存的成果。
 
-源头方法参考 [Skyline Restaurant and Cocktail Bar](https://restaurant-bar.space-z.ai/skyline_restaurant_bar_brief.html)。本包提炼并改写其方法，不附带原文或第三方图片。严格 Skyline 配置保留至少4轮和指定16机位；通用任务按范围配置，通常3–5轮，不继承原文的机器、超长预算或餐位数量。
+源头方法参考 [Skyline Restaurant and Cocktail Bar](https://restaurant-bar.space-z.ai/skyline_restaurant_bar_brief.html)。本包提炼并改写其方法，不附带原文或第三方图片。严格 Skyline 配置保留至少4轮和指定16机位；通用任务按风险配置，简单单体可1–3轮，常规空间2–4轮，不继承原文的机器、超长预算或餐位数量。
 
 ## 内容导航
 
 - [入口](skills/3d-brief/SKILL.md)
+- [生产配置规则](skills/3d-brief/references/production-config.md)：环境矩阵、人数与调度、硬门/评分、条件式退出。
 - [生产简报模板](skills/3d-brief/references/brief-template.md)
 - [创意与事实研究](skills/3d-brief/references/creative-direction.md)
 - [简报交接检查](skills/3d-brief/references/contract-check.md)
@@ -69,7 +70,7 @@ Goal 定义成果；Environment 声明能力与预算；Protocol 保存状态；
 
 ## 验证与发布
 
-在 gm-skills 仓库运行 `npm run plugin:sync`、`npm run plugin:validate`；本地插件可运行 `claude plugin validate ./plugins/3d-brief`。本修订版本为 1.8.1；本仓库采用统一版本，发布时由根 package.json 同步全部插件清单。
+在 gm-skills 仓库运行 `npm run plugin:sync`、`npm run plugin:validate`；本地插件可运行 `claude plugin validate ./plugins/3d-brief`。本修订版本为 1.8.2；本仓库采用统一版本，发布时由根 package.json 同步全部插件清单。
 
 核对规范日期：2026-09-08。[Claude Code Skills](https://code.claude.com/docs/en/skills) 和 [插件规范](https://code.claude.com/docs/en/plugins-reference) 是安装与格式依据。SKILL.md 使用 name/description，辅助内容留在插件内；没有 context: fork，用户交互留在主会话。
 

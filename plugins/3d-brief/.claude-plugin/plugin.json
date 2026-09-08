@@ -1,7 +1,7 @@
 {
   "name": "3d-brief",
-  "version": "1.8.1",
-  "description": "3D 创意定向、生产简报与授权后的 Blender 制作评审：一个入口，产品与空间分支，逐项证据和冷启动验收。",
+  "version": "1.8.2",
+  "description": "按 3D 需求配置环境、Agent 分工、证据评分与返工机制，生成自包含生产简报，并在授权后推进 Blender 制作和验收。",
   "author": {
     "name": "ZeroZ-lab",
     "url": "https://github.com/ZeroZ-lab/gm-skills"
@@ -15,7 +15,7 @@
   "metadata": {
     "interface": {
       "displayName": "3d-brief",
-      "shortDescription": "3D 创意定向、生产简报与授权后的 Blender 制作评审：一个入口，产品与空间分支，逐项证据和冷启动验收。",
+      "shortDescription": "按 3D 需求配置环境、Agent 分工、证据评分与返工机制，生成自包含生产简报，并在授权后推进 Blender 制作和验收。",
       "developerName": "ZeroZ-lab",
       "category": "Productivity",
       "websiteURL": "https://github.com/ZeroZ-lab/gm-skills/tree/main/plugins/3d-brief"
