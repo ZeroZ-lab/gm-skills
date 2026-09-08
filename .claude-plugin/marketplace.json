@@ -7,6 +7,12 @@
   "homepage": "https://github.com/ZeroZ-lab/gm-skills",
   "plugins": [
     {
+      "name": "3d-brief",
+      "description": "Turn a vague 3D project idea into a production-grade autonomous-build brief (00-07 mission brief). 把一句模糊的 3D 项目想法变成可驱动自主构建的生产级任务简报：先自行搜集客观资料（官方规格、公开 teardown、表面工艺），再分轮 grill 用户补齐意图与偏好，输出带评分表与验收合同的 brief 文件。",
+      "homepage": "https://github.com/ZeroZ-lab/gm-skills/tree/main/plugins/3d-brief",
+      "source": "./plugins/3d-brief"
+    },
+    {
       "name": "auto-skill-fit",
       "description": "扫描项目技术栈，推荐并安装匹配的 agent skills 套装。Use when starting a new project, onboarding to a codebase, or when the user asks \"what skills should I install\", \"recommend skills for this project\", \"auto setup skills\".",
       "homepage": "https://github.com/ZeroZ-lab/gm-skills/tree/main/plugins/auto-skill-fit",
@@ -71,6 +77,12 @@
       "description": "Turn complex workflows, states, responsibilities, and system relationships into mobile-readable HTML + SVG diagrams with disciplined topology, routing, and audit.",
       "homepage": "https://github.com/ZeroZ-lab/gm-skills/tree/main/plugins/visual-explanation-layout-engine",
       "source": "./plugins/visual-explanation-layout-engine"
+    },
+    {
+      "name": "vs-story",
+      "description": "Build object-driven, scroll-driven explanatory webpages with Three.js + Anime.js. Objects, relationships, and states change as the user scrolls so the visuals — not paragraphs — carry the explanation.",
+      "homepage": "https://github.com/ZeroZ-lab/gm-skills/tree/main/plugins/vs-story",
+      "source": "./plugins/vs-story"
     },
     {
       "name": "mattpocock-skills",

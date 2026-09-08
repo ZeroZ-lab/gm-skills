@@ -1,6 +1,6 @@
 {
   "name": "gm-skill-quality",
-  "version": "1.4.0",
+  "version": "1.7.0",
   "description": "审查 agent skills 质量，对 SKILL.md 给出结构化审查报告和优化建议。",
   "author": {
     "name": "ZeroZ-lab",
@@ -10,8 +10,7 @@
   "repository": "https://github.com/ZeroZ-lab/gm-skills.git",
   "license": "MIT",
   "compatibility": {
-    "claude-code": ">=1.0.0",
-    "codex": ">=0.1.0"
+    "claude-code": ">=1.0.0"
   },
   "skills": [
     "./skills/gm-skill-quality"

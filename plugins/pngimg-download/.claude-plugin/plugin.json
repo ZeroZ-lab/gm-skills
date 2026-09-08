@@ -1,6 +1,6 @@
 {
   "name": "pngimg-download",
-  "version": "1.4.0",
+  "version": "1.7.0",
   "description": "Search and download free transparent PNG images from pngimg.com. Use when the user wants transparent backgrounds, clipart, or icons for design projects.",
   "author": {
     "name": "ZeroZ-lab",
@@ -10,8 +10,7 @@
   "repository": "https://github.com/ZeroZ-lab/gm-skills.git",
   "license": "MIT",
   "compatibility": {
-    "claude-code": ">=1.0.0",
-    "codex": ">=0.1.0"
+    "claude-code": ">=1.0.0"
   },
   "skills": [
     "./skills/pngimg-download"

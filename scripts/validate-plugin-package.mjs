@@ -87,16 +87,28 @@ function inMarket(plugin, market) {
 const claudeExternal = externalPlugins.filter((p) => inMarket(p, "claude"));
 const codexExternal = externalPlugins.filter((p) => inMarket(p, "codex"));
 
+// Local plugins choose their marketplaces via an optional `markets` array in their
+// Claude manifest (["claude"], ["codex"], or both). Omitting it defaults to
+// ["claude"] — Codex requires an explicit opt-in.
+const localMarketFlags = [];
+for (const pluginName of pluginNames) {
+  const claudeManifest = await readJson(`plugins/${pluginName}/.claude-plugin/plugin.json`);
+  const markets = Array.isArray(claudeManifest.markets) ? claudeManifest.markets : ["claude"];
+  localMarketFlags.push({ name: pluginName, claude: markets.includes("claude"), codex: markets.includes("codex") });
+}
+const claudeLocalCount = localMarketFlags.filter((p) => p.claude).length;
+const codexLocalCount = localMarketFlags.filter((p) => p.codex).length;
+
 assert(Array.isArray(claudeMarketplace.plugins), "Claude marketplace plugins must be an array");
 assert(Array.isArray(codexMarketplace.plugins), "Codex marketplace plugins must be an array");
 assert(Array.isArray(externalPlugins), "external-plugins.json must be an array");
 assert(
-  claudeMarketplace.plugins?.length === pluginNames.length + claudeExternal.length,
-  "Claude marketplace plugin count matches local plugins + Claude external plugins"
+  claudeMarketplace.plugins?.length === claudeLocalCount + claudeExternal.length,
+  "Claude marketplace plugin count matches Claude local plugins + Claude external plugins"
 );
 assert(
-  codexMarketplace.plugins?.length === pluginNames.length + codexExternal.length,
-  "Codex marketplace plugin count matches local plugins + Codex external plugins"
+  codexMarketplace.plugins?.length === codexLocalCount + codexExternal.length,
+  "Codex marketplace plugin count matches Codex local plugins + Codex external plugins"
 );
 
 function assertValidSource(source, label) {
@@ -154,37 +166,57 @@ for (const pluginName of pluginNames) {
   const skillPath = `${skillDir}/SKILL.md`;
 
   assert(await exists(claudeManifestPath), `${claudeManifestPath} exists`);
-  assert(await exists(codexManifestPath), `${codexManifestPath} exists`);
   assert(await exists(skillPath), `${skillPath} exists`);
 
   const claudeManifest = await readJson(claudeManifestPath);
-  const codexManifest = await readJson(codexManifestPath);
   const skillText = await readText(skillPath);
+  const markets = Array.isArray(claudeManifest.markets) ? claudeManifest.markets : ["claude"];
+  const inClaude = markets.includes("claude");
+  const inCodex = markets.includes("codex");
 
   assert(claudeManifest.name === pluginName, `${pluginName} Claude manifest name matches directory`);
-  assert(codexManifest.name === pluginName, `${pluginName} Codex manifest name matches directory`);
   assert(claudeManifest.version === pkg.version, `${pluginName} Claude manifest version matches package.json`);
-  assert(codexManifest.version === pkg.version, `${pluginName} Codex manifest version matches package.json`);
   assertAllSkillsUsePrefix(claudeManifest.skills, "./skills/", `${pluginName} Claude manifest skills`);
   assert(
     JSON.stringify(claudeManifest.skills) === JSON.stringify([`./skills/${pluginName}`]),
     `${pluginName} Claude manifest must point to ./skills/${pluginName}`
   );
-  assert(codexManifest.skills === "./skills/", `${pluginName} Codex manifest skills must equal "./skills/"`);
+
+  if (inCodex) {
+    assert(await exists(codexManifestPath), `${codexManifestPath} exists`);
+    const codexManifest = await readJson(codexManifestPath);
+    assert(codexManifest.name === pluginName, `${pluginName} Codex manifest name matches directory`);
+    assert(codexManifest.version === pkg.version, `${pluginName} Codex manifest version matches package.json`);
+    assert(codexManifest.skills === "./skills/", `${pluginName} Codex manifest skills must equal "./skills/"`);
+  }
 
   const claudeEntry = claudeMarketplace.plugins?.find((plugin) => plugin.name === pluginName);
-  const codexEntry = codexMarketplace.plugins?.find((plugin) => plugin.name === pluginName);
 
-  assert(Boolean(claudeEntry), `${pluginName} exists in Claude marketplace`);
-  assert(Boolean(codexEntry), `${pluginName} exists in Codex marketplace`);
-  assert(
-    claudeEntry?.source === `./plugins/${pluginName}`,
-    `${pluginName} Claude marketplace source points at ./plugins/${pluginName}`
-  );
-  assert(
-    codexEntry?.source?.path === `./plugins/${pluginName}`,
-    `${pluginName} Codex marketplace source.path points at ./plugins/${pluginName}`
-  );
+  if (inClaude) {
+    assert(Boolean(claudeEntry), `${pluginName} exists in Claude marketplace`);
+    assert(
+      claudeEntry?.source === `./plugins/${pluginName}`,
+      `${pluginName} Claude marketplace source points at ./plugins/${pluginName}`
+    );
+  } else {
+    assert(!claudeEntry, `${pluginName} must not appear in Claude marketplace (markets excludes claude)`);
+  }
+
+  if (inCodex) {
+    const codexEntry = codexMarketplace.plugins?.find((plugin) => plugin.name === pluginName);
+    assert(Boolean(codexEntry), `${pluginName} exists in Codex marketplace`);
+    assert(
+      codexEntry?.source?.path === `./plugins/${pluginName}`,
+      `${pluginName} Codex marketplace source.path points at ./plugins/${pluginName}`
+    );
+  } else {
+    const codexEntry = codexMarketplace.plugins?.find((plugin) => plugin.name === pluginName);
+    assert(!codexEntry, `${pluginName} must not appear in Codex marketplace (markets excludes codex)`);
+    assert(
+      !(await exists(codexManifestPath)),
+      `${pluginName} must not keep a leftover ${codexManifestPath} (markets excludes codex)`
+    );
+  }
 
   for (const directoryName of ["references", "examples", "templates"]) {
     if (hasPathReference(skillText, directoryName)) {
@@ -206,5 +238,5 @@ if (failures.length > 0) {
 }
 
 console.log(
-  `Plugin package validation passed for ${pluginNames.length} local + ${claudeExternal.length} Claude external + ${codexExternal.length} Codex external plugin(s).`
+  `Plugin package validation passed for ${claudeLocalCount} Claude local + ${codexLocalCount} Codex local + ${claudeExternal.length} Claude external + ${codexExternal.length} Codex external plugin(s).`
 );

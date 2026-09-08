@@ -18,6 +18,7 @@
 
 You can install any listed plugin the same way:
 
+- `3d-brief`
 - `auto-skill-fit`
 - `gm-agent-docs`
 - `gm-de-ai-article`
@@ -30,27 +31,20 @@ You can install any listed plugin the same way:
 - `cc-design` (upstream-maintained, see [External / upstream plugins](#external--upstream-plugins))
 - `pngimg-download`
 - `ui-fork`
+- `vs-story`
 - `visual-explanation-layout-engine`
 
 ### Codex
 
-Codex is supported through the root marketplace at [.agents/plugins/marketplace.json](/Users/zhengjianqiao/workspace/gm-skills/.agents/plugins/marketplace.json).
+All plugins in this repo are published to the Claude Code marketplace only. The Codex catalog at [.agents/plugins/marketplace.json](.agents/plugins/marketplace.json) is kept as an empty placeholder: a plugin reaches Codex only by explicitly adding `"codex"` to the `markets` array in its `.claude-plugin/plugin.json` and shipping a `.codex-plugin/plugin.json`.
 
-Install flow in Codex:
-
-1. Open the Codex plugin directory.
-2. Add `https://github.com/ZeroZ-lab/gm-skills` as a marketplace.
-3. Install the plugin you want from the `gm-skills` marketplace, for example:
-   - `gm-topic-engine`
-   - `visual-explanation-layout-engine`
-   - `cc-design`
-
-If you already added this marketplace before the multi-plugin split, refresh the marketplace in Codex so it pulls the latest catalog instead of the older cached `gm-skills` entry.
+If you added this marketplace in Codex before this change, refresh it so it pulls the now-empty catalog instead of the older cached `gm-skills` entry.
 
 ## Plugins
 
 | Plugin | Description |
 | --- | --- |
+| `3d-brief` | 把模糊的 3D 项目想法 grill 成生产级任务简报：模型能查的自己查（规格、teardown、工艺），剩下的逐轮问清，输出带评分表与验收合同的 00-07 mission brief。 |
 | `auto-skill-fit` | 扫描项目技术栈，推荐并安装匹配的 agent skills 套装。 |
 | `gm-agent-docs` | 为项目生成 CLAUDE.md 和 AGENTS.md，输出命令优先、按任务分区的 agent 配置文件。 |
 | `gm-de-ai-article` | 去除公众号、博客和 newsletter 草稿里的模板化 AI 写作痕迹，保住作者判断与表达控制权。 |
@@ -61,6 +55,7 @@ If you already added this marketplace before the multi-plugin split, refresh the
 | `gm-x-hook-writer` | 为 X/Twitter 推文和 thread 生成更强的开头 hook 和首句。 |
 | `pngimg-download` | Search and download free transparent PNG images from pngimg.com. |
 | `ui-fork` | 从 UI 截图提炼设计系统草案、组件规则、design tokens 和 AI 延续设计约束。 |
+| `vs-story` | 用 Three.js + Anime.js 把概念、流程、系统做成对象驱动的滚动叙事网页，视觉而非文字承担解释。 |
 | `visual-explanation-layout-engine` | Turn complex systems, flows, and state changes into mobile-readable HTML + SVG visual explanations. |
 | `mattpocock-skills` *(upstream)* | Matt Pocock 的工程类 agent skills 合集（TDD、code review、triage、debugging 等，共 20 个）。代码由上游 [`mattpocock/skills`](https://github.com/mattpocock/skills) 维护，本仓库只登记目录条目。 |
 | `cc-design` *(upstream)* | High-fidelity HTML design skill。代码由上游 [`ZeroZ-lab/cc-design`](https://github.com/ZeroZ-lab/cc-design) 维护，本仓库只登记目录条目。 |
@@ -100,12 +95,7 @@ gm-skills/
 ├── plugins/
 │   ├── auto-skill-fit/
 │   │   ├── .claude-plugin/plugin.json
-│   │   ├── .codex-plugin/plugin.json
 │   │   └── skills/auto-skill-fit/
-│   ├── cc-design/
-│   │   ├── .claude-plugin/plugin.json
-│   │   ├── .codex-plugin/plugin.json
-│   │   └── skills/cc-design/
 │   └── ...
 ├── scripts/
 │   ├── sync-plugin-package.mjs
@@ -138,4 +128,5 @@ npm run plugin:validate
 - Root `.claude-plugin/marketplace.json` is the Claude marketplace catalog.
 - Root `.agents/plugins/marketplace.json` is the Codex marketplace catalog.
 - Each `plugins/<plugin-name>/` directory is a self-contained published plugin.
-- The repository uses a single version from [package.json](/Users/zhengjianqiao/workspace/gm-skills/package.json); `npm run plugin:sync` propagates it to every plugin manifest.
+- Local plugins default to the Claude Code marketplace only. A plugin can opt into Codex with a `markets` array in `.claude-plugin/plugin.json` (e.g. `"markets": ["claude", "codex"]`) plus a `.codex-plugin/plugin.json`.
+- The repository uses a single version from [package.json](package.json); `npm run plugin:sync` propagates it to every plugin manifest.

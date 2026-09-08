@@ -1,0 +1,843 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#F2EBDD">
+  <title>一次工具调用，如何变成可靠答案</title>
+  <style>
+    :root {
+      /* Palette roles: paper/background, ink/system, signal/current or complete. */
+      --paper: #f2ebdd;
+      --ink: #171713;
+      --signal: #f05a28;
+      --pad: clamp(1.25rem, 3vw, 3.5rem);
+    }
+
+    * { box-sizing: border-box; }
+
+    html {
+      background: var(--paper);
+      color: var(--ink);
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      min-width: 320px;
+      overflow-x: hidden;
+      font-family: "SFMono-Regular", "Roboto Mono", "Noto Sans Mono", monospace;
+      background:
+        linear-gradient(rgba(23, 23, 19, 0.035) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(23, 23, 19, 0.035) 1px, transparent 1px),
+        var(--paper);
+      background-size: 32px 32px;
+    }
+
+    button, a { font: inherit; }
+
+    #stage {
+      position: fixed;
+      inset: 0;
+      z-index: 1;
+      width: 100%;
+      height: 100%;
+    }
+
+    .masthead {
+      position: fixed;
+      z-index: 4;
+      top: 0;
+      left: 0;
+      width: 100%;
+      min-height: 9.5rem;
+      padding: 1.25rem var(--pad) 1rem;
+      display: grid;
+      grid-template-columns: minmax(5rem, 0.35fr) minmax(0, 1.65fr);
+      gap: 1rem;
+      align-items: end;
+      border-bottom: 1px solid rgba(23, 23, 19, 0.42);
+      background: linear-gradient(to bottom, var(--paper) 75%, rgba(242, 235, 221, 0));
+      pointer-events: none;
+    }
+
+    .chapter-number {
+      font-size: clamp(2.8rem, 7vw, 6.4rem);
+      line-height: 0.8;
+      letter-spacing: -0.09em;
+      color: var(--signal);
+    }
+
+    .chapter-copy {
+      max-width: 54rem;
+      transform-origin: left bottom;
+    }
+
+    .eyebrow {
+      margin: 0 0 0.35rem;
+      font-size: 0.68rem;
+      text-transform: uppercase;
+      letter-spacing: 0.18em;
+      opacity: 0.58;
+    }
+
+    h1 {
+      margin: 0;
+      max-width: 18ch;
+      font-family: Georgia, "Noto Serif SC", serif;
+      font-size: clamp(1.7rem, 3.6vw, 3.45rem);
+      font-weight: 500;
+      line-height: 0.95;
+      letter-spacing: -0.045em;
+    }
+
+    .chapter-line {
+      margin: 0.55rem 0 0;
+      max-width: 58ch;
+      font-size: clamp(0.72rem, 1.2vw, 0.92rem);
+      line-height: 1.5;
+    }
+
+    .brand {
+      position: fixed;
+      z-index: 5;
+      right: var(--pad);
+      top: 1.25rem;
+      margin: 0;
+      font-size: 0.62rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      writing-mode: vertical-rl;
+      pointer-events: none;
+    }
+
+    .scroll-cue {
+      position: fixed;
+      z-index: 4;
+      left: var(--pad);
+      bottom: 1.4rem;
+      display: flex;
+      gap: 0.75rem;
+      align-items: center;
+      margin: 0;
+      font-size: 0.68rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      pointer-events: none;
+      transition: opacity 200ms ease;
+    }
+
+    .scroll-cue::before {
+      content: "";
+      width: 2.5rem;
+      height: 1px;
+      background: var(--signal);
+      transform-origin: left center;
+      animation: cue 1.8s ease-in-out infinite;
+    }
+
+    @keyframes cue {
+      0%, 100% { transform: scaleX(0.25); }
+      50% { transform: scaleX(1); }
+    }
+
+    main { position: relative; z-index: 2; }
+
+    .chapter {
+      min-height: 130vh;
+      pointer-events: none;
+    }
+
+    .chapter:last-child { min-height: 100vh; }
+
+    .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+    }
+
+    .fallback {
+      display: none;
+      position: relative;
+      z-index: 8;
+      min-height: 100vh;
+      padding: 3rem var(--pad);
+      background: var(--paper);
+    }
+
+    .fallback.is-visible { display: block; }
+
+    .fallback h2 {
+      max-width: 18ch;
+      margin: 0 0 2rem;
+      font-family: Georgia, "Noto Serif SC", serif;
+      font-size: clamp(2rem, 8vw, 5rem);
+      font-weight: 500;
+      line-height: 0.95;
+    }
+
+    .fallback ol {
+      max-width: 50rem;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+      counter-reset: stages;
+      border-top: 1px solid var(--ink);
+    }
+
+    .fallback li {
+      counter-increment: stages;
+      display: grid;
+      grid-template-columns: 3rem 1fr;
+      gap: 1rem;
+      padding: 1rem 0;
+      border-bottom: 1px solid rgba(23, 23, 19, 0.35);
+    }
+
+    .fallback li::before {
+      content: "0" counter(stages);
+      color: var(--signal);
+    }
+
+    @media (max-width: 680px) {
+      .masthead {
+        min-height: 8.4rem;
+        grid-template-columns: 3.3rem 1fr;
+        padding-top: 0.9rem;
+      }
+
+      .chapter-number { font-size: 2.6rem; }
+      h1 { font-size: clamp(1.45rem, 7.4vw, 2.2rem); }
+      .chapter-line { font-size: 0.68rem; }
+      .brand { display: none; }
+      .chapter { min-height: 115vh; }
+      .scroll-cue { bottom: 0.9rem; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      html { scroll-behavior: auto; }
+      .scroll-cue::before { animation: none; transform: scaleX(1); }
+      .chapter-copy { transition: none; }
+    }
+  </style>
+</head>
+<body>
+  <canvas id="stage" aria-hidden="true"></canvas>
+
+  <header class="masthead" aria-live="polite">
+    <div class="chapter-number" id="chapter-number">01</div>
+    <div class="chapter-copy" id="chapter-copy">
+      <p class="eyebrow">Agent Tool Loop / Visual field note</p>
+      <h1 id="chapter-title">一句请求，还不是答案</h1>
+      <p class="chapter-line" id="chapter-line">任务先被封装成一个可追踪对象；它会贯穿计划、执行、修正与验证。</p>
+    </div>
+  </header>
+
+  <p class="brand">VS—STORY / 001</p>
+  <p class="scroll-cue" id="scroll-cue">向下滚动 · ↑↓ 可切换章节</p>
+
+  <main id="story">
+    <section class="chapter" data-title="一句请求，还不是答案" data-line="任务先被封装成一个可追踪对象；它会贯穿计划、执行、修正与验证。">
+      <h2 class="sr-only">一句请求，还不是答案</h2>
+    </section>
+    <section class="chapter" data-title="先把任务拆成约束" data-line="目标、上下文与完成条件从任务壳体中展开，计划器才知道该找什么工具。">
+      <h2 class="sr-only">先把任务拆成约束</h2>
+    </section>
+    <section class="chapter" data-title="候选工具不是同一种东西" data-line="终端、浏览器和文件系统承担不同能力；当前约束只激活一条可行路径。">
+      <h2 class="sr-only">候选工具不是同一种东西</h2>
+    </section>
+    <section class="chapter" data-title="第一次执行，被权限挡回" data-line="错误不是终点。阻断结果沿原路径返回，成为下一次决策的新约束。">
+      <h2 class="sr-only">第一次执行，被权限挡回</h2>
+    </section>
+    <section class="chapter" data-title="反馈让计划改变形状" data-line="失效路径被折叠，计划器依据新约束改选浏览器，再次发出同一个任务对象。">
+      <h2 class="sr-only">反馈让计划改变形状</h2>
+    </section>
+    <section class="chapter" data-title="工具只返回证据，不返回结论" data-line="外部信息被收集成证据包，并沿新的路径送往验证环，而不是直接交付。">
+      <h2 class="sr-only">工具只返回证据，不返回结论</h2>
+    </section>
+    <section class="chapter" data-title="通过验证，任务才闭合" data-line="证据与原始约束对齐后，验证环锁定；答案回到任务壳体，循环停止。">
+      <h2 class="sr-only">通过验证，任务才闭合</h2>
+    </section>
+  </main>
+
+  <aside class="fallback" id="fallback">
+    <h2>一次工具调用，如何变成可靠答案</h2>
+    <ol>
+      <li>请求被封装成贯穿全程的任务对象。</li>
+      <li>任务展开为目标、上下文和完成条件。</li>
+      <li>计划器依据约束选择适合的工具路径。</li>
+      <li>权限阻断沿原路回写，而不是被隐藏。</li>
+      <li>计划器吸收反馈，关闭旧路径并改选工具。</li>
+      <li>工具返回证据包，交给验证环检查。</li>
+      <li>证据与约束对齐后，任务闭合并生成答案。</li>
+    </ol>
+  </aside>
+
+  <noscript>
+    <style>#stage,.masthead,.brand,.scroll-cue,#story{display:none}.fallback{display:block}</style>
+  </noscript>
+
+  <script src="https://cdn.jsdelivr.net/npm/three@0.149.0/build/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/animejs@3.2.2/lib/anime.min.js"></script>
+  <script>
+    (() => {
+      "use strict";
+
+      const canvas = document.querySelector("#stage");
+      const fallback = document.querySelector("#fallback");
+      const sections = [...document.querySelectorAll(".chapter")];
+      const title = document.querySelector("#chapter-title");
+      const line = document.querySelector("#chapter-line");
+      const number = document.querySelector("#chapter-number");
+      const copy = document.querySelector("#chapter-copy");
+      const scrollCue = document.querySelector("#scroll-cue");
+      const reducedMotion = matchMedia("(prefers-reduced-motion: reduce)");
+      const isMobile = () => innerWidth < 680;
+
+      if (!window.THREE || !window.anime) {
+        showFallback();
+        return;
+      }
+
+      const PALETTE = {
+        paper: 0xf2ebdd,  // background / inactive surface
+        ink: 0x171713,    // system / structure / information
+        signal: 0xf05a28  // current path / selected / complete
+      };
+
+      const clamp = THREE.MathUtils.clamp;
+
+      let renderer;
+      try {
+        renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: false });
+      } catch (error) {
+        showFallback();
+        return;
+      }
+
+      if (!renderer.getContext()) {
+        showFallback();
+        return;
+      }
+
+      renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+      renderer.setClearColor(PALETTE.paper, 1);
+      renderer.outputEncoding = THREE.sRGBEncoding;
+
+      const scene = new THREE.Scene();
+      scene.background = new THREE.Color(PALETTE.paper);
+      scene.fog = new THREE.Fog(PALETTE.paper, 13, 22);
+
+      const camera = new THREE.PerspectiveCamera(34, innerWidth / innerHeight, 0.1, 60);
+      camera.position.set(-4.2, 0.2, 11);
+
+      scene.add(new THREE.HemisphereLight(PALETTE.paper, PALETTE.ink, 2.1));
+      const keyLight = new THREE.DirectionalLight(PALETTE.paper, 2.7);
+      keyLight.position.set(-3, 6, 8);
+      scene.add(keyLight);
+
+      const world = new THREE.Group();
+      world.position.y = -0.35;
+      scene.add(world);
+
+      const materials = {
+        paper: () => new THREE.MeshStandardMaterial({ color: PALETTE.paper, roughness: 0.94, metalness: 0 }),
+        ink: () => new THREE.MeshStandardMaterial({ color: PALETTE.ink, roughness: 0.82, metalness: 0 }),
+        signal: () => new THREE.MeshStandardMaterial({ color: PALETTE.signal, roughness: 0.76, metalness: 0 }),
+        ghost: (opacity = 0.16) => new THREE.MeshBasicMaterial({ color: PALETTE.ink, transparent: true, opacity, depthWrite: false }),
+        line: (color = PALETTE.ink, opacity = 0.16) => new THREE.LineBasicMaterial({ color, transparent: true, opacity, depthWrite: false })
+      };
+
+      const tracked = new Map();
+      const remember = (group) => {
+        const entries = [];
+        group.traverse((node) => {
+          if (!node.material) return;
+          const nodeMaterials = Array.isArray(node.material) ? node.material : [node.material];
+          nodeMaterials.forEach((material) => {
+            material.transparent = true;
+            entries.push({ material, opacity: material.opacity });
+          });
+        });
+        tracked.set(group, entries);
+        return group;
+      };
+
+      const setOpacity = (group, opacity) => {
+        group.visible = opacity > 0.005;
+        (tracked.get(group) || []).forEach(({ material, opacity: base }) => {
+          material.opacity = base * opacity;
+        });
+      };
+
+      function makeLabel(text, width = 2.3) {
+        const labelCanvas = document.createElement("canvas");
+        labelCanvas.width = 512;
+        labelCanvas.height = 128;
+        const context = labelCanvas.getContext("2d");
+        context.clearRect(0, 0, 512, 128);
+        context.fillStyle = "#F2EBDD";
+        context.fillRect(0, 17, 512, 94);
+        context.strokeStyle = "#171713";
+        context.lineWidth = 3;
+        context.strokeRect(2, 19, 508, 90);
+        context.fillStyle = "#171713";
+        context.font = "600 38px monospace";
+        context.textAlign = "center";
+        context.textBaseline = "middle";
+        context.fillText(text, 256, 65);
+        const texture = new THREE.CanvasTexture(labelCanvas);
+        texture.encoding = THREE.sRGBEncoding;
+        const sprite = new THREE.Sprite(new THREE.SpriteMaterial({ map: texture, transparent: true, depthTest: false }));
+        sprite.scale.set(width, width * 0.25, 1);
+        return sprite;
+      }
+
+      function box(size, material) {
+        return new THREE.Mesh(new THREE.BoxGeometry(...size), material);
+      }
+
+      function addEdgeBox(group, size, position, fillMaterial, opacity = 0.55) {
+        const mesh = box(size, fillMaterial);
+        mesh.position.copy(position);
+        group.add(mesh);
+        const edges = new THREE.LineSegments(
+          new THREE.EdgesGeometry(mesh.geometry),
+          materials.line(PALETTE.ink, opacity)
+        );
+        edges.position.copy(position);
+        group.add(edges);
+        return mesh;
+      }
+
+      // Persistent core object: the request capsule and its three extracted constraints.
+      const task = new THREE.Group();
+      task.position.set(-4.4, 0, 0);
+      const shell = new THREE.Mesh(new THREE.CapsuleGeometry(0.68, 1.45, 8, 18), materials.ink());
+      shell.material.transparent = true;
+      shell.rotation.z = Math.PI / 2;
+      task.add(shell);
+      const seam = new THREE.Mesh(new THREE.TorusGeometry(0.69, 0.035, 8, 32), materials.signal());
+      seam.material.transparent = true;
+      seam.rotation.y = Math.PI / 2;
+      task.add(seam);
+      const taskLabel = makeLabel("TASK / CORE", 2.4);
+      taskLabel.position.set(0, -1.25, 0.2);
+      task.add(taskLabel);
+      world.add(task);
+
+      const constraints = new THREE.Group();
+      constraints.position.copy(task.position);
+      ["GOAL", "CONTEXT", "DONE"].forEach((label, index) => {
+        const plate = new THREE.Group();
+        addEdgeBox(plate, [1.65, 0.38, 0.18], new THREE.Vector3(), materials.paper(), 0.75);
+        const tag = makeLabel(label, 1.25);
+        tag.position.set(0, 0, 0.14);
+        tag.scale.y = 0.31;
+        plate.add(tag);
+        plate.userData.index = index;
+        constraints.add(plate);
+      });
+      world.add(remember(constraints));
+
+      // Planner: a triangular selector with a physical orange pointer.
+      const planner = new THREE.Group();
+      planner.position.set(-1.35, 0, 0);
+      const plannerBody = new THREE.Mesh(new THREE.CylinderGeometry(1.02, 1.02, 0.22, 3), materials.ink());
+      plannerBody.rotation.x = Math.PI / 2;
+      plannerBody.rotation.z = Math.PI / 6;
+      planner.add(plannerBody);
+      const pointer = new THREE.Mesh(new THREE.ConeGeometry(0.22, 0.72, 3), materials.signal());
+      pointer.rotation.z = -Math.PI / 2;
+      pointer.position.set(0.2, 0, 0.2);
+      planner.add(pointer);
+      const plannerLabel = makeLabel("PLAN", 1.7);
+      plannerLabel.position.set(0, -1.35, 0.15);
+      planner.add(plannerLabel);
+      world.add(remember(planner));
+
+      // Three tools use different silhouettes: terminal, browser aperture, file drawer.
+      const tools = new THREE.Group();
+      tools.position.set(1.5, 0, 0);
+
+      const terminal = new THREE.Group();
+      terminal.position.y = -1.55;
+      addEdgeBox(terminal, [1.5, 0.95, 0.42], new THREE.Vector3(), materials.ink(), 0.72);
+      [-0.22, 0.04, 0.3].forEach((y, index) => {
+        const slit = box([0.72 - index * 0.12, 0.045, 0.025], materials.paper());
+        slit.position.set(-0.12, y, 0.24);
+        terminal.add(slit);
+      });
+      const terminalLabel = makeLabel("SHELL", 1.55);
+      terminalLabel.position.set(0, -0.82, 0.2);
+      terminal.add(terminalLabel);
+      tools.add(terminal);
+
+      const browser = new THREE.Group();
+      const browserRing = new THREE.Mesh(new THREE.TorusGeometry(0.57, 0.18, 10, 48), materials.ink());
+      browser.add(browserRing);
+      const browserDot = new THREE.Mesh(new THREE.SphereGeometry(0.16, 16, 12), materials.signal());
+      browserDot.position.set(0.3, 0.28, 0.08);
+      browser.add(browserDot);
+      const browserLabel = makeLabel("WEB", 1.35);
+      browserLabel.position.set(0, -0.95, 0.2);
+      browser.add(browserLabel);
+      tools.add(browser);
+
+      const files = new THREE.Group();
+      files.position.y = 1.55;
+      addEdgeBox(files, [1.18, 0.82, 0.55], new THREE.Vector3(), materials.paper(), 0.8);
+      const tab = box([0.44, 0.18, 0.56], materials.ink());
+      tab.position.set(-0.27, 0.48, 0);
+      files.add(tab);
+      const filesLabel = makeLabel("FILES", 1.5);
+      filesLabel.position.set(0, -0.82, 0.35);
+      files.add(filesLabel);
+      tools.add(files);
+      world.add(remember(tools));
+
+      // External information is a wire globe, separate from the tool boundary.
+      const external = new THREE.Group();
+      external.position.set(4.55, 0.15, -0.2);
+      const globe = new THREE.Mesh(
+        new THREE.IcosahedronGeometry(1.25, 2),
+        new THREE.MeshBasicMaterial({ color: PALETTE.ink, wireframe: true, transparent: true, opacity: 0.5 })
+      );
+      external.add(globe);
+      const orbit = new THREE.Mesh(new THREE.TorusGeometry(1.62, 0.025, 6, 64), materials.signal());
+      orbit.rotation.x = 1.08;
+      external.add(orbit);
+      const externalLabel = makeLabel("EXTERNAL", 2.05);
+      externalLabel.position.set(0, -1.75, 0.3);
+      external.add(externalLabel);
+      world.add(remember(external));
+
+      // Verification ring and lock bars close only after evidence comes back.
+      const verifier = new THREE.Group();
+      verifier.position.set(3.05, -2.45, 0);
+      const verifyRing = new THREE.Mesh(new THREE.TorusGeometry(0.75, 0.11, 8, 48), materials.ink());
+      verifier.add(verifyRing);
+      const lockTop = box([1.7, 0.13, 0.18], materials.signal());
+      const lockBottom = lockTop.clone();
+      lockTop.position.y = 0.92;
+      lockBottom.position.y = -0.92;
+      verifier.add(lockTop, lockBottom);
+      const verifyLabel = makeLabel("VERIFY", 1.7);
+      verifyLabel.position.set(0, -1.35, 0.2);
+      verifier.add(verifyLabel);
+      world.add(remember(verifier));
+
+      const barrier = new THREE.Group();
+      barrier.position.set(2.55, -1.55, 0.15);
+      [-0.42, 0, 0.42].forEach((x) => {
+        const bar = box([0.16, 1.5, 0.16], materials.ink());
+        bar.position.x = x;
+        bar.rotation.z = 0.22;
+        barrier.add(bar);
+      });
+      const blockedLabel = makeLabel("DENIED", 1.65);
+      blockedLabel.position.set(0, -1.08, 0.2);
+      barrier.add(blockedLabel);
+      world.add(remember(barrier));
+
+      const routeDefinitions = [
+        ["request", new THREE.QuadraticBezierCurve3(new THREE.Vector3(-3.25, 0, 0), new THREE.Vector3(-2.45, 0.65, 0), new THREE.Vector3(-1.7, 0, 0))],
+        ["shell", new THREE.QuadraticBezierCurve3(new THREE.Vector3(-0.55, -0.15, 0), new THREE.Vector3(0.3, -1.55, 0), new THREE.Vector3(0.72, -1.55, 0))],
+        ["return", new THREE.CubicBezierCurve3(new THREE.Vector3(2.52, -1.55, 0), new THREE.Vector3(2.15, -3.25, 0), new THREE.Vector3(-1.8, -3.1, 0), new THREE.Vector3(-1.35, -0.7, 0))],
+        ["web", new THREE.QuadraticBezierCurve3(new THREE.Vector3(-0.55, 0.1, 0), new THREE.Vector3(0.15, 0.7, 0), new THREE.Vector3(0.82, 0, 0))],
+        ["external", new THREE.QuadraticBezierCurve3(new THREE.Vector3(2.16, 0.05, 0), new THREE.Vector3(3.1, 0.9, 0), new THREE.Vector3(3.48, 0.2, 0))],
+        ["verify", new THREE.CubicBezierCurve3(new THREE.Vector3(4.25, -0.85, 0), new THREE.Vector3(4.3, -1.8, 0), new THREE.Vector3(3.7, -2.4, 0), new THREE.Vector3(3.05, -2.45, 0))],
+        ["complete", new THREE.CubicBezierCurve3(new THREE.Vector3(2.3, -2.45, 0), new THREE.Vector3(0.5, -3.6, 0), new THREE.Vector3(-3.65, -2.7, 0), new THREE.Vector3(-4.25, -0.65, 0))]
+      ];
+
+      const routes = new Map();
+      routeDefinitions.forEach(([name, curve]) => {
+        const points = curve.getPoints(96);
+        const ghost = new THREE.Line(new THREE.BufferGeometry().setFromPoints(points), materials.line(PALETTE.ink, 0.14));
+        const active = new THREE.Line(new THREE.BufferGeometry().setFromPoints(points), materials.line(PALETTE.signal, 1));
+        const arrow = new THREE.Mesh(new THREE.ConeGeometry(0.11, 0.34, 3), materials.signal());
+        arrow.material.transparent = true;
+        arrow.visible = false;
+        active.geometry.setDrawRange(0, 0);
+        world.add(ghost, active, arrow);
+        routes.set(name, { curve, ghost, active, arrow, count: points.length });
+      });
+
+      const packet = new THREE.Mesh(new THREE.OctahedronGeometry(0.22, 0), materials.signal());
+      world.add(packet);
+      const evidence = new THREE.Group();
+      for (let index = 0; index < 7; index += 1) {
+        const chip = box([0.22, 0.22, 0.1], index === 0 ? materials.signal() : materials.ink());
+        const angle = (index / 7) * Math.PI * 2;
+        chip.position.set(Math.cos(angle) * 0.64, Math.sin(angle) * 0.64, 0);
+        chip.rotation.z = angle;
+        evidence.add(chip);
+      }
+      world.add(remember(evidence));
+
+      // Sparse drafting grid makes the spatial system legible without becoming dashboard chrome.
+      const grid = new THREE.GridHelper(18, 18, PALETTE.ink, PALETTE.ink);
+      grid.rotation.x = Math.PI / 2;
+      grid.position.set(0, 0, -1.25);
+      grid.material.transparent = true;
+      grid.material.opacity = 0.055;
+      world.add(grid);
+
+      const storyState = { phase: 0 };
+      const timeline = anime.timeline({ autoplay: false, easing: "linear" });
+      timeline.add({ targets: storyState, phase: sections.length - 1, duration: (sections.length - 1) * 1000 });
+
+      const smooth = (value) => value * value * (3 - 2 * value);
+      const range = (phase, start, end) => smooth(clamp((phase - start) / (end - start), 0, 1));
+      const fadeWindow = (phase, enterStart, enterEnd, exitStart = 99, exitEnd = 100) =>
+        range(phase, enterStart, enterEnd) * (1 - range(phase, exitStart, exitEnd));
+
+      function setRoute(name, progress, ghostOpacity = 0.14, activeOpacity = 1) {
+        const route = routes.get(name);
+        const visibleProgress = clamp(progress, 0, 1);
+        route.ghost.material.opacity = ghostOpacity;
+        route.active.material.opacity = activeOpacity;
+        route.active.visible = visibleProgress > 0 && activeOpacity > 0.05;
+        route.active.geometry.setDrawRange(0, Math.floor(route.count * visibleProgress));
+        route.arrow.visible = visibleProgress > 0.08 && activeOpacity > 0.05;
+        if (route.arrow.visible) {
+          const arrowProgress = clamp(visibleProgress * 0.72, 0.08, 0.78);
+          const point = route.curve.getPoint(arrowProgress);
+          const tangent = route.curve.getTangent(arrowProgress);
+          route.arrow.position.copy(point);
+          route.arrow.position.z = 0.08;
+          route.arrow.rotation.z = Math.atan2(tangent.y, tangent.x) - Math.PI / 2;
+          route.arrow.material.opacity = activeOpacity;
+        }
+      }
+
+      function placeOnRoute(name, progress) {
+        packet.position.copy(routes.get(name).curve.getPoint(clamp(progress, 0, 1)));
+      }
+
+      function updateWorld(elapsed) {
+        const phase = storyState.phase;
+        const split = range(phase, 0.12, 0.72);
+        shell.material.opacity = 1 - split * 0.82;
+        seam.material.opacity = 1 - split * 0.7;
+        taskLabel.material.opacity = 1 - split;
+        task.position.x = -4.4 - 0.2 * split;
+        task.rotation.z = reducedMotion.matches ? 0 : Math.sin(elapsed * 0.0005) * 0.025 * (1 - split);
+
+        constraints.children.forEach((plate, index) => {
+          plate.position.set(split * (index * 0.26), split * ((index - 1) * 0.62), split * (index - 1) * 0.16);
+        });
+        setOpacity(constraints, split);
+
+        const plannerIn = fadeWindow(phase, 0.42, 0.92);
+        planner.scale.setScalar(0.72 + plannerIn * 0.28);
+        pointer.rotation.z = -Math.PI / 2 + range(phase, 3.7, 4.35) * Math.PI / 2;
+        setOpacity(planner, plannerIn);
+        setRoute("request", range(phase, 0.45, 1.15), 0.08 + plannerIn * 0.08, 1 - range(phase, 1.65, 2.05));
+
+        const toolsIn = fadeWindow(phase, 1.15, 1.75);
+        tools.position.x = 1.5 + (1 - toolsIn) * 0.7;
+        terminal.rotation.z = range(phase, 3.55, 4.15) * -0.22;
+        terminal.scale.setScalar(1 - range(phase, 3.55, 4.15) * 0.2);
+        browser.scale.setScalar(0.86 + range(phase, 3.75, 4.35) * 0.24);
+        setOpacity(tools, toolsIn);
+        terminal.visible = !isMobile() || phase < 4.2 || phase > 5.7;
+        files.visible = !isMobile() || (phase > 1.1 && phase < 2.65) || phase > 5.7;
+        browser.visible = !isMobile() || phase > 1.1;
+        setRoute("shell", range(phase, 1.55, 2.25), toolsIn * 0.13, 1 - range(phase, 3.55, 4.12));
+        setRoute("web", range(phase, 3.85, 4.45), toolsIn * 0.13);
+
+        const denied = fadeWindow(phase, 2.38, 2.82, 3.78, 4.15);
+        barrier.position.y = -1.55 + (1 - denied) * 0.7;
+        setOpacity(barrier, denied);
+
+        const externalIn = fadeWindow(phase, 4.12, 4.72);
+        setOpacity(external, externalIn);
+        setRoute("external", range(phase, 4.2, 5.02), externalIn * 0.14);
+        globe.rotation.y = reducedMotion.matches ? 0 : elapsed * 0.00012;
+        orbit.rotation.z = reducedMotion.matches ? 0.35 : 0.35 + elapsed * 0.00008;
+
+        const verifyIn = fadeWindow(phase, 5.05, 5.6);
+        setOpacity(verifier, verifyIn);
+        setRoute("verify", range(phase, 5.0, 5.7), verifyIn * 0.14);
+        setRoute("complete", range(phase, 5.55, 6), verifyIn * 0.12);
+        const lock = range(phase, 5.52, 5.96);
+        lockTop.position.y = 0.92 - lock * 0.55;
+        lockBottom.position.y = -0.92 + lock * 0.55;
+        verifyRing.material.color.setHex(lock > 0.5 ? PALETTE.signal : PALETTE.ink);
+
+        const evidenceIn = range(phase, 4.72, 5.15);
+        const evidenceRoute = phase < 5.15 ? routes.get("external").curve : routes.get("verify").curve;
+        const evidenceProgress = phase < 5.15
+          ? range(phase, 4.72, 5.15)
+          : range(phase, 5.15, 5.72);
+        evidence.position.copy(evidenceRoute.getPoint(evidenceProgress));
+        evidence.rotation.z = evidenceProgress * Math.PI;
+        evidence.scale.setScalar(0.6 + evidenceIn * 0.4);
+        setOpacity(evidence, fadeWindow(phase, 4.65, 4.9, 5.78, 5.98));
+
+        packet.visible = phase > 1.55 && phase < 5.05;
+        if (phase < 2.75) {
+          placeOnRoute("shell", range(phase, 1.7, 2.72));
+        } else if (phase < 4.05) {
+          placeOnRoute("return", range(phase, 2.82, 3.85));
+        } else if (phase < 4.62) {
+          placeOnRoute("web", range(phase, 4.05, 4.58));
+        } else {
+          placeOnRoute("external", range(phase, 4.58, 5.02));
+        }
+        setRoute("return", phase < 4.15 ? range(phase, 2.82, 3.72) : 0, denied * 0.12, 1 - range(phase, 3.82, 4.15));
+        packet.rotation.x = phase * 2.2;
+        packet.rotation.y = phase * 1.7;
+
+        grid.visible = !isMobile();
+        routes.forEach(({ ghost }) => { ghost.visible = !isMobile(); });
+
+        const complete = range(phase, 5.62, 6);
+        shell.material.opacity = Math.max(shell.material.opacity, complete);
+        shell.material.color.setHex(complete > 0.6 ? PALETTE.signal : PALETTE.ink);
+        seam.material.opacity = Math.max(seam.material.opacity, complete);
+        seam.material.color.setHex(complete > 0.6 ? PALETTE.ink : PALETTE.signal);
+        taskLabel.material.opacity = complete;
+
+        const cameraKeys = isMobile()
+          ? [
+              [-4.2, 0.1, 13.5], [-3.1, 0, 13], [-0.3, 0, 13.8], [0.9, -0.5, 13.5],
+              [0.3, -0.4, 13.5], [2.3, -0.5, 13.8], [-0.7, -0.6, 30]
+            ]
+          : [
+              [-4.2, 0.15, 10.5], [-2.9, 0, 10], [-0.2, 0, 10.8], [0.8, -0.6, 9.6],
+              [0.1, -0.35, 10.4], [2.25, -0.5, 10.2], [0, -0.7, 13.4]
+            ];
+        const cameraPhase = reducedMotion.matches ? 6 : phase;
+        const keyIndex = Math.min(Math.floor(cameraPhase), cameraKeys.length - 2);
+        const keyMix = smooth(cameraPhase - keyIndex);
+        const from = cameraKeys[keyIndex];
+        const to = cameraKeys[keyIndex + 1];
+        camera.position.set(
+          THREE.MathUtils.lerp(from[0], to[0], keyMix),
+          THREE.MathUtils.lerp(from[1], to[1], keyMix),
+          THREE.MathUtils.lerp(from[2], to[2], keyMix)
+        );
+        camera.lookAt(isMobile() ? camera.position.x : camera.position.x * 0.82, camera.position.y * 0.2, 0);
+      }
+
+      let activeIndex = -1;
+      let scrollQueued = false;
+
+      function paced(local) {
+        if (local < 0.15) return 0;
+        if (local < 0.55) return smooth((local - 0.15) / 0.4) * 0.88;
+        if (local < 0.8) return 0.88;
+        return 0.88 + ((local - 0.8) / 0.2) * 0.12;
+      }
+
+      function updateFromScroll() {
+        scrollQueued = false;
+        let index = 0;
+        sections.forEach((section, candidate) => {
+          if (scrollY >= section.offsetTop - 4) index = candidate;
+        });
+        const current = sections[index];
+        const local = clamp((scrollY - current.offsetTop) / current.offsetHeight, 0, 1);
+        const phase = index === sections.length - 1
+          ? sections.length - 1
+          : index + paced(local);
+        const time = (phase / (sections.length - 1)) * timeline.duration;
+        timeline.seek(reducedMotion.matches ? Math.round(time / 1000) * 1000 : time);
+
+        if (index !== activeIndex) {
+          activeIndex = index;
+          copy.animate(
+            [{ opacity: 0.25, transform: "translateY(-5px)" }, { opacity: 1, transform: "translateY(0)" }],
+            { duration: reducedMotion.matches ? 1 : 260, easing: "ease-out" }
+          );
+          number.textContent = String(index + 1).padStart(2, "0");
+          title.textContent = sections[index].dataset.title;
+          line.textContent = sections[index].dataset.line;
+        }
+        scrollCue.style.opacity = phase > 0.55 ? "0" : "1";
+        requestRender();
+      }
+
+      function queueScrollUpdate() {
+        if (scrollQueued) return;
+        scrollQueued = true;
+        requestAnimationFrame(updateFromScroll);
+      }
+
+      function resize() {
+        renderer.setSize(innerWidth, innerHeight, false);
+        renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+        scene.fog.near = isMobile() ? 15 : 13;
+        scene.fog.far = isMobile() ? 40 : 22;
+        camera.aspect = innerWidth / innerHeight;
+        camera.updateProjectionMatrix();
+        queueScrollUpdate();
+        requestRender();
+      }
+
+      function showFallback() {
+        canvas.hidden = true;
+        document.querySelector(".masthead").hidden = true;
+        document.querySelector(".brand").hidden = true;
+        scrollCue.hidden = true;
+        document.querySelector("#story").hidden = true;
+        fallback.classList.add("is-visible");
+      }
+
+      function goToChapter(direction) {
+        const target = clamp(activeIndex + direction, 0, sections.length - 1);
+        sections[target].scrollIntoView({ behavior: reducedMotion.matches ? "auto" : "smooth" });
+      }
+
+      addEventListener("scroll", queueScrollUpdate, { passive: true });
+      addEventListener("resize", resize);
+      addEventListener("keydown", (event) => {
+        if (event.key === "Home") {
+          event.preventDefault();
+          scrollTo({ top: 0, behavior: "instant" });
+        }
+        if (event.key === "End") {
+          event.preventDefault();
+          scrollTo({ top: document.documentElement.scrollHeight, behavior: "instant" });
+        }
+        if (["ArrowDown", "PageDown"].includes(event.key)) {
+          event.preventDefault();
+          goToChapter(1);
+        }
+        if (["ArrowUp", "PageUp"].includes(event.key)) {
+          event.preventDefault();
+          goToChapter(-1);
+        }
+      });
+      reducedMotion.addEventListener?.("change", queueScrollUpdate);
+
+      const clock = new THREE.Clock();
+      let renderHandle = 0;
+
+      function requestRender() {
+        if (!renderHandle) renderHandle = requestAnimationFrame(render);
+      }
+
+      function render() {
+        renderHandle = 0;
+        const elapsed = clock.getElapsedTime() * 1000;
+        updateWorld(elapsed);
+        renderer.render(scene, camera);
+        if (!reducedMotion.matches) requestRender();
+      }
+
+      resize();
+      updateFromScroll();
+      requestRender();
+    })();
+  </script>
+</body>
+</html>
