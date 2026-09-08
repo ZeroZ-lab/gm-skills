@@ -18,6 +18,7 @@
 
 You can install any listed plugin the same way:
 
+- `3d-brief`
 - `auto-skill-fit`
 - `gm-agent-docs`
 - `gm-de-ai-article`
@@ -52,6 +53,7 @@ If you already added this marketplace before the multi-plugin split, refresh the
 
 | Plugin | Description |
 | --- | --- |
+| `3d-brief` | 把模糊的 3D 项目想法 grill 成生产级任务简报：模型能查的自己查（规格、teardown、工艺），剩下的逐轮问清，输出带评分表与验收合同的 00-07 mission brief。 |
 | `auto-skill-fit` | 扫描项目技术栈，推荐并安装匹配的 agent skills 套装。 |
 | `gm-agent-docs` | 为项目生成 CLAUDE.md 和 AGENTS.md，输出命令优先、按任务分区的 agent 配置文件。 |
 | `gm-de-ai-article` | 去除公众号、博客和 newsletter 草稿里的模板化 AI 写作痕迹，保住作者判断与表达控制权。 |
