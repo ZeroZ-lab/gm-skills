@@ -36,18 +36,9 @@ You can install any listed plugin the same way:
 
 ### Codex
 
-Codex is supported through the root marketplace at [.agents/plugins/marketplace.json](/Users/zhengjianqiao/workspace/gm-skills/.agents/plugins/marketplace.json).
+All plugins in this repo are published to the Claude Code marketplace only. The Codex catalog at [.agents/plugins/marketplace.json](.agents/plugins/marketplace.json) is kept as an empty placeholder: a plugin reaches Codex only by explicitly adding `"codex"` to the `markets` array in its `.claude-plugin/plugin.json` and shipping a `.codex-plugin/plugin.json`.
 
-Install flow in Codex:
-
-1. Open the Codex plugin directory.
-2. Add `https://github.com/ZeroZ-lab/gm-skills` as a marketplace.
-3. Install the plugin you want from the `gm-skills` marketplace, for example:
-   - `gm-topic-engine`
-   - `visual-explanation-layout-engine`
-   - `cc-design`
-
-If you already added this marketplace before the multi-plugin split, refresh the marketplace in Codex so it pulls the latest catalog instead of the older cached `gm-skills` entry.
+If you added this marketplace in Codex before this change, refresh it so it pulls the now-empty catalog instead of the older cached `gm-skills` entry.
 
 ## Plugins
 
@@ -104,12 +95,7 @@ gm-skills/
 ├── plugins/
 │   ├── auto-skill-fit/
 │   │   ├── .claude-plugin/plugin.json
-│   │   ├── .codex-plugin/plugin.json   # only for plugins listed in the Codex marketplace
 │   │   └── skills/auto-skill-fit/
-│   ├── cc-design/
-│   │   ├── .claude-plugin/plugin.json
-│   │   ├── .codex-plugin/plugin.json   # only for plugins listed in the Codex marketplace
-│   │   └── skills/cc-design/
 │   └── ...
 ├── scripts/
 │   ├── sync-plugin-package.mjs
@@ -142,5 +128,5 @@ npm run plugin:validate
 - Root `.claude-plugin/marketplace.json` is the Claude marketplace catalog.
 - Root `.agents/plugins/marketplace.json` is the Codex marketplace catalog.
 - Each `plugins/<plugin-name>/` directory is a self-contained published plugin.
-- Local plugins choose their marketplaces with an optional `markets` array in `.claude-plugin/plugin.json` (e.g. `"markets": ["claude"]`); omitting it lists the plugin in both marketplaces, and a Codex-listed plugin needs `.codex-plugin/plugin.json`.
-- The repository uses a single version from [package.json](/Users/zhengjianqiao/workspace/gm-skills/package.json); `npm run plugin:sync` propagates it to every plugin manifest.
+- Local plugins default to the Claude Code marketplace only. A plugin can opt into Codex with a `markets` array in `.claude-plugin/plugin.json` (e.g. `"markets": ["claude", "codex"]`) plus a `.codex-plugin/plugin.json`.
+- The repository uses a single version from [package.json](package.json); `npm run plugin:sync` propagates it to every plugin manifest.

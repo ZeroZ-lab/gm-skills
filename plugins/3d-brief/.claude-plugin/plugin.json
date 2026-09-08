@@ -9,9 +9,6 @@
   "homepage": "https://github.com/ZeroZ-lab/gm-skills/tree/main/plugins/3d-brief",
   "repository": "https://github.com/ZeroZ-lab/gm-skills.git",
   "license": "MIT",
-  "markets": [
-    "claude"
-  ],
   "compatibility": {
     "claude-code": ">=1.0.0"
   },

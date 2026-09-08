@@ -50,11 +50,12 @@ function codexCategory(manifest) {
   return manifest.interface?.category || "Productivity";
 }
 
-// Local plugins opt into markets via an optional `markets` array in their Claude
-// manifest (["claude"], ["codex"], or both); omitting it defaults to both, which
-// keeps every pre-existing plugin dual-market without manifest changes.
+// Local plugins choose their marketplaces via an optional `markets` array in their
+// Claude manifest (["claude"], ["codex"], or both). Omitting it defaults to
+// ["claude"] — this repo publishes Claude Code plugins; a plugin only reaches the
+// Codex marketplace by explicitly opting in with "codex" in `markets`.
 function localMarkets(claudeManifest) {
-  return Array.isArray(claudeManifest.markets) ? claudeManifest.markets : ["claude", "codex"];
+  return Array.isArray(claudeManifest.markets) ? claudeManifest.markets : ["claude"];
 }
 
 const pkg = await readJson("package.json");

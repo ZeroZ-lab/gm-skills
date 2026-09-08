@@ -87,12 +87,13 @@ function inMarket(plugin, market) {
 const claudeExternal = externalPlugins.filter((p) => inMarket(p, "claude"));
 const codexExternal = externalPlugins.filter((p) => inMarket(p, "codex"));
 
-// Local plugins opt into markets via an optional `markets` array in their Claude
-// manifest (["claude"], ["codex"], or both); omitting it defaults to both.
+// Local plugins choose their marketplaces via an optional `markets` array in their
+// Claude manifest (["claude"], ["codex"], or both). Omitting it defaults to
+// ["claude"] — Codex requires an explicit opt-in.
 const localMarketFlags = [];
 for (const pluginName of pluginNames) {
   const claudeManifest = await readJson(`plugins/${pluginName}/.claude-plugin/plugin.json`);
-  const markets = Array.isArray(claudeManifest.markets) ? claudeManifest.markets : ["claude", "codex"];
+  const markets = Array.isArray(claudeManifest.markets) ? claudeManifest.markets : ["claude"];
   localMarketFlags.push({ name: pluginName, claude: markets.includes("claude"), codex: markets.includes("codex") });
 }
 const claudeLocalCount = localMarketFlags.filter((p) => p.claude).length;
@@ -169,7 +170,7 @@ for (const pluginName of pluginNames) {
 
   const claudeManifest = await readJson(claudeManifestPath);
   const skillText = await readText(skillPath);
-  const markets = Array.isArray(claudeManifest.markets) ? claudeManifest.markets : ["claude", "codex"];
+  const markets = Array.isArray(claudeManifest.markets) ? claudeManifest.markets : ["claude"];
   const inClaude = markets.includes("claude");
   const inCodex = markets.includes("codex");
 

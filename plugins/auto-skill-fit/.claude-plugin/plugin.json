@@ -10,8 +10,7 @@
   "repository": "https://github.com/ZeroZ-lab/gm-skills.git",
   "license": "MIT",
   "compatibility": {
-    "claude-code": ">=1.0.0",
-    "codex": ">=0.1.0"
+    "claude-code": ">=1.0.0"
   },
   "skills": [
     "./skills/auto-skill-fit"

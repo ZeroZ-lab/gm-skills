@@ -3,7 +3,7 @@
 ## 1.7.0 (2026-09-08)
 
 - feat: add `3d-brief` plugin — turn a vague 3D project idea into a production-grade autonomous-build brief. The skill researches verifiable facts itself (official specs, public teardowns, surface finishes), grills the user only for intent and preferences (one theme per round, defaults offered), and emits a 00-07 mission brief with rubric, evidence-governed review loop, and cold-start validation. Ships with a full example brief (`MacBook Pro 14″` teardown). Claude Code marketplace only.
-- feat: local plugins can opt out of the Codex marketplace via an optional `markets` array in `.claude-plugin/plugin.json` (e.g. `"markets": ["claude"]`); omitting it keeps the previous dual-market behavior. `plugin:sync` and `plugin:validate` respect the field.
+- feat: the repo now publishes Claude Code plugins only — the local-plugin default market is `["claude"]` (matching the external-plugins default), all 12 `.codex-plugin/` manifests are removed, and the Codex catalog is empty. A plugin can still opt into Codex explicitly via a `markets` array plus a `.codex-plugin/plugin.json`; `plugin:sync` and `plugin:validate` enforce membership in both directions.
 
 ## 1.4.0 (2026-07-06)
 

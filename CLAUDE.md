@@ -5,7 +5,7 @@
 ## Layout
 
 - Claude marketplace: `.claude-plugin/marketplace.json`
-- Codex marketplace: `.agents/plugins/marketplace.json`
+- Codex marketplace: `.agents/plugins/marketplace.json` (kept as an empty placeholder — plugins reach it only via explicit opt-in)
 - External (upstream-maintained) plugin registry: `.claude-plugin/external-plugins.json`
 - Plugin source of truth: `plugins/<plugin-name>/`
 - Canonical skill entrypoint: `plugins/<plugin-name>/skills/<plugin-name>/SKILL.md`
@@ -21,9 +21,9 @@ Use `npm run plugin:sync` after adding or renaming plugins. It updates every plu
 
 Use `npm run plugin:validate` before commit. It verifies:
 
-1. Every plugin has `.claude-plugin/plugin.json`; plugins listed for Codex (per the manifest's optional `markets` array, default both) also have `.codex-plugin/plugin.json`
+1. Every plugin has `.claude-plugin/plugin.json`; a plugin that opts into Codex (via the manifest's optional `markets` array — default is Claude-only) also has `.codex-plugin/plugin.json`
 2. Every plugin has `skills/<plugin-name>/SKILL.md`
-3. Claude marketplace lists every Claude-local plugin plus every Claude external plugin; Codex marketplace lists every Codex-local plugin plus every Codex external plugin (local membership per plugin comes from `markets`)
+3. Claude marketplace lists every Claude-local plugin plus every Claude external plugin; Codex marketplace lists only the plugins that opted into Codex (local membership per plugin comes from `markets`, default `["claude"]`)
 4. All plugin manifest versions match `package.json`
 5. Referenced `references/`, `examples/`, `templates/`, and `assets/` stay inside each plugin
 6. Every external plugin in `.claude-plugin/external-plugins.json` has a matching entry in the Claude marketplace with a valid object-form `source` (e.g. `{ "source": "github", "repo": "owner/repo" }`) and a name that does not collide with a local plugin
@@ -31,12 +31,11 @@ Use `npm run plugin:validate` before commit. It verifies:
 ## Adding A Plugin
 
 1. Create `plugins/<plugin-name>/`
-2. Add `.claude-plugin/plugin.json` — set `"markets": ["claude"]` here to publish Claude-only
-3. Add `.codex-plugin/plugin.json` (skip when Claude-only)
-4. Add `skills/<plugin-name>/SKILL.md`
-5. Keep all plugin-specific support files in that same plugin
-6. Run `npm run plugin:sync`
-7. Run `npm run plugin:validate`
+2. Add `.claude-plugin/plugin.json` (Claude-only by default; add `"codex"` to a `markets` array here — plus a `.codex-plugin/plugin.json` — only to publish to Codex)
+3. Add `skills/<plugin-name>/SKILL.md`
+4. Keep all plugin-specific support files in that same plugin
+5. Run `npm run plugin:sync`
+6. Run `npm run plugin:validate`
 
 ## Adding An External / Upstream Plugin
 
