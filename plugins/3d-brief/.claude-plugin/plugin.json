@@ -1,7 +1,7 @@
 {
   "name": "3d-brief",
-  "version": "1.7.0",
-  "description": "Turn a vague 3D project idea into a production-grade autonomous-build brief (00-07 mission brief). 把一句模糊的 3D 项目想法变成可驱动自主构建的生产级任务简报：先自行搜集客观资料（官方规格、公开 teardown、表面工艺），再分轮 grill 用户补齐意图与偏好，输出带评分表与验收合同的 brief 文件。",
+  "version": "1.8.0",
+  "description": "3D 创意定向、生产简报与授权后的 Blender 制作评审：一个入口，产品与空间分支，逐项证据和冷启动验收。",
   "author": {
     "name": "ZeroZ-lab",
     "url": "https://github.com/ZeroZ-lab/gm-skills"
@@ -9,17 +9,16 @@
   "homepage": "https://github.com/ZeroZ-lab/gm-skills/tree/main/plugins/3d-brief",
   "repository": "https://github.com/ZeroZ-lab/gm-skills.git",
   "license": "MIT",
-  "compatibility": {
-    "claude-code": ">=1.0.0"
-  },
   "skills": [
     "./skills/3d-brief"
   ],
-  "interface": {
-    "displayName": "3d-brief",
-    "shortDescription": "把模糊的 3D 项目想法 grill 成一份生产级任务简报：模型能查的自己查，剩下的逐轮问清，输出 00-07 结构的 mission brief。",
-    "developerName": "ZeroZ-lab",
-    "category": "Productivity",
-    "websiteURL": "https://github.com/ZeroZ-lab/gm-skills/tree/main/plugins/3d-brief"
+  "metadata": {
+    "interface": {
+      "displayName": "3d-brief",
+      "shortDescription": "3D 创意定向、生产简报与授权后的 Blender 制作评审：一个入口，产品与空间分支，逐项证据和冷启动验收。",
+      "developerName": "ZeroZ-lab",
+      "category": "Productivity",
+      "websiteURL": "https://github.com/ZeroZ-lab/gm-skills/tree/main/plugins/3d-brief"
+    }
   }
 }

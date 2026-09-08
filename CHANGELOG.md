@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.8.0 (2026-09-08)
+
+- feat(3d-brief): add intent-based creative direction, production contracts, and explicitly authorized Blender production and review workflows through one entrypoint. Replace mandatory interview rounds with focused clarification and recorded defaults.
+- feat(3d-brief): add product and environment branches, contract checks, fixed review instructions, budget-aware recovery, and frozen-scene render validation.
+- docs(3d-brief): add desktop speaker and coffee bar briefs, installation instructions, and behavioral evaluation cases; replace the mixed-model MacBook example with an explicitly unresolved research draft.
+- fix(3d-brief): unify asset counts and hard completion gates; preserve interface data under supported manifest metadata and remove the unverified minimum Claude version claim.
+- validation: repository and strict Claude plugin checks pass, with static example and link checks; real Claude behavioral sessions and Blender production remain untested.
+
 ## 1.7.0 (2026-09-08)
 
 - feat: add `3d-brief` plugin — turn a vague 3D project idea into a production-grade autonomous-build brief. The skill researches verifiable facts itself (official specs, public teardowns, surface finishes), grills the user only for intent and preferences (one theme per round, defaults offered), and emits a 00-07 mission brief with rubric, evidence-governed review loop, and cold-start validation. Ships with a full example brief (`MacBook Pro 14″` teardown). Claude Code marketplace only.
